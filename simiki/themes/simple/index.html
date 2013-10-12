@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<link rel="Stylesheet" type="text/css" href="/css/style.css">
+		<link rel="Stylesheet" type="text/css" href="/css/codeblock.css">
+		<title>{{ title }} - {{ wiki_name }}</title>
+		<meta name="keywords" content="{{ wiki_keywords }}"/>
+		<meta name="description" content="{{ wiki_description }}"/>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	</head>
+
+	<body>
+		{% include "header.html" %}
+
+		<div id="title">{{ title }}</div>
+		
+		<div id="content">
+			{{ content }}
+		</div>
+
+		{% include "footer.html" %}
+	</body>
+
+	<script type="text/javascript">
+	// add _blank to outer links
+	$("a[href^='http://'], a[href^='https://']").attr("target", "_blank");
+	</script>
+</html>
