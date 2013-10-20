@@ -14,23 +14,52 @@ sys.path.insert(0, os.path.realpath(os.path.join(TESTS_ROOT, '..')))
 
 from simiki.gen import Generator
 
-TEST_INPUT = "./test_input.md"
+TEST_INPUT_FILE = "./test_input.md"
+
+TEST_INPUT_CONTENT = """<!-- title : Test Simiki -->
+
+# Simiki #
+
+Simiki is a simple static site generator for wiki. Powered by Python.
+
+* Support [Markdown](http://daringfireball.net/projects/markdown/).
+* Generate static Htmls.
+* Have a CLI tool.
+* Simple for wiki.
+
+## Why named "Simiki" ##
+
+Simki is **Sim**ple W**iki** .
+"""
+
 EXPECTED_OUTPUT = "./expected_output.html"
 
 class TestGenerator(unittest.TestCase):
     def setUp(self):
-        self.generator = Generator(TEST_INPUT)
+        self.generator1 = Generator(TEST_INPUT_FILE)
+        self.generator2 = Generator(TEST_INPUT_CONTENT, md_type="text")
 
-    def test_get_title(self):
-        title = self.generator._get_title()
+    def test_get_title_by_file(self):
+        title = self.generator1._get_title()
         self.assertEqual(title, "Test Simiki")
 
-    def test_md2html(self):
-        title = self.generator._get_title()
-        html = self.generator._md2html(title)
+    def test_get_title_by_text(self):
+        title = self.generator2._get_title()
+        self.assertEqual(title, "Test Simiki")
+
+    def test_md2html_by_file(self):
+        html = self.generator1.generate()
         with open(EXPECTED_OUTPUT, "rb") as fd:
-            contents = [unicode(_, "utf-8") for _ in fd.readlines()]
-            expected_html = "".join(contents)
+            texts = [unicode(_, "utf-8") for _ in fd.readlines()]
+            expected_html = "".join(texts)
+
+        self.assertEqual(html, expected_html)
+
+    def test_md2html_by_text(self):
+        html = self.generator2.generate()
+        with open(EXPECTED_OUTPUT, "rb") as fd:
+            texts = [unicode(_, "utf-8") for _ in fd.readlines()]
+            expected_html = "".join(texts)
 
         self.assertEqual(html, expected_html)
 
