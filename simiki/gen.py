@@ -6,62 +6,75 @@
 
 from __future__ import print_function, with_statement, unicode_literals
 
+import os
 import sys
+import codecs
+from os import path as osp
 
 import markdown
+import yaml
 from jinja2 import Environment, FileSystemLoader
 
 from simiki import configs
+from simiki import utils
 
+class PageGenerator(object):
 
-class Generator(object):
-    def __init__(self, md_resource, md_type="file"):
+    def __init__(self, md_file):
         """
-        :param md_resource: markdown resource, can be markdown file name or 
-            markdown text
-        :param md_type: md_resource type, `file` or `text`
+        :param md_file: The path of markdown file
         """
-        if md_type == "file":
-            with open(md_resource, "rb") as fd:
-                texts = [unicode(_, "utf-8") for _ in fd.readlines()]
-                self.md_text = "".join(texts)
-        elif md_type == "text":
-            self.md_text = md_resource
-        else:
-            print("`md_type` error, should be `file` or `text`.")
+        self.md_file = osp.realpath(md_file)
+
+    def get_catalog_and_md_name(self):
+        """Get the subdir's name and markdown file's name."""
+        catalog_name = self.md_file.split("/")[-2] # html subdir
+        md_name = self.md_file.split("/")[-1].split(".")[0]
+        return (catalog_name, md_name)
+
+    def split_meta_and_content(self):
+        """Split the markdown file texts by triple-dashed lines.
+
+        The content in the middle of triple-dashed lines is meta datas, which 
+            use Yaml format.
+        The other content is the markdown texts.
+        """
+        with codecs.open(self.md_file, "rb", "utf-8") as fd:
+            text_lists = fd.readlines()
+
+        meta_notation = "---\n"
+        if text_lists[0] != meta_notation:
+            print(utils.color_msg("error", "First line must be triple-dashed!"))
             sys.exit(1)
 
-    def _get_title(self):
-        """Get the wiki's title.
+        meta_lists = []
+        meta_end_flag = False
+        idx = 1
+        while not meta_end_flag:
+            meta_lists.append(text_lists[idx])
+            idx += 1
+            if text_lists[idx] == meta_notation:
+                meta_end_flag = True
+        content_lists = text_lists[idx+1:]
+        meta_yaml = "".join(meta_lists)
+        contents = "".join(content_lists)
+        return (meta_yaml, contents)
 
-        Established:
-            The first line of wiki is the title, written in html comment syntax.
-            such as:
-                <!-- title : The wiki title -->
+    def get_meta_datas(self, meta_yaml):
+        """Get meta datas and validate them
+
+        :param meta_yaml: Meta info in yaml format
         """
-        notations = {"left" : "<!--", "right" : "-->"}
+        meta_datas = yaml.load(meta_yaml)
+        for m in ("Title", "Date"):
+            if m not in meta_datas:
+                print(utils.color_msg("error", "No '%s' in meta data!" % m))
+                sys.exit(1)
+        return meta_datas
 
-        first_line = self.md_text.split("\n")[0].strip()
-
-        for notation in notations.values():
-            first_line = first_line.replace(notation, "")
-        first_line = first_line.strip()
-
-        # strip the space between `title` and `:`
-        first_line = first_line.split(":", 1)
-        first_line[0] = first_line[0].strip().lower()
-        first_line = ":".join(first_line)
-
-        title = first_line.lstrip("title:").strip()
-
-        return title
-
-    def _md2html(self, title):
-        """Generate the html from md file, and embed it in html template.
-
-        **Note** returned html is unicode.
-        """
-        body_content = markdown.markdown(self.md_text, \
+    def markdown2html(self, title, contents):
+        """Generate the html from md file, and embed it in html template"""
+        body_content = markdown.markdown(contents, \
                 extensions=["fenced_code", "codehilite(guess_lang=False)"])
 
         env = Environment(loader = FileSystemLoader(configs.TPL_PATH))
@@ -76,8 +89,26 @@ class Generator(object):
 
         return html
 
-    def generate(self):
-        title = self._get_title()
-        html = self._md2html(title)
-
+    def parse_markdown_file(self):
+        """Parse wiki file and generate html"""
+        meta_yaml, contents = self.split_meta_and_content()
+        meta_datas = self.get_meta_datas(meta_yaml)
+        title = meta_datas["Title"]
+        html = self.markdown2html(title, contents)
         return html
+
+    def output_to_file(self, html):
+        """Write generated html to file"""
+        catalog_name, md_name = self.get_catalog_and_md_name()
+        output_catalog_path = osp.join(configs.OUTPUT_PATH, catalog_name)
+        if not utils.check_path_exists(output_catalog_path):
+            print(utils.color_msg(
+                "info", 
+                ("The output catalog %s not exists, " % output_catalog_path,
+                 "create it")
+                )
+            )
+            os.mkdir(output_catalog_path)
+        output_file = osp.join(output_catalog_path, md_name+".html")
+        with codecs.open(output_file, "wb", "utf-8") as fd:
+            fd.write(html)
