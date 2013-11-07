@@ -29,7 +29,9 @@ class PageGenerator(object):
     def get_catalog_and_md_name(self):
         """Get the subdir's name and markdown file's name."""
         catalog_name = self.md_file.split("/")[-2] # html subdir
-        md_name = self.md_file.split("/")[-1].split(".")[0]
+        date_with_md_name = self.md_file.split("/")[-1].split(".")[0]
+        y, m, d, md_name = date_with_md_name.split("-", 3)
+
         return (catalog_name, md_name)
 
     def split_meta_and_content(self):
