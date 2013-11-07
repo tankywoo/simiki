@@ -1,4 +1,7 @@
-<!-- title : Test Simiki -->
+---
+Title: "Test Generator"
+Date: 2013-11-11 11:11
+---
 
 # Simiki #
 
