@@ -24,8 +24,17 @@ def check_path_exists(path):
         return True
     return False
 
-def check_extension(self, filename):
-    pass
+def check_extension(filename):
+    """Filter file by suffix
+    If the file suffix not in the allowed suffixes, the return true and filter.
+    The `fnmatch` module can also get the suffix:
+        patterns = ["*.md", "*.mkd", "*.markdown"]
+        fnmatch.filter(files, pattern)
+    """
+
+    # Allowed suffixes ( aka "extensions" )
+    exts = {".md", ".mkd", ".markdown"}
+    return osp.splitext(filename)[1] in exts
 
 if __name__ == "__main__":
     print(color_msg("debug", "DEBUG"))
