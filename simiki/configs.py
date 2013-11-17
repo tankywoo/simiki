@@ -16,6 +16,8 @@ if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
 # Custom
+DOMAIN = ""
+
 WIKI_NAME = ""
 
 WIKI_KEYWORDS = ""
