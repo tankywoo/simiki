@@ -9,10 +9,9 @@ from __future__ import print_function, with_statement, unicode_literals
 import os
 import sys
 import codecs
-from os import path as osp
-# TODO
-from pprint import pprint
 import datetime
+from os import path as osp
+from pprint import pprint
 
 import markdown
 import yaml
