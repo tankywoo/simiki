@@ -71,7 +71,7 @@ class PageGenerator(object):
         :param meta_yaml: Meta info in yaml format
         """
         meta_datas = yaml.load(meta_yaml)
-        for m in ("Title", "Date"):
+        for m in ("title", "date"):
             if m not in meta_datas:
                 sys.exit(utils.color_msg("error", "No '%s' in meta data!" % m))
         return meta_datas
@@ -97,7 +97,7 @@ class PageGenerator(object):
         """Parse wiki file and generate html"""
         meta_yaml, contents = self.split_meta_and_content()
         meta_datas = self.get_meta_datas(meta_yaml)
-        title = meta_datas["Title"]
+        title = meta_datas["title"]
         html = self.markdown2html(title, contents)
         return html
 
@@ -157,7 +157,7 @@ class CatalogGenerator(object):
         :param meta_yaml: Meta info in yaml format
         """
         meta_datas = yaml.load(meta_yaml)
-        for m in ("Title", "Date"):
+        for m in ("title", "date"):
             if m not in meta_datas:
                 sys.exit(utils.color_msg("error", "No '%s' in meta data!" % m))
         return meta_datas
@@ -185,8 +185,8 @@ class CatalogGenerator(object):
                 r, e = osp.splitext(f)
                 catalog_page_list.append({
                     "name" : r,
-                    "title" : meta_datas["Title"],
-                    "date" : meta_datas["Date"]
+                    "title" : meta_datas["title"],
+                    "date" : meta_datas["date"]
                 })
             catalog_page_list.sort(
                 key=lambda d: datetime.datetime.strptime(
