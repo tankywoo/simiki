@@ -1,7 +1,3 @@
-# Require
 Markdown
 Jinja2
 PyYAML
-
-# Optional
-argparse
