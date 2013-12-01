@@ -14,14 +14,11 @@
 		<div id="container">
 		{% include "header.html" %}
 
-		{% for cata_name, posts_list in catalog.iteritems() %}
-		<h2>{{ cata_name }}</h2>
-		<ul>
-			{% for post in posts_list %}
-			<li><a href="./{{ cata_name }}/{{ post.name }}.html">{{ post.title   }}</a></li>
-			{% endfor %}
-		</ul>
-		{% endfor %}
+		<div id="title">{{ title }}</div>
+		
+		<div id="content">
+			{{ content }}
+		</div>
 
 		{% include "footer.html" %}
 		</div>

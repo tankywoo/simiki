@@ -89,7 +89,7 @@ class PageGenerator(object):
             "title" : title,
             "content" : body_content,
         }
-        html = env.get_template('index.html').render(tpl_vars)
+        html = env.get_template('post.html').render(tpl_vars)
 
         return html
 
@@ -162,20 +162,18 @@ class CatalogGenerator(object):
                 sys.exit(utils.color_msg("error", "No '%s' in meta data!" % m))
         return meta_datas
 
-    def update_catalog_page(self):
+    def generate_catalog_html(self):
         """
         XXX: Only for one level dir.
         """
-        # TODO
-        li_label_tpl = "<li><a href=\"./%s/%s.html\">%s</a></li>"
+        catalog_page_list = {}
 
         sub_dirs = [ _ for _ in os.listdir(self.content_path)]
         for sub_dir in sub_dirs:
             abs_sub_dir = osp.join(self.content_path, sub_dir)
             if not osp.isdir(abs_sub_dir):
                 continue
-            catalog_page_list = []
-            catalog_page = ""
+            catalog_page_list[sub_dir] = []
             for f in os.listdir(abs_sub_dir):
                 if not utils.check_extension(f):
                     continue
@@ -183,25 +181,30 @@ class CatalogGenerator(object):
                 meta_yaml, contents = self.split_meta_and_content(fn)
                 meta_datas = self.get_meta_datas(meta_yaml)
                 r, e = osp.splitext(f)
-                catalog_page_list.append({
+                catalog_page_list[sub_dir].append({
                     "name" : r,
                     "title" : meta_datas["title"],
                     "date" : meta_datas["date"]
                 })
-            catalog_page_list.sort(
+            catalog_page_list[sub_dir].sort(
                 key=lambda d: datetime.datetime.strptime(
                     d["date"], "%Y-%m-%d %H:%M"
                 ),
                 reverse=True,
             )
 
-            catalog_page += "<ul>\n"
-            for cpl in catalog_page_list:
-                li_label = li_label_tpl % (sub_dir, cpl["name"], cpl["title"])
-                catalog_page += li_label
-                catalog_page += "\n"
-            catalog_page += "</ul>"
+        tpl_vars = {
+            "wiki_name" : configs.WIKI_NAME,
+            "wiki_keywords" : configs.WIKI_KEYWORDS,
+            "wiki_description" : configs.WIKI_DESCRIPTION,
+        }
+        tpl_vars.update(catalog=catalog_page_list)
+        env = Environment(loader = FileSystemLoader(configs.TPL_PATH))
+        html = env.get_template('index.html').render(tpl_vars)
+        return html
 
-            catalog_file = osp.join(self.output_path, "%s.html" % sub_dir)
-            with codecs.open(catalog_file, "wb", "utf-8") as fd:
-                fd.write(catalog_page)
+    def update_catalog_page(self):
+        catalog_html = self.generate_catalog_html()
+        catalog_file = osp.join(self.output_path, "index.html")
+        with codecs.open(catalog_file, "wb", "utf-8") as fd:
+            fd.write(catalog_html)
