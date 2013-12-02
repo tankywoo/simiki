@@ -178,7 +178,7 @@ class CatalogGenerator(object):
                 sys.exit(utils.color_msg("error", "No '%s' in meta data!" % m))
         return meta_datas
 
-    def generate_catalog_html(self):
+    def get_tpl_vars(self):
         """
         XXX: Only for one level dir.
         """
@@ -213,9 +213,16 @@ class CatalogGenerator(object):
             "wiki_name" : configs.WIKI_NAME,
             "wiki_keywords" : configs.WIKI_KEYWORDS,
             "wiki_description" : configs.WIKI_DESCRIPTION,
+            "theme" : configs.THEME,
+            "author" : configs.AUTHOR,
         }
         tpl_vars.update(catalog=catalog_page_list)
+
+        return tpl_vars
+
+    def generate_catalog_html(self):
         env = Environment(loader = FileSystemLoader(configs.TPL_PATH))
+        tpl_vars = self.get_tpl_vars()
         html = env.get_template('index.html').render(tpl_vars)
         return html
 
