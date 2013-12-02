@@ -28,14 +28,16 @@ class PageGenerator(object):
         """
         self.md_file = osp.realpath(md_file)
 
-    def get_catalog_and_md_name(self):
-        """Get the subdir's name and markdown file's name."""
-        catalog_name = self.md_file.split("/")[-2] # html subdir
+    def get_catalog_and_md(self):
+        """Get the subdir's name and markdown(with extension) file's name."""
+        # @todo, if path with `/`?
+        split_path = self.md_file.split("/")
+        md, catalog = split_path[-1], split_path[-2]
         #date_with_md_name = self.md_file.split("/")[-1].split(".")[0]
         #y, m, d, md_name = date_with_md_name.split("-", 3)
-        md_name = self.md_file.split("/")[-1].split(".")[0]
+        #mkd = self.md_file.split("/")[-1].split(".")[0]
 
-        return (catalog_name, md_name)
+        return (catalog, md)
 
     def split_meta_and_content(self):
         """Split the markdown file texts by triple-dashed lines.
@@ -89,6 +91,7 @@ class PageGenerator(object):
             "title" : title,
             "content" : body_content,
         }
+        pprint(tpl_vars)
         html = env.get_template('post.html').render(tpl_vars)
 
         return html
@@ -103,8 +106,8 @@ class PageGenerator(object):
 
     def output_to_file(self, html):
         """Write generated html to file"""
-        catalog_name, md_name = self.get_catalog_and_md_name()
-        output_catalog_path = osp.join(configs.OUTPUT_PATH, catalog_name)
+        catalog, md = self.get_catalog_and_md()
+        output_catalog_path = osp.join(configs.OUTPUT_PATH, catalog)
         if not utils.check_path_exists(output_catalog_path):
             print(utils.color_msg(
                 "info", 
@@ -112,7 +115,7 @@ class PageGenerator(object):
                 % output_catalog_path)
             )
             os.mkdir(output_catalog_path)
-        output_file = osp.join(output_catalog_path, md_name+".html")
+        output_file = osp.join(output_catalog_path, md.split(".")[0]+".html")
         with codecs.open(output_file, "wb", "utf-8") as fd:
             fd.write(html)
 
