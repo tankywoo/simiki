@@ -29,9 +29,10 @@ def create_new_wiki():
 
 def generate_single_page(md_file):
     pgen = simiki.gen.PageGenerator(md_file)
-    html = pgen.parse_markdown_file()
+    #html = pgen.parse_markdown_file()
+    html = pgen.markdown2html()
     pgen.output_to_file(html)
-    generate_catalog()
+    #generate_catalog()
 
 def generate_all_pages():
     content_path = simiki.configs.CONTENT_PATH
@@ -42,7 +43,7 @@ def generate_all_pages():
                 continue
             md_file = osp.join(root, filename)
             generate_single_page(md_file)
-    generate_catalog()
+    #generate_catalog()
 
 def generate_catalog():
     cgen = simiki.gen.CatalogGenerator(
@@ -51,6 +52,9 @@ def generate_catalog():
             simiki.configs.OUTPUT_PATH)
     cgen.update_catalog_page()
 
+def generate():
+    generate_all_pages()
+    generate_catalog()
 
 def parse_args():
     parser = argparse.ArgumentParser(description="")
@@ -58,6 +62,7 @@ def parse_args():
     parser.add_argument("-f", "--file", dest="md_file", help="")
     parser.add_argument("--all", action="store_true", dest="all_files", help="")
     parser.add_argument("--generate_catalog", action="store_true", dest="generate_catalog", help="")
+    parser.add_argument("--generate", action="store_true", dest="generate", help="")
     parser.add_argument("--debug", action="store_true", dest="debug_mode", help="")
 
     args = parser.parse_args()
@@ -71,6 +76,7 @@ if __name__ == "__main__":
 
     if args.build_dirs:
         build_dirs()
+        sys.exit(1)
 
     if args.generate_catalog:
         generate_catalog()
@@ -81,3 +87,6 @@ if __name__ == "__main__":
         generate_single_page(md_file)
     else:
         generate_all_pages()
+
+    if args.generate:
+        generate()

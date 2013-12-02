@@ -29,13 +29,10 @@ class PageGenerator(object):
         self.mdown_file = osp.realpath(mdown_file)
 
     def get_catalog_and_mdown(self):
-        """Get the subdir's name and markdown(with extension) file's name."""
+        """Get the catalog's and markdown's(with extension) name."""
         # @todo, if path with `/`?
         split_path = self.mdown_file.split("/")
         mdown, catalog = split_path[-1], split_path[-2]
-        #date_with_mdown_name = self.mdown_file.split("/")[-1].split(".")[0]
-        #y, m, d, mdown_name = date_with_mdown_name.split("-", 3)
-        #mkd = self.mdown_file.split("/")[-1].split(".")[0]
 
         return (catalog, mdown)
 
@@ -78,31 +75,52 @@ class PageGenerator(object):
                 sys.exit(utils.color_msg("error", "No '%s' in meta data!" % m))
         return meta_datas
 
-    def markdown2html(self, title, contents):
-        """Generate the html from mdown file, and embed it in html template"""
-        body_content = markdown.markdown(contents, \
-                extensions=["fenced_code", "codehilite(guess_lang=False)"])
+    def parse_mdown(self, contents):
+        """Parse markdown text to html.
 
-        env = Environment(loader = FileSystemLoader(configs.TPL_PATH))
+        :param contents: Markdown text lists
+        """
+        body_content = markdown.markdown(contents, \
+            extensions=["fenced_code", "codehilite(guess_lang=False)"])
+
+        return body_content
+
+    def get_tpl_vars(self):
+        catalog, _ = self.get_catalog_and_mdown()
+        meta_yaml, contents = self.get_meta_and_content()
+        meta_datas = self.get_meta_datas(meta_yaml)
+        title = meta_datas["title"]
+        body_content = self.parse_mdown(contents)
         tpl_vars = {
             "wiki_name" : configs.WIKI_NAME,
             "wiki_keywords" : configs.WIKI_KEYWORDS,
             "wiki_description" : configs.WIKI_DESCRIPTION,
+            "theme" : configs.THEME,
+            "author" : configs.AUTHOR,
             "title" : title,
             "content" : body_content,
+            "catalog" : catalog,
         }
         pprint(tpl_vars)
+
+        return tpl_vars
+
+    def markdown2html(self):
+        """Generate the html from mdown file, and embed it in html template"""
+
+        env = Environment(loader = FileSystemLoader(configs.TPL_PATH))
+        tpl_vars = self.get_tpl_vars()
         html = env.get_template('post.html').render(tpl_vars)
 
         return html
 
-    def parse_markdown_file(self):
-        """Parse wiki file and generate html"""
-        meta_yaml, contents = self.get_meta_and_content()
-        meta_datas = self.get_meta_datas(meta_yaml)
-        title = meta_datas["title"]
-        html = self.markdown2html(title, contents)
-        return html
+    #def parse_markdown_file(self):
+    #    """Parse wiki file and generate html"""
+    #    meta_yaml, contents = self.get_meta_and_content()
+    #    meta_datas = self.get_meta_datas(meta_yaml)
+    #    title = meta_datas["title"]
+    #    html = self.markdown2html(title, contents)
+    #    return html
 
     def output_to_file(self, html):
         """Write generated html to file"""
