@@ -3,7 +3,7 @@
 	<head>
 		<link rel="Stylesheet" type="text/css" href="/css/style.css">
 		<link rel="Stylesheet" type="text/css" href="/css/codeblock.css">
-		<title>{{ title }} - {{ wiki_name }}</title>
+		<title>{{ wiki_name }}</title>
 		<meta name="keywords" content="{{ wiki_keywords }}"/>
 		<meta name="description" content="{{ wiki_description }}"/>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -12,21 +12,23 @@
 
 	<body>
 		<div id="container">
-		{% include "header.html" %}
+		<div id="wiki_title">{{ wiki_name }}</div>
 
 		{% for cata_name, posts_list in catalog.iteritems() %}
-		<h2>{{ cata_name }}</h2>
+		<h2 id="{{ cata_name }}">{{ cata_name }}</h2>
 		<ul>
 			{% for post in posts_list %}
-			<li><a href="./{{ cata_name }}/{{ post.name }}.html">{{ post.title   }}</a></li>
+			<li class="postlist"><a href="./{{ cata_name }}/{{ post.name }}.html">{{ post.title   }}</a></li>
 			{% endfor %}
 		</ul>
+		<div class="clearfix"></div>
 		{% endfor %}
 
-		{% include "footer.html" %}
 		</div>
+		{% include "footer.html" %}
 	</body>
 
+	<!-- @todo: not work -->
 	<script type="text/javascript">
 	// add _blank to outer links
 	$("a[href^='http://'], a[href^='https://']").attr("target", "_blank");
