@@ -39,7 +39,7 @@ class PageGenerator(object):
 
         return (catalog, mdown)
 
-    def split_meta_and_content(self):
+    def get_meta_and_content(self):
         """Split the markdown file texts by triple-dashed lines.
 
         The content in the middle of triple-dashed lines is meta datas, which 
@@ -98,7 +98,7 @@ class PageGenerator(object):
 
     def parse_markdown_file(self):
         """Parse wiki file and generate html"""
-        meta_yaml, contents = self.split_meta_and_content()
+        meta_yaml, contents = self.get_meta_and_content()
         meta_datas = self.get_meta_datas(meta_yaml)
         title = meta_datas["title"]
         html = self.markdown2html(title, contents)
@@ -126,7 +126,7 @@ class CatalogGenerator(object):
         self.content_path = content_path
         self.output_path = output_path
 
-    def split_meta_and_content(self, mdown_file):
+    def get_meta_and_content(self, mdown_file):
         """Split the markdown file texts by triple-dashed lines.
 
         The content in the middle of triple-dashed lines is meta datas, which 
@@ -181,7 +181,7 @@ class CatalogGenerator(object):
                 if not utils.check_extension(f):
                     continue
                 fn = osp.join(abs_sub_dir, f)
-                meta_yaml, contents = self.split_meta_and_content(fn)
+                meta_yaml, contents = self.get_meta_and_content(fn)
                 meta_datas = self.get_meta_datas(meta_yaml)
                 r, e = osp.splitext(f)
                 catalog_page_list[sub_dir].append({
