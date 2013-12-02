@@ -33,7 +33,7 @@ def check_extension(filename):
     """
 
     # Allowed suffixes ( aka "extensions" )
-    exts = {".md", ".mkd", ".markdown"}
+    exts = {".md", ".mkd", ".mdown", ".markdown"}
     return osp.splitext(filename)[1] in exts
 
 if __name__ == "__main__":
