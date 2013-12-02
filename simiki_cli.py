@@ -30,7 +30,7 @@ def create_new_wiki():
 def generate_single_page(md_file):
     pgen = simiki.gen.PageGenerator(md_file)
     #html = pgen.parse_markdown_file()
-    html = pgen.markdown2html()
+    html = pgen.mdown2html()
     pgen.output_to_file(html)
     #generate_catalog()
 

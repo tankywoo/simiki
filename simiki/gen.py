@@ -101,26 +101,20 @@ class PageGenerator(object):
             "content" : body_content,
             "catalog" : catalog,
         }
-        pprint(tpl_vars)
 
         return tpl_vars
 
-    def markdown2html(self):
-        """Generate the html from mdown file, and embed it in html template"""
+    def mdown2html(self):
+        """Load template, and generate html.
+
+        XXX: The post template must named `post.html`
+        """
 
         env = Environment(loader = FileSystemLoader(configs.TPL_PATH))
         tpl_vars = self.get_tpl_vars()
         html = env.get_template('post.html').render(tpl_vars)
 
         return html
-
-    #def parse_markdown_file(self):
-    #    """Parse wiki file and generate html"""
-    #    meta_yaml, contents = self.get_meta_and_content()
-    #    meta_datas = self.get_meta_datas(meta_yaml)
-    #    title = meta_datas["title"]
-    #    html = self.markdown2html(title, contents)
-    #    return html
 
     def output_to_file(self, html):
         """Write generated html to file"""
@@ -133,7 +127,8 @@ class PageGenerator(object):
                 % output_catalog_path)
             )
             os.mkdir(output_catalog_path)
-        output_file = osp.join(output_catalog_path, mdown.split(".")[0]+".html")
+        mdown_name = osp.splitext(mdown)[0]
+        output_file = osp.join(output_catalog_path, mdown_name+".html")
         with codecs.open(output_file, "wb", "utf-8") as fd:
             fd.write(html)
 
