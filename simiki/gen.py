@@ -22,22 +22,22 @@ from simiki import utils
 
 class PageGenerator(object):
 
-    def __init__(self, md_file):
+    def __init__(self, mdown_file):
         """
-        :param md_file: The path of markdown file
+        :param mdown_file: The path of markdown file
         """
-        self.md_file = osp.realpath(md_file)
+        self.mdown_file = osp.realpath(mdown_file)
 
-    def get_catalog_and_md(self):
+    def get_catalog_and_mdown(self):
         """Get the subdir's name and markdown(with extension) file's name."""
         # @todo, if path with `/`?
-        split_path = self.md_file.split("/")
-        md, catalog = split_path[-1], split_path[-2]
-        #date_with_md_name = self.md_file.split("/")[-1].split(".")[0]
-        #y, m, d, md_name = date_with_md_name.split("-", 3)
-        #mkd = self.md_file.split("/")[-1].split(".")[0]
+        split_path = self.mdown_file.split("/")
+        mdown, catalog = split_path[-1], split_path[-2]
+        #date_with_mdown_name = self.mdown_file.split("/")[-1].split(".")[0]
+        #y, m, d, mdown_name = date_with_mdown_name.split("-", 3)
+        #mkd = self.mdown_file.split("/")[-1].split(".")[0]
 
-        return (catalog, md)
+        return (catalog, mdown)
 
     def split_meta_and_content(self):
         """Split the markdown file texts by triple-dashed lines.
@@ -46,7 +46,7 @@ class PageGenerator(object):
             use Yaml format.
         The other content is the markdown texts.
         """
-        with codecs.open(self.md_file, "rb", "utf-8") as fd:
+        with codecs.open(self.mdown_file, "rb", "utf-8") as fd:
             text_lists = fd.readlines()
 
         meta_notation = "---\n"
@@ -79,7 +79,7 @@ class PageGenerator(object):
         return meta_datas
 
     def markdown2html(self, title, contents):
-        """Generate the html from md file, and embed it in html template"""
+        """Generate the html from mdown file, and embed it in html template"""
         body_content = markdown.markdown(contents, \
                 extensions=["fenced_code", "codehilite(guess_lang=False)"])
 
@@ -106,7 +106,7 @@ class PageGenerator(object):
 
     def output_to_file(self, html):
         """Write generated html to file"""
-        catalog, md = self.get_catalog_and_md()
+        catalog, mdown = self.get_catalog_and_mdown()
         output_catalog_path = osp.join(configs.OUTPUT_PATH, catalog)
         if not utils.check_path_exists(output_catalog_path):
             print(utils.color_msg(
@@ -115,7 +115,7 @@ class PageGenerator(object):
                 % output_catalog_path)
             )
             os.mkdir(output_catalog_path)
-        output_file = osp.join(output_catalog_path, md.split(".")[0]+".html")
+        output_file = osp.join(output_catalog_path, mdown.split(".")[0]+".html")
         with codecs.open(output_file, "wb", "utf-8") as fd:
             fd.write(html)
 
@@ -126,14 +126,14 @@ class CatalogGenerator(object):
         self.content_path = content_path
         self.output_path = output_path
 
-    def split_meta_and_content(self, md_file):
+    def split_meta_and_content(self, mdown_file):
         """Split the markdown file texts by triple-dashed lines.
 
         The content in the middle of triple-dashed lines is meta datas, which 
             use Yaml format.
         The other content is the markdown texts.
         """
-        with codecs.open(md_file, "rb", "utf-8") as fd:
+        with codecs.open(mdown_file, "rb", "utf-8") as fd:
             text_lists = fd.readlines()
 
         meta_notation = "---\n"
