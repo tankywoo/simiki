@@ -129,6 +129,7 @@ pre code {
 #wiki_title, #title {
 	text-align: center;
 	font-size: 2em;
+	line-height: 1.5em;
 	padding-bottom: 10px;
 	margin: 20px 0;
 }
@@ -150,7 +151,6 @@ pre code {
 li.postlist {
 	width: 22em;
 	margin-right: 1.5em;
-	background-color: #eee;
 	float: left;
 	list-style-type: none;
 	white-space: nowrap;
