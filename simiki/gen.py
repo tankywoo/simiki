@@ -95,6 +95,7 @@ class PageGenerator(object):
             "wiki_name" : configs.WIKI_NAME,
             "wiki_keywords" : configs.WIKI_KEYWORDS,
             "wiki_description" : configs.WIKI_DESCRIPTION,
+            "wiki_url" : configs.DOMAIN,
             "theme" : configs.THEME,
             "author" : configs.AUTHOR,
             "title" : title,
@@ -213,6 +214,7 @@ class CatalogGenerator(object):
             "wiki_name" : configs.WIKI_NAME,
             "wiki_keywords" : configs.WIKI_KEYWORDS,
             "wiki_description" : configs.WIKI_DESCRIPTION,
+            "wiki_url" : configs.DOMAIN,
             "theme" : configs.THEME,
             "author" : configs.AUTHOR,
         }
