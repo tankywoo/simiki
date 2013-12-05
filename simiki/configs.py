@@ -26,7 +26,11 @@ WIKI_DESCRIPTION = ""
 
 AUTHOR = ""
 
-THEME = "simple"
+AUTHOR_EMAIL = ""
+
+THEME = ""
+
+DEFAULT_EXT = "md"
 
 ################################
 
