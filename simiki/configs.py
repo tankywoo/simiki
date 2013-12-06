@@ -1,48 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" This is the configuration file of wiki.
-The `CONTENT` can be set to any, and should rename the directory of markdown 
-files.
-
-"""
-
-import sys
 from os import path as osp
+from pprint import pprint
 
-# This is the base directory of the wiki project
-BASE_DIR = osp.dirname(osp.dirname(osp.realpath(__file__)))
-if BASE_DIR not in sys.path:
-    sys.path.insert(0, BASE_DIR)
+import yaml
 
-# Custom
-DOMAIN = ""
+def parse_configs(config_file):
+    base_dir = osp.dirname(osp.dirname(osp.realpath(__file__)))
+    try:
+        with open(config_file, "rb") as fd:
+            configs = yaml.load(fd)
+    except IOError, e:
+        print(str(e))
+    configs.update(
+        base_dir = base_dir,
+        # The directory to store markdown files
+        source = osp.join(base_dir, configs["source"]),
+        # The directory to store the generated html files
+        destination = osp.join(base_dir,  configs["destination"]),
+        # The path of html template file
+        tpl_path = osp.join(base_dir, "simiki/themes", configs["theme"]),
+    )
 
-WIKI_NAME = ""
+    return configs
 
-WIKI_KEYWORDS = ""
-
-WIKI_DESCRIPTION = ""
-
-AUTHOR = ""
-
-AUTHOR_EMAIL = ""
-
-THEME = ""
-
-DEFAULT_EXT = "md"
-
-################################
-
-# The directory to store markdown files
-CONTENT_PATH = osp.join(BASE_DIR, "content")
-
-# The directory to store the generated html files
-OUTPUT_PATH = osp.join(BASE_DIR, "html")
-
-# The path of html template file
-#TPL_PATH = osp.join(BASE_DIR, "simiki/themes", THEME, "base.html")
-TPL_PATH = osp.join(BASE_DIR, "simiki/themes", THEME)
-
-# Allowed suffixes ( aka "extensions" )
-SUFFIXES = {".md", ".mkd", ".markdown"}
+if __name__ == "__main__":
+    BASE_DIR = osp.dirname(osp.dirname(osp.realpath(__file__)))
+    config_file = osp.join(BASE_DIR, "_config.yml")
+    pprint(parse_configs(config_file))

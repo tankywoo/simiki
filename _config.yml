@@ -1,0 +1,20 @@
+# Site settings
+# e.g: "http://example.com/"
+url : 
+title : 
+keywords : 
+description : 
+author : 
+
+# The theme catalog's name.
+theme : simple
+
+# Set the makrdown files source, and output html files destination
+source: content
+destination: html
+
+default_ext : "md"
+
+default_home_page : 
+
+pygments: true
