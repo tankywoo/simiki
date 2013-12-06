@@ -17,21 +17,23 @@ import markdown
 import yaml
 from jinja2 import Environment, FileSystemLoader
 
-from simiki import configs
+#from simiki import configs
 from simiki import utils
 
 class BaseGenerator(object):
-    def __init__(self):
-        self.env = Environment(loader = FileSystemLoader(configs.TPL_PATH))
-        self.site_settings = {
-            "name" : configs.WIKI_NAME,
-            "keywords" : configs.WIKI_KEYWORDS,
-            "description" : configs.WIKI_DESCRIPTION,
-            "url" : configs.DOMAIN,
-            "theme" : configs.THEME,
-            "author" : configs.AUTHOR,
-            "author_email" : configs.AUTHOR_EMAIL,
-        }
+    def __init__(self, site_settings):
+        #self.env = Environment(loader = FileSystemLoader(configs.TPL_PATH))
+        #self.site_settings = {
+        #    "name" : configs.WIKI_NAME,
+        #    "keywords" : configs.WIKI_KEYWORDS,
+        #    "description" : configs.WIKI_DESCRIPTION,
+        #    "url" : configs.DOMAIN,
+        #    "theme" : configs.THEME,
+        #    "author" : configs.AUTHOR,
+        #    "author_email" : configs.AUTHOR_EMAIL,
+        #}
+        self.site_settings = site_settings
+        self.env = Environment(loader = FileSystemLoader(site_settings["tpl_path"]))
 
     def get_catalog_and_mdown(self, mdown_file):
         """Get the catalog's and markdown's(with extension) name."""
@@ -82,11 +84,11 @@ class BaseGenerator(object):
 
 class PageGenerator(BaseGenerator):
 
-    def __init__(self, mdown_file):
+    def __init__(self, site_settings, mdown_file):
         """
         :param mdown_file: The path of markdown file
         """
-        super(PageGenerator, self).__init__()
+        super(PageGenerator, self).__init__(site_settings)
         self.mdown_file = osp.realpath(mdown_file)
 
     def parse_mdown(self, contents):
@@ -119,7 +121,6 @@ class PageGenerator(BaseGenerator):
 
         XXX: The post template must named `post.html`
         """
-
         tpl_vars = self.get_tpl_vars()
         html = self.env.get_template("post.html").render(tpl_vars)
 
@@ -128,7 +129,7 @@ class PageGenerator(BaseGenerator):
     def output_to_file(self, html):
         """Write generated html to file"""
         catalog, mdown = self.get_catalog_and_mdown(self.mdown_file)
-        output_catalog_path = osp.join(configs.OUTPUT_PATH, catalog)
+        output_catalog_path = osp.join(self.site_settings["destination"], catalog)
         if not utils.check_path_exists(output_catalog_path):
             print(utils.color_msg(
                 "info", 
@@ -143,8 +144,8 @@ class PageGenerator(BaseGenerator):
 
 class CatalogGenerator(BaseGenerator):
 
-    def __init__(self, root_path, content_path, output_path):
-        super(CatalogGenerator, self).__init__()
+    def __init__(self, site_settings, root_path, content_path, output_path):
+        super(CatalogGenerator, self).__init__(site_settings)
         self.root_path = root_path
         self.content_path = content_path
         self.output_path = output_path
@@ -188,9 +189,8 @@ class CatalogGenerator(BaseGenerator):
         return tpl_vars
 
     def generate_catalog_html(self):
-        env = Environment(loader = FileSystemLoader(configs.TPL_PATH))
         tpl_vars = self.get_tpl_vars()
-        html = env.get_template("index.html").render(tpl_vars)
+        html = self.env.get_template("index.html").render(tpl_vars)
         return html
 
     def update_catalog_page(self):
