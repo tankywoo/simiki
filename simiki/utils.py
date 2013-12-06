@@ -3,6 +3,9 @@
 
 from __future__ import print_function
 
+import os
+import shutil
+import errno
 from os import path as osp
 
 RESET_COLOR = "\033[0m"
@@ -35,6 +38,27 @@ def check_extension(filename):
     # Allowed suffixes ( aka "extensions" )
     exts = {".md", ".mkd", ".mdown", ".markdown"}
     return osp.splitext(filename)[1] in exts
+
+#def copytree(src, dst):
+#    try:
+#        shutil.copytree(src, dst)
+#    except OSError as exc: # python >2.5
+#        if exc.errno == errno.ENOTDIR:
+#            shutil.copy(src, dst)
+#        else: raise
+
+def copytree(src, dst, symlinks=False, ignore=None):
+
+    # OSError: [Errno 17] File exists: '/home/tankywoo/simiki/html/css'
+    if not osp.exists(dst):
+        os.makedirs(dst)
+    for item in os.listdir(src):
+        s = osp.join(src, item)
+        d = osp.join(dst, item)
+        if osp.isdir(s):
+            shutil.copytree(s, d, symlinks, ignore)
+        else:
+            shutil.copy2(s, d)
 
 if __name__ == "__main__":
     print(color_msg("debug", "DEBUG"))
