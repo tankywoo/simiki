@@ -1,7 +1,9 @@
 <div id="header">
 	<div id="post-nav">
-		<!-- @todo aaa.com/bbb/ -->
-		<a href="/">Home</a> » <a href="/#{{ catalog }}">{{ catalog }}</a> » {{ title }}
+		{% if not default_home_page %}
+		<a href="{{ site.url }}">Home</a> » <a href="{{ site.url }}/#{{ catalog }}">{{ catalog }}</a> » {{ title }}
+		{% endif %}
+
 	</div>
 </div>
 
