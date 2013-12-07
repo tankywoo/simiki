@@ -10,6 +10,7 @@ import os
 import sys
 import codecs
 import datetime
+import logging
 from os import path as osp
 from pprint import pprint
 
@@ -17,26 +18,28 @@ import markdown
 import yaml
 from jinja2 import Environment, FileSystemLoader
 
-#from simiki import configs
 from simiki import utils
+
+# python No handlers could be found for logger
+logger = logging.getLogger(__name__)
 
 class BaseGenerator(object):
     def __init__(self, site_settings):
-        #self.env = Environment(loader = FileSystemLoader(configs.TPL_PATH))
-        #self.site_settings = {
-        #    "name" : configs.WIKI_NAME,
-        #    "keywords" : configs.WIKI_KEYWORDS,
-        #    "description" : configs.WIKI_DESCRIPTION,
-        #    "url" : configs.DOMAIN,
-        #    "theme" : configs.THEME,
-        #    "author" : configs.AUTHOR,
-        #    "author_email" : configs.AUTHOR_EMAIL,
-        #}
         self.site_settings = site_settings
-        self.env = Environment(loader = FileSystemLoader(site_settings["tpl_path"]))
+        self.env = Environment(
+            loader = FileSystemLoader(site_settings["tpl_path"])
+        )
 
     def get_catalog_and_mdown(self, mdown_file):
-        """Get the catalog's and markdown's(with extension) name."""
+        """Get the catalog's and markdown's(with extension) name.
+
+        :param mdown_file: TODO
+
+        e.g: 
+            mdown_file is /home/user/simiki/content/python/test.md
+            catalog = python
+            mdown = test.md
+        """
         # @todo, if path with `/`?
         split_path = mdown_file.split("/")
         mdown, catalog = split_path[-1], split_path[-2]
@@ -55,31 +58,50 @@ class BaseGenerator(object):
 
         meta_notation = "---\n"
         if text_lists[0] != meta_notation:
-            sys.exit(utils.color_msg(
-                "error", "First line must be triple-dashed!"))
+            msg = utils.color_msg(
+                "error", 
+                "[{0}] First line must be triple-dashed!".format(mdown_file),
+            )
+            sys.exit(msg)
 
         meta_lists = []
         meta_end_flag = False
         idx = 1
+        max_idx = len(text_lists)
         while not meta_end_flag:
             meta_lists.append(text_lists[idx])
             idx += 1
+            if idx >= max_idx:
+                sys.exit(utils.color_msg(
+                    "error",
+                    "[{0}] doesn't have end triple-dashed!".format(mdown_file),
+                ))
             if text_lists[idx] == meta_notation:
                 meta_end_flag = True
         content_lists = text_lists[idx+1:]
         meta_yaml = "".join(meta_lists)
         contents = "".join(content_lists)
+
         return (meta_yaml, contents)
 
-    def get_meta_datas(self, meta_yaml):
+    def get_meta_datas(self, meta_yaml, mdown_file):
         """Get meta datas and validate them
 
         :param meta_yaml: Meta info in yaml format
         """
-        meta_datas = yaml.load(meta_yaml)
+        try:
+            meta_datas = yaml.load(meta_yaml)
+        except yaml.YAMLError, e:
+            msg = "Yaml format error in {}:\n{}".format(
+                    mdown_file, 
+                    unicode(str(e), "utf-8")
+                    )
+            sys.exit(utils.color_msg("error", msg))
+
         for m in ("title", "date"):
             if m not in meta_datas:
                 sys.exit(utils.color_msg("error", "No '%s' in meta data!" % m))
+
         return meta_datas
 
 class PageGenerator(BaseGenerator):
@@ -96,23 +118,30 @@ class PageGenerator(BaseGenerator):
 
         :param contents: Markdown text lists
         """
-        body_content = markdown.markdown(contents, \
-            extensions=["fenced_code", "codehilite(guess_lang=False)"])
+
+        # Base markdown extensions support "fenced_code".
+        mdown_extensions = ["fenced_code"]
+        if self.site_settings["pygments"]:
+            mdown_extensions.append("codehilite(guess_lang=False)")
+
+        body_content = markdown.markdown(
+            contents,
+            extensions=mdown_extensions,
+        )
 
         return body_content
 
     def get_tpl_vars(self):
         catalog, _ = self.get_catalog_and_mdown(self.mdown_file)
         meta_yaml, contents = self.get_meta_and_content(self.mdown_file)
-        meta_datas = self.get_meta_datas(meta_yaml)
-        title = meta_datas["title"]
+        meta_datas = self.get_meta_datas(meta_yaml, self.mdown_file)
         body_content = self.parse_mdown(contents)
         tpl_vars = {
             "site" : self.site_settings,
-            "title" : title,
-            "content" : body_content,
             "catalog" : catalog,
+            "content" : body_content,
         }
+        tpl_vars.update(meta_datas)
 
         return tpl_vars
 
@@ -144,11 +173,8 @@ class PageGenerator(BaseGenerator):
 
 class CatalogGenerator(BaseGenerator):
 
-    def __init__(self, site_settings, root_path, content_path, output_path):
+    def __init__(self, site_settings):
         super(CatalogGenerator, self).__init__(site_settings)
-        self.root_path = root_path
-        self.content_path = content_path
-        self.output_path = output_path
 
     def get_tpl_vars(self):
         """
@@ -156,9 +182,9 @@ class CatalogGenerator(BaseGenerator):
         """
         catalog_page_list = {}
 
-        sub_dirs = [ _ for _ in os.listdir(self.content_path)]
+        sub_dirs = [ _ for _ in os.listdir(self.site_settings["source"])]
         for sub_dir in sub_dirs:
-            abs_sub_dir = osp.join(self.content_path, sub_dir)
+            abs_sub_dir = osp.join(self.site_settings["source"], sub_dir)
             if not osp.isdir(abs_sub_dir):
                 continue
             catalog_page_list[sub_dir] = []
@@ -167,13 +193,10 @@ class CatalogGenerator(BaseGenerator):
                     continue
                 fn = osp.join(abs_sub_dir, f)
                 meta_yaml, contents = self.get_meta_and_content(fn)
-                meta_datas = self.get_meta_datas(meta_yaml)
+                meta_datas = self.get_meta_datas(meta_yaml, fn)
                 r, e = osp.splitext(f)
-                catalog_page_list[sub_dir].append({
-                    "name" : r,
-                    "title" : meta_datas["title"],
-                    "date" : meta_datas["date"]
-                })
+                meta_datas.update(name = r)
+                catalog_page_list[sub_dir].append(meta_datas)
             catalog_page_list[sub_dir].sort(
                 key=lambda d: datetime.datetime.strptime(
                     d["date"], "%Y-%m-%d %H:%M"
@@ -195,6 +218,6 @@ class CatalogGenerator(BaseGenerator):
 
     def update_catalog_page(self):
         catalog_html = self.generate_catalog_html()
-        catalog_file = osp.join(self.output_path, "index.html")
+        catalog_file = osp.join(self.site_settings["destination"], "index.html")
         with codecs.open(catalog_file, "wb", "utf-8") as fd:
             fd.write(catalog_html)
