@@ -5,9 +5,9 @@
 Simiki CLI
 
 Usage:
-  simiki_cli build_site
+  simiki_cli build_site [-s <config_file>]
   simiki_cli new_wiki -c <catalog> -t <title> [-f <file>]
-  simiki_cli generate
+  simiki_cli generate [-s <config_file>]
   simiki_cli -h | --help
   simiki_cli -V | --version
 
@@ -17,6 +17,7 @@ Options:
   -c <catalog>     Specify the catalog.
   -t <title>       Specify the new post title.
   -f <file>        Specify the new post filename.
+  -s <config_file>        Specify the config file.
 
 """
 
@@ -123,9 +124,15 @@ class Simiki(object):
 
 def main():
     # TODO
-    configs = parse_configs("_config.yml")
-    simiki = Simiki(configs)
     args = docopt(__doc__, version='Simiki 0.1')
+
+    if args["-s"] is None:
+        config_file = osp.join(os.getcwd(), "_config.yml")
+    else:
+        config_file = osp.realpath(args["-s"])
+
+    configs = parse_configs(config_file)
+    simiki = Simiki(configs)
     if args["build_site"]:
         simiki.build_site()
     elif args["generate"]:
