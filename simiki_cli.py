@@ -114,11 +114,7 @@ class Simiki(object):
                 self.generate_single_page(md_file)
 
     def generate_catalog(self):
-        cgen = simiki.generators.CatalogGenerator(
-                self.configs,
-                self.configs["base_dir"],
-                self.configs["source"], 
-                self.configs["destination"])
+        cgen = simiki.generators.CatalogGenerator(self.configs)
         cgen.update_catalog_page()
 
     def generate(self):
