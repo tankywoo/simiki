@@ -10,7 +10,7 @@ import yaml
 from simiki import utils
 
 def parse_configs(config_file):
-    #base_dir = osp.dirname(osp.dirname(osp.realpath(__file__)))
+    base_dir = osp.dirname(osp.dirname(osp.realpath(__file__)))
     try:
         with open(config_file, "rb") as fd:
             configs = yaml.load(fd)
@@ -30,7 +30,7 @@ def parse_configs(config_file):
         # The directory to store the generated html files
         destination = osp.join(configs["base_dir"],  configs["destination"]),
         # The path of html template file
-        tpl_path = osp.join(configs["base_dir"], "simiki/themes", configs["theme"]),
+        tpl_path = osp.join(base_dir, "simiki/themes", configs["theme"]),
     )
     if configs.get("url", "") is None:
         configs["url"] = ""
