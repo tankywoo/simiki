@@ -9,6 +9,14 @@ author :
 # The theme catalog's name.
 theme : simple
 
+# The base directory of the site.
+# If base_dir is `None`, default site structure is:
+#   ./
+#   ├── _config.yml
+#   ├── content
+#   └── html
+base_dir : 
+
 # Set the makrdown files source, and output html files destination
 source: content
 destination: html
