@@ -1,0 +1,2 @@
+include README.md
+recursive-include simiki *.html *.css *png *.in *.md *.mkd *.markdown *.py
