@@ -11,6 +11,10 @@ from simiki import utils
 
 def parse_configs(config_file):
     base_dir = osp.dirname(osp.dirname(osp.realpath(__file__)))
+
+    if not utils.check_path_exists(config_file):
+        sys.exit(utils.color_msg("error", "{} not exists".format(config_file)))
+
     try:
         with open(config_file, "rb") as fd:
             configs = yaml.load(fd)
