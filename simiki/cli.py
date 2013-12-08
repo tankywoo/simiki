@@ -5,11 +5,11 @@
 Simiki CLI
 
 Usage:
-  simiki_cli build_site [-s <config_file>]
-  simiki_cli new_wiki -c <catalog> -t <title> [-f <file>]
-  simiki_cli generate [-s <config_file>]
-  simiki_cli -h | --help
-  simiki_cli -V | --version
+  simiki build_site [-s <config_file>]
+  simiki new_wiki -c <catalog> -t <title> [-f <file>]
+  simiki generate [-s <config_file>]
+  simiki -h | --help
+  simiki -V | --version
 
 Options:
   -h --help        Show this screen.
