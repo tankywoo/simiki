@@ -3,7 +3,7 @@
 	<head>
 		<link rel="Stylesheet" type="text/css" href="{{ site.url }}/css/style.css">
 		<link rel="Stylesheet" type="text/css" href="{{ site.url }}/css/codeblock.css">
-		<title>{{ title }} - {{ site.name }}</title>
+		<title>{{ title }} - {{ site.title }}</title>
 		<meta name="keywords" content="{{ site.keywords }}"/>
 		<meta name="description" content="{{ site.description }}"/>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -23,9 +23,4 @@
 		</div>
 		{% include "footer.html" %}
 	</body>
-
-	<script type="text/javascript">
-	// add _blank to outer links
-	$("a[href^='http://'], a[href^='https://']").attr("target", "_blank");
-	</script>
 </html>

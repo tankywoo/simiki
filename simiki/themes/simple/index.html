@@ -3,7 +3,7 @@
 	<head>
 		<link rel="Stylesheet" type="text/css" href="{{ site.url }}/css/style.css">
 		<link rel="Stylesheet" type="text/css" href="{{ site.url }}/css/codeblock.css">
-		<title>{{ site.name }}</title>
+		<title>{{ site.title }}</title>
 		<meta name="keywords" content="{{ site.keywords }}"/>
 		<meta name="description" content="{{ site.description }}"/>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -12,7 +12,7 @@
 
 	<body>
 		<div id="container">
-		<div id="wiki_title">{{ site.name }}</div>
+		<div id="wiki_title">{{ site.title }}</div>
 
 		{% for cata_name, posts_list in catalog.iteritems() %}
 		<h2 id="{{ cata_name }}">{{ cata_name }}</h2>
@@ -27,10 +27,4 @@
 		</div>
 		{% include "footer.html" %}
 	</body>
-
-	<!-- @todo: not work -->
-	<script type="text/javascript">
-	// add _blank to outer links
-	$("a[href^='http://'], a[href^='https://']").attr("target", "_blank");
-	</script>
 </html>
