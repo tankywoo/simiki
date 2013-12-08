@@ -1,0 +1,196 @@
+/* 全局配置 */
+/* IE6 ignores this and uses default size of 16pt */
+html>body { font-size: 14px; }
+
+html {
+    font-size: 100%;
+    overflow-y: scroll;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Verdana, Sans-Serif, Arial, "Droid Sans Mono", "DejaVu Sans Mono", "宋体";
+    line-height: 1.5em;
+    background-color: whitesmoke;
+}
+
+a { color: #0645ad; text-decoration: none; }
+a:visited { color: #0b0080; }
+a:hover { color: #06e; text-decoration: underline; }
+a:active { color: #faa700; }
+
+p { margin: 0 0 1.5em 0; text-align: justify; }
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+    color: #111;
+    line-height: 1em;
+}
+
+h1 { font-size: 2.0em; }
+h2 { font-size: 1.6em; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+h3 { font-size: 1.4em; }
+h4 { font-size: 1.2em; }
+h5 { font-size: 1.0em; }
+h6 { font-size: 0.8em; }
+
+blockquote {
+    color: #666;
+    margin: 0;
+    padding-left: 3em;
+    border-left: 0.4em #eee solid;
+}
+
+hr {
+    border: 1px solid silver;
+    margin: 1em 0;
+    padding: 0;
+}
+
+b, strong { font-weight: bold; }
+
+ul, ol {
+    margin: 1.5em 0;
+    padding-left: 1.5em;
+    line-height: 1.5em;
+}
+
+ul li { list-style-type: square; }
+
+img {
+    border: 0;
+    vertical-align: middle;
+    margin: 0 auto;
+    box-shadow: 2px 2px 6px #ccc;
+    -webkit-box-shadow: 2px 2px 6px #ccc;
+    -moz-box-shadow: 2px 2px 6px #ccc;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+td { vertical-align: top; }
+
+/* 针对 pre 和 code 的优化 */
+pre, code { 
+    font-family: Consolas, "Courier New", monospace, serif;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    overflow: auto;
+}
+
+code {
+    color: #666;
+    background-color: #eee;
+    margin: 2px;
+    padding: 0 3px;
+}
+
+pre { 
+    background-color: #f8f8f8;
+    border: 1px solid silver;
+    padding: 8px 12px;
+    white-space: pre;
+    white-space: -moz-pre-wrap; /* Firefox */
+    white-space: -pre-wrap;     /* ancient Opera */
+    white-space: -o-pre-wrap;   /* newer Opera */
+    white-space: pre-wrap;      /* Chrome; W3C standard */
+    word-wrap: break-word;      /* IE */
+    box-shadow: 1px 1px 6px #ccc;
+    -webkit-box-shadow: 1px 1px 6px #ccc;
+    -moz-box-shadow: 1px 1px 6px #ccc;
+}
+
+pre code {
+    border: 0px !important;
+    padding: 0;
+    color: #000;
+    background-color: #f8f8f8;
+}
+
+/* 自定义id和class */
+#container {
+    background: white;
+    width: 50em;
+    line-height: 1.5em;
+    margin: 1.5em auto 2em auto;
+    padding: 1.5em 2em;
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 8px #aaa;
+    -webkit-box-shadow: 2px 2px 8px #aaa;
+    -moz-box-shadow: 2px 2px 8px #aaa;
+}
+
+#wiki_title, #title {
+	text-align: center;
+	font-size: 2em;
+	line-height: 1.5em;
+	padding-bottom: 10px;
+	margin: 20px 0;
+}
+
+#title {
+	border-bottom: 1px dashed #eee;
+}
+
+#header {
+}
+
+#footer {
+	margin: 10px auto;
+	color: grey;
+	font-size: 80%;
+	text-align: center;
+}
+
+li.postlist {
+	width: 22em;
+	margin-right: 1.5em;
+	float: left;
+	list-style-type: none;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+/* 各种 Hackers */
+/* Hacker for codehilite */
+table.codehilitetable {
+    border-collapse: separate;
+    border: 1px solid silver;
+    margin: 14px 0;
+    box-shadow: 1px 1px 6px #ccc;
+    -webkit-box-shadow: 1px 1px 6px #ccc;
+    -moz-box-shadow: 1px 1px 6px #ccc;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+
+.codehilitetable pre {
+    margin: 0;
+    border: 0 none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+}
+
+.codehilitetable td {
+    border: 0 none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Clear the float problem */
+.clearfix:after {
+    visibility: hidden;
+    clear: both;
+    font-size: 0;
+    content: ".";
+    display: block;
+    height: 0;
+}

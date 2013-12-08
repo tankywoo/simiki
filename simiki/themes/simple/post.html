@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<link rel="Stylesheet" type="text/css" href="{{ site.url }}/css/style.css">
+		<link rel="Stylesheet" type="text/css" href="{{ site.url }}/css/codeblock.css">
+		<title>{{ title }} - {{ site.title }}</title>
+		<meta name="keywords" content="{{ site.keywords }}"/>
+		<meta name="description" content="{{ site.description }}"/>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	</head>
+
+	<body>
+		<div id="container">
+		{% include "header.html" %}
+
+		<div id="title">{{ title }}</div>
+		
+		<div id="content">
+			{{ content }}
+		</div>
+
+		</div>
+		{% include "footer.html" %}
+	</body>
+</html>
