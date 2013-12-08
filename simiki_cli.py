@@ -21,9 +21,6 @@ Options:
 
 """
 
-# @TODO
-# simiki_cli preview
-
 import os
 import sys
 import codecs
@@ -41,6 +38,8 @@ if BASE_DIR not in sys.path:
 import simiki.utils
 from simiki.configs import parse_configs
 import simiki.generators
+from simiki import __version__
+
 
 class Simiki(object):
 
@@ -123,8 +122,7 @@ class Simiki(object):
         self.generate_catalog()
 
 def main():
-    # TODO
-    args = docopt(__doc__, version='Simiki 0.1')
+    args = docopt(__doc__, version="Simiki {}".format(__version__))
 
     if args["-s"] is None:
         config_file = osp.join(os.getcwd(), "_config.yml")
