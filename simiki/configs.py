@@ -38,6 +38,10 @@ def parse_configs(config_file):
     )
     if configs.get("url", "") is None:
         configs["url"] = ""
+    elif configs["url"].endswith("/"):
+        configs["url"] = configs["url"][:-1]
+    else:
+        pass
     if configs.get("keywords", "") is None:
         configs["keywords"] = ""
     if configs.get("description", "") is None:
