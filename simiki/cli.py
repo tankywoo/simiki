@@ -80,7 +80,7 @@ class Simiki(object):
         ])
         meta += "\n\n\n"
 
-        catalog_path = osp.join(self.configs["destination"], catalog)
+        catalog_path = osp.join(self.configs["source"], catalog)
         if not simiki.utils.check_path_exists(catalog_path):
             os.mkdir(catalog_path)
             print(simiki.utils.color_msg(
