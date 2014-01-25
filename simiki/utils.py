@@ -8,18 +8,22 @@ import shutil
 import errno
 from os import path as osp
 
-RESET_COLOR = "\033[0m"
-
 COLOR_CODES = {
-    "debug" : "\033[1;34m", # blue
-    "info" : "\033[1;32m", # green
-    "warning" : "\033[1;33m", # yellow
-    "error" : "\033[1;31m", # red
-    "critical" : "\033[1;41m", # background red
+    "reset" : "\033[0m",
+    "black" : "\033[1;30m",
+    "red" : "\033[1;31m",
+    "green" : "\033[1;32m",
+    "yellow" : "\033[1;33m",
+    "blue" : "\033[1;34m",
+    "magenta" : "\033[1;35m",
+    "cyan" : "\033[1;36m",
+    "white" : "\033[1;37m",
+    "bgred" : "\033[1;41m",
+    "bggrey" : "\033[1;100m",
 }
 
-def color_msg(level, msg):
-    return COLOR_CODES[level] + msg + RESET_COLOR
+def color_msg(color, msg):
+    return COLOR_CODES[color] + msg + COLOR_CODES["reset"]
 
 def check_path_exists(path):
     """Check if the path(include file and directory) exists"""
@@ -61,8 +65,13 @@ def copytree(src, dst, symlinks=False, ignore=None):
             shutil.copy2(s, d)
 
 if __name__ == "__main__":
-    print(color_msg("debug", "DEBUG"))
-    print(color_msg("info", "DEBUG"))
-    print(color_msg("warning", "WARNING"))
-    print(color_msg("error", "ERROR"))
-    print(color_msg("critical", "CRITICAL"))
+    print(color_msg("black", "Black"))
+    print(color_msg("red", "Red"))
+    print(color_msg("green", "Green"))
+    print(color_msg("yellow", "Yellow"))
+    print(color_msg("blue", "Blue"))
+    print(color_msg("magenta", "Magenta"))
+    print(color_msg("cyan", "Cyan"))
+    print(color_msg("white", "White"))
+    print(color_msg("bgred", "Background Red"))
+    print(color_msg("bggrey", "Background Grey"))
