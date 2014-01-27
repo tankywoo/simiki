@@ -26,6 +26,7 @@ import sys
 import codecs
 import datetime
 import shutil
+import logging
 from os import path as osp
 
 import yaml
@@ -40,6 +41,7 @@ from simiki.configs import parse_configs
 import simiki.generators
 from simiki import __version__
 
+logger = logging.getLogger(__name__)
 
 class Simiki(object):
 
@@ -47,8 +49,7 @@ class Simiki(object):
         self.configs = configs
 
     def update_css(self):
-        print(simiki.utils.color_msg(
-            "info", "Update theme [{0}] css.".format(self.configs["theme"])))
+        logging.info("Update theme [{0}] css.".format(self.configs["theme"]))
 
         css_src = osp.join(self.configs["tpl_path"], "css")
         css_dst = osp.join(self.configs["destination"], "css")
@@ -62,11 +63,10 @@ class Simiki(object):
         output_path = self.configs["destination"]
         for path in (content_path, output_path):
             if osp.exists(path):
-                print(simiki.utils.color_msg("info", "[%s] exists." % path))
+                logging.info("[%s] exists." % path)
             else:
                 os.mkdir(path)
-                print(simiki.utils.color_msg(
-                    "info", "create directory [%s]." % path))
+                logging.info("create directory [%s]." % path)
 
         self.update_css()
 
@@ -83,18 +83,13 @@ class Simiki(object):
         catalog_path = osp.join(self.configs["source"], catalog)
         if not simiki.utils.check_path_exists(catalog_path):
             os.mkdir(catalog_path)
-            print(simiki.utils.color_msg(
-                "info", "create catalog [%s]." % catalog))
+            logging.info("create catalog [%s]." % catalog)
 
         fn = osp.join(catalog_path, filename)
         if simiki.utils.check_path_exists(fn):
-            print(simiki.utils.color_msg(
-                "warning", "wiki file exists: {}".format(fn)
-            ))
+            logging.warning("wiki file exists: {}".format(fn))
         else:
-            print(simiki.utils.color_msg(
-                "info", "create new wiki: {}".format(fn)
-            ))
+            logging.info("create new wiki: {}".format(fn))
             with codecs.open(fn, "wb", "utf-8") as fd:
                 fd.write(meta)
 

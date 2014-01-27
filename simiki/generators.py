@@ -20,7 +20,6 @@ from jinja2 import Environment, FileSystemLoader
 
 from simiki import utils
 
-# python No handlers could be found for logger
 logger = logging.getLogger(__name__)
 
 class BaseGenerator(object):
@@ -58,11 +57,8 @@ class BaseGenerator(object):
 
         meta_notation = "---\n"
         if text_lists[0] != meta_notation:
-            msg = utils.color_msg(
-                "error", 
-                "[{0}] First line must be triple-dashed!".format(mdown_file),
-            )
-            sys.exit(msg)
+            logging.error("[{}] First line must be triple-dashed!".format(mdown_file))
+            sys.exit(1)
 
         meta_lists = []
         meta_end_flag = False
@@ -72,10 +68,8 @@ class BaseGenerator(object):
             meta_lists.append(text_lists[idx])
             idx += 1
             if idx >= max_idx:
-                sys.exit(utils.color_msg(
-                    "error",
-                    "[{0}] doesn't have end triple-dashed!".format(mdown_file),
-                ))
+                logging.error("[{}] doesn't have end triple-dashed!".format(mdown_file))
+                sys.exit(1)
             if text_lists[idx] == meta_notation:
                 meta_end_flag = True
         content_lists = text_lists[idx+1:]
@@ -96,11 +90,13 @@ class BaseGenerator(object):
                     mdown_file, 
                     unicode(str(e), "utf-8")
                     )
-            sys.exit(utils.color_msg("error", msg))
+            logging.error(msg)
+            sys.exit(1)
 
         for m in ("title", "date"):
             if m not in meta_datas:
-                sys.exit(utils.color_msg("error", "No '%s' in meta data!" % m))
+                logging.error("No '%s' in meta data!" % m)
+                sys.exit(1)
 
         return meta_datas
 
@@ -160,10 +156,9 @@ class PageGenerator(BaseGenerator):
         catalog, mdown = self.get_catalog_and_mdown(self.mdown_file)
         output_catalog_path = osp.join(self.site_settings["destination"], catalog)
         if not utils.check_path_exists(output_catalog_path):
-            print(utils.color_msg(
-                "info", 
+            logging.info(
                 "The output catalog %s not exists, create it" \
-                % output_catalog_path)
+                % output_catalog_path
             )
             os.mkdir(output_catalog_path)
         mdown_name = osp.splitext(mdown)[0]

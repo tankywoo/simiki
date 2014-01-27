@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import logging
 from os import path as osp
 from pprint import pprint
 
@@ -13,7 +14,8 @@ def parse_configs(config_file):
     base_dir = osp.dirname(osp.dirname(osp.realpath(__file__)))
 
     if not utils.check_path_exists(config_file):
-        sys.exit(utils.color_msg("error", "{} not exists".format(config_file)))
+        logging.error("{} not exists".format(config_file))
+        sys.exit(1)
 
     try:
         with open(config_file, "rb") as fd:
@@ -23,7 +25,8 @@ def parse_configs(config_file):
                 config_file,
                 unicode(str(e), "utf-8")
                 )
-        sys.exit(utils.color_msg("error", msg))
+        logging.error(msg)
+        sys.exit(1)
 
     if configs["base_dir"] is None:
         configs["base_dir"] = osp.dirname(osp.realpath(config_file))
