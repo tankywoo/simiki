@@ -1,4 +1,14 @@
-/* 全局配置 */
+/*  
+Theme Name: Simple
+Author: Tanky Woo<me@tankywoo.com>
+Author URI: http://www.wutianqi.com/
+Description: Default theme for simiki.
+Version: 0.1
+License: The MIT License (MIT)
+Tags: simple, single-columns, code, codehighlight, white, markdown
+*/
+
+/* Global Configuration */
 /* IE6 ignores this and uses default size of 16pt */
 html>body { font-size: 14px; }
 
@@ -10,8 +20,7 @@ html {
 }
 
 body {
-    margin: 0;
-    font-family: Verdana, Sans-Serif, Arial, "Droid Sans Mono", "DejaVu Sans Mono", "宋体";
+    font-family: "Helvetica Neue", "Segoe UI", Arial, Sans-Serif;
     line-height: 1.5em;
     background-color: whitesmoke;
 }
@@ -75,9 +84,10 @@ table {
 
 td { vertical-align: top; }
 
-/* 针对 pre 和 code 的优化 */
+/* Optimization for pre and code tag */
 pre, code { 
     font-family: Consolas, "Courier New", monospace, serif;
+    font-size: 12px;
     border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
@@ -93,7 +103,7 @@ code {
 
 pre { 
     background-color: #f8f8f8;
-    border: 1px solid silver;
+    border: 1px solid #eee;
     padding: 8px 12px;
     white-space: pre;
     white-space: -moz-pre-wrap; /* Firefox */
@@ -101,9 +111,6 @@ pre {
     white-space: -o-pre-wrap;   /* newer Opera */
     white-space: pre-wrap;      /* Chrome; W3C standard */
     word-wrap: break-word;      /* IE */
-    box-shadow: 1px 1px 6px #ccc;
-    -webkit-box-shadow: 1px 1px 6px #ccc;
-    -moz-box-shadow: 1px 1px 6px #ccc;
 }
 
 pre code {
@@ -113,12 +120,12 @@ pre code {
     background-color: #f8f8f8;
 }
 
-/* 自定义id和class */
+/* Custom Configuration */
 #container {
     background: white;
     width: 50em;
     line-height: 1.5em;
-    margin: 1.5em auto 2em auto;
+    margin: 1.5em auto 3em auto;
     padding: 1.5em 2em;
     border: 1px solid #ccc;
     box-shadow: 2px 2px 8px #aaa;
@@ -127,45 +134,42 @@ pre code {
 }
 
 #wiki_title, #title {
-	text-align: center;
-	font-size: 2em;
-	line-height: 1.5em;
-	padding-bottom: 10px;
-	margin: 20px 0;
+    text-align: center;
+    font-size: 2em;
+    line-height: 1.5em;
+    padding-bottom: 10px;
+    margin: 20px 0;
 }
 
 #title {
-	border-bottom: 1px dashed #eee;
+    border-bottom: 1px dashed #eee;
 }
 
 #header {
 }
 
 #footer {
-	margin: 10px auto;
-	color: grey;
-	font-size: 80%;
-	text-align: center;
+    margin: 10px auto;
+    color: grey;
+    font-size: 80%;
+    text-align: center;
 }
 
 li.postlist {
-	width: 22em;
-	margin-right: 1.5em;
-	float: left;
-	list-style-type: none;
-	white-space: nowrap;
-	overflow: hidden;
+    width: 22em;
+    margin-right: 1.5em;
+    float: left;
+    list-style-type: none;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
-/* 各种 Hackers */
+/* Hackers */
 /* Hacker for codehilite */
 table.codehilitetable {
     border-collapse: separate;
-    border: 1px solid silver;
+    border: 1px solid #eee;
     margin: 14px 0;
-    box-shadow: 1px 1px 6px #ccc;
-    -webkit-box-shadow: 1px 1px 6px #ccc;
-    -moz-box-shadow: 1px 1px 6px #ccc;
     border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
