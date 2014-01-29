@@ -13,7 +13,7 @@ author:
 theme: simple
 
 # The base directory of the site.
-# If base_dir is `None`, default site structure is:
+# If base_dir is empty, default is the directory of configuration file.
 #   ./
 #   ├── _config.yml
 #   ├── content
