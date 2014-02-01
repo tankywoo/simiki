@@ -32,3 +32,6 @@ default_home_page:
 
 # Open the code highlight feature.
 pygments: true
+
+# Debug Mode, default is False
+debug: false

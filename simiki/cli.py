@@ -126,6 +126,13 @@ def main():
 
     configs = parse_configs(config_file)
     simiki = Simiki(configs)
+
+    if configs["debug"]:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+    logging_init(level)
+
     if args["build_site"]:
         simiki.build_site()
     elif args["generate"]:
