@@ -3,24 +3,49 @@
 
 from __future__ import print_function
 
+import os
 import sys
 import logging
 import SimpleHTTPServer
 import SocketServer
 
-PORT = len(sys.argv) == 2 and int(sys.argv[1]) or 8000
+from simiki.utils import check_path_exists
 
-try:
-    Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-    httpd = SocketServer.TCPServer(("", PORT), Handler)
-except OSError as e:
-    logging.error("Could not listen on port %s" % PORT)
-    sys.exit(getattr(e, 'exitcode', 1))
+logger = logging.getLogger(__name__)
 
+def preview(path, port=8000):
+    if check_path_exists(path):
+        os.chdir(path)
+    else:
+        logger.error("Path {} not exists".format(path))
+    try:
+        Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+        httpd = SocketServer.TCPServer(("", port), Handler)
+    except OSError as e:
+        logger.error("Could not listen on port {}".format(port))
+        sys.exit(getattr(e, 'exitcode', 1))
 
-logging.info("serving at port %s" % PORT)
-try:
-    httpd.serve_forever()
-except KeyboardInterrupt as e:
-    logging.info("shutting down server")
-    httpd.socket.close()
+    logger.info("Serving at port {}".format(port))
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt as e:
+        logger.info("Shutting down server")
+        httpd.socket.close()
+
+if __name__ == "__main__":
+    logger.addHandler(logging.StreamHandler())
+    logger.setLevel(logging.DEBUG)
+
+    logger.debug("Testing server feature...")
+
+    if len(sys.argv) == 3:
+        path = os.path.realpath(sys.argv[1])
+        port = int(sys.argv[2])
+    elif len(sys.argv) == 2:
+        path = os.path.realpath(sys.argv[1])
+        port = 8000
+    else:
+        path = os.path.realpath("html")
+        port = 8000
+
+    preview(path, port)
