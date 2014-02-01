@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import sys
 import logging
 from os import path as osp
@@ -56,7 +57,7 @@ def parse_configs(config_file):
     return configs
 
 if __name__ == "__main__":
-    BASE_DIR = osp.realpath(".")
+    BASE_DIR = os.getcwd()
     if len(sys.argv) == 1:
         config_file = osp.join(BASE_DIR, "_config.yml")
     elif len(sys.argv) == 2:
