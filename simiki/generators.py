@@ -33,21 +33,21 @@ class BaseGenerator(object):
             ))
         )
 
-    def get_catalog_and_mdown(self, mdown_file):
-        """Get the catalog's and markdown's(with extension) name.
+    def get_category_and_mdown(self, mdown_file):
+        """Get the category's and markdown's(with extension) name.
 
         :param mdown_file: TODO
 
         e.g: 
             mdown_file is /home/user/simiki/content/python/test.md
-            catalog = python
+            category = python
             mdown = test.md
         """
         # @todo, if path with `/`?
         split_path = mdown_file.split("/")
-        mdown, catalog = split_path[-1], split_path[-2]
+        mdown, category = split_path[-1], split_path[-2]
 
-        return (catalog, mdown)
+        return (category, mdown)
 
     def get_meta_and_content(self, mdown_file):
         """Split the markdown file texts by triple-dashed lines.
@@ -134,13 +134,13 @@ class PageGenerator(BaseGenerator):
         return body_content
 
     def get_tpl_vars(self):
-        catalog, _ = self.get_catalog_and_mdown(self.mdown_file)
+        category, _ = self.get_category_and_mdown(self.mdown_file)
         meta_yaml, contents = self.get_meta_and_content(self.mdown_file)
         meta_datas = self.get_meta_datas(meta_yaml, self.mdown_file)
         body_content = self.parse_mdown(contents)
         tpl_vars = {
             "site" : self.site_settings,
-            "catalog" : catalog,
+            "category" : category,
             "content" : body_content,
         }
         tpl_vars.update(meta_datas)
@@ -164,16 +164,16 @@ class PageGenerator(BaseGenerator):
 
     def output_to_file(self, html):
         """Write generated html to file"""
-        catalog, mdown = self.get_catalog_and_mdown(self.mdown_file)
-        output_catalog_path = osp.join(self.site_settings["destination"], catalog)
-        if not utils.check_path_exists(output_catalog_path):
+        category, mdown = self.get_category_and_mdown(self.mdown_file)
+        output_category_path = osp.join(self.site_settings["destination"], category)
+        if not utils.check_path_exists(output_category_path):
             logging.info(
-                "The output catalog %s not exists, create it" \
-                % output_catalog_path
+                "The output category %s not exists, create it" \
+                % output_category_path
             )
-            os.mkdir(output_catalog_path)
+            os.mkdir(output_category_path)
         mdown_name = osp.splitext(mdown)[0]
-        output_file = osp.join(output_catalog_path, mdown_name+".html")
+        output_file = osp.join(output_category_path, mdown_name+".html")
         with codecs.open(output_file, "wb", "utf-8") as fd:
             fd.write(html)
 
@@ -213,7 +213,7 @@ class CatalogGenerator(BaseGenerator):
 
         tpl_vars = {
             "site" : self.site_settings,
-            "catalog" : catalog_page_list,
+            "category" : catalog_page_list,
         }
 
         return tpl_vars
