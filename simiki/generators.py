@@ -145,6 +145,11 @@ class PageGenerator(BaseGenerator):
         }
         tpl_vars.update(meta_datas)
 
+        # if site.root endwith `\`, remote it.
+        site_root = tpl_vars["site"]["root"]
+        if site_root.endswith("/"):
+            tpl_vars["site"]["root"] = site_root[:-1]
+
         return tpl_vars
 
     def mdown2html(self):
