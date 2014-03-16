@@ -26,7 +26,11 @@ class BaseGenerator(object):
     def __init__(self, site_settings):
         self.site_settings = site_settings
         self.env = Environment(
-            loader = FileSystemLoader(site_settings["tpl_path"])
+            loader = FileSystemLoader(osp.join(
+                os.getcwd(),
+                site_settings["themes_dir"],
+                site_settings["theme"]
+            ))
         )
 
     def get_catalog_and_mdown(self, mdown_file):
@@ -57,7 +61,7 @@ class BaseGenerator(object):
 
         meta_notation = "---\n"
         if text_lists[0] != meta_notation:
-            logging.error("[{}] First line must be triple-dashed!".format(mdown_file))
+            logging.error("{} First line must be triple-dashed!".format(mdown_file))
             sys.exit(1)
 
         meta_lists = []
@@ -68,7 +72,7 @@ class BaseGenerator(object):
             meta_lists.append(text_lists[idx])
             idx += 1
             if idx >= max_idx:
-                logging.error("[{}] doesn't have end triple-dashed!".format(mdown_file))
+                logging.error("{} doesn't have end triple-dashed!".format(mdown_file))
                 sys.exit(1)
             if text_lists[idx] == meta_notation:
                 meta_end_flag = True
@@ -118,7 +122,9 @@ class PageGenerator(BaseGenerator):
         # Base markdown extensions support "fenced_code".
         mdown_extensions = ["fenced_code"]
         if self.site_settings["pygments"]:
+            #mdown_extensions.append("codehilite(linenums=inline)")
             mdown_extensions.append("codehilite(guess_lang=False)")
+            #mdown_extensions.append("codehilite(guess_lang=False, linenums=inline)")
 
         body_content = markdown.markdown(
             contents,
@@ -177,7 +183,8 @@ class CatalogGenerator(BaseGenerator):
         """
         catalog_page_list = {}
 
-        sub_dirs = [ _ for _ in os.listdir(self.site_settings["source"])]
+        sub_dirs = [unicode(_, "utf-8") for _ in \
+                os.listdir(self.site_settings["source"])]
         for sub_dir in sub_dirs:
             abs_sub_dir = osp.join(self.site_settings["source"], sub_dir)
             if not osp.isdir(abs_sub_dir):
