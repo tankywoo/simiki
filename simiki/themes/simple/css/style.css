@@ -72,9 +72,6 @@ img {
     border: 0;
     vertical-align: middle;
     margin: 0 auto;
-    box-shadow: 2px 2px 6px #ccc;
-    -webkit-box-shadow: 2px 2px 6px #ccc;
-    -moz-box-shadow: 2px 2px 6px #ccc;
 }
 
 table {
@@ -97,8 +94,8 @@ pre, code {
 code {
     color: #666;
     background-color: #eee;
-    margin: 2px;
-    padding: 0 3px;
+    margin: 0 2px;
+    padding: 1px 3px;
 }
 
 pre { 
