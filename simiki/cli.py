@@ -6,7 +6,7 @@ Simiki CLI
 
 Usage:
   simiki init
-  simiki new -t <title> [-c <category>] [-f <file>]
+  simiki new -t <title> -c <category> [-f <file>]
   simiki generate
   simiki preview
   simiki -h | --help
@@ -44,22 +44,17 @@ from simiki import __version__
 
 logger = logging.getLogger(__name__)
 
-#def create_wiki(title):
-#    """
-#    @todo: support 'Chinese' in title.
-#    """
-#    if not args["-f"]:
-#        # `/` can't exists in filename
-#        title_ = args["-t"].decode("utf-8").replace("/", " slash ")
-#        args["-f"] = "{}.md".format("-".join(title_.split()).lower())
-#    cur_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-#    simiki.create_new_wiki(
-#        args["-c"], 
-#        args["-f"], 
-#        args["-t"].decode("utf-8"), 
-#        cur_date.decode("utf-8"), 
-#        layout="post"
-#    )
+def param_of_create_wiki(title, category, filename):
+    """
+    @todo: support 'Chinese' in title.
+    """
+    if not filename:
+        # `/` can't exists in filename
+        title_ = title.decode("utf-8").replace("/", " slash ")
+        filename = "{}.md".format("-".join(title_.split()).lower())
+    cur_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    title = title.decode("utf-8")
+    return (category, filename, title, cur_date)
 
 class Simiki(object):
 
@@ -67,7 +62,6 @@ class Simiki(object):
         self.configs = configs
 
     def create_new_wiki(self, category, filename, title, date):
-        # TODO 判断arguments 的 type
         try:
             meta = "\n".join([
                 "---",
@@ -82,13 +76,13 @@ class Simiki(object):
         category_path = osp.join(self.configs["source"], category)
         if not check_path_exists(category_path):
             os.mkdir(category_path)
-            logger.info("create category {}.".format(category))
+            logger.info("Creating category {}.".format(category))
 
         fn = osp.join(category_path, filename)
         if check_path_exists(fn):
             logger.warning("wiki file exists: {}".format(fn))
         else:
-            logger.info("create new wiki: {}".format(fn))
+            logger.info("Creating wiki: {}".format(fn))
             with codecs.open(fn, "wb", "utf-8") as fd:
                 fd.write(meta)
 
@@ -102,12 +96,15 @@ class Simiki(object):
         logger.info("Start generating markdown files.")
         content_path = self.configs["source"]
 
+        pcnt = 0
         for root, dirs, files in os.walk(content_path):
             for filename in files:
                 if not check_extension(filename):
                     continue
                 md_file = osp.join(root, filename)
                 self.generate_single_page(md_file)
+                pcnt += 1
+        logger.info("{} files generated.".format(pcnt))
 
     def generate_catalog(self):
         logger.info("Generate catalog page.")
@@ -142,7 +139,8 @@ def main():
     if args["generate"]:
         simiki.generate()
     elif args["new"] and args["-t"]:
-        pass
+        pocw = param_of_create_wiki(args["-t"], args["-c"], args["-f"])
+        simiki.create_new_wiki(*pocw)
     elif args["preview"]:
         simiki.preview()
     else:
