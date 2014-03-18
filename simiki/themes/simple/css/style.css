@@ -160,10 +160,13 @@ pre code {
 li.postlist {
     width: 22em;
     margin-right: 1.5em;
-    float: left;
     list-style-type: none;
     white-space: nowrap;
     overflow: hidden;
+}
+
+li.postlist:before {
+    content: "\0BB \020";
 }
 
 /* Hackers */
