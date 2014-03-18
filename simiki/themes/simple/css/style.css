@@ -77,9 +77,14 @@ img {
 table {
     border-collapse: collapse;
     border-spacing: 0;
+    margin-bottom: 1em;
+    border: 1px solid #ccc;
 }
 
-td { vertical-align: top; }
+td {
+    vertical-align: top;
+    padding: 3px 6px;
+}
 
 /* Optimization for pre and code tag */
 pre, code { 
