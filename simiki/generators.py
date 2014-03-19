@@ -20,31 +20,34 @@ from jinja2 import Environment, FileSystemLoader
 
 from simiki import utils
 
-# python No handlers could be found for logger
 logger = logging.getLogger(__name__)
 
 class BaseGenerator(object):
     def __init__(self, site_settings):
         self.site_settings = site_settings
         self.env = Environment(
-            loader = FileSystemLoader(site_settings["tpl_path"])
+            loader = FileSystemLoader(osp.join(
+                os.getcwd(),
+                site_settings["themes_dir"],
+                site_settings["theme"]
+            ))
         )
 
-    def get_catalog_and_mdown(self, mdown_file):
-        """Get the catalog's and markdown's(with extension) name.
+    def get_category_and_mdown(self, mdown_file):
+        """Get the category's and markdown's(with extension) name.
 
         :param mdown_file: TODO
 
         e.g: 
             mdown_file is /home/user/simiki/content/python/test.md
-            catalog = python
+            category = python
             mdown = test.md
         """
         # @todo, if path with `/`?
         split_path = mdown_file.split("/")
-        mdown, catalog = split_path[-1], split_path[-2]
+        mdown, category = split_path[-1], split_path[-2]
 
-        return (catalog, mdown)
+        return (category, mdown)
 
     def get_meta_and_content(self, mdown_file):
         """Split the markdown file texts by triple-dashed lines.
@@ -58,11 +61,8 @@ class BaseGenerator(object):
 
         meta_notation = "---\n"
         if text_lists[0] != meta_notation:
-            msg = utils.color_msg(
-                "error", 
-                "[{0}] First line must be triple-dashed!".format(mdown_file),
-            )
-            sys.exit(msg)
+            logging.error("{} First line must be triple-dashed!".format(mdown_file))
+            sys.exit(1)
 
         meta_lists = []
         meta_end_flag = False
@@ -72,10 +72,8 @@ class BaseGenerator(object):
             meta_lists.append(text_lists[idx])
             idx += 1
             if idx >= max_idx:
-                sys.exit(utils.color_msg(
-                    "error",
-                    "[{0}] doesn't have end triple-dashed!".format(mdown_file),
-                ))
+                logging.error("{} doesn't have end triple-dashed!".format(mdown_file))
+                sys.exit(1)
             if text_lists[idx] == meta_notation:
                 meta_end_flag = True
         content_lists = text_lists[idx+1:]
@@ -96,11 +94,13 @@ class BaseGenerator(object):
                     mdown_file, 
                     unicode(str(e), "utf-8")
                     )
-            sys.exit(utils.color_msg("error", msg))
+            logging.error(msg)
+            sys.exit(1)
 
         for m in ("title", "date"):
             if m not in meta_datas:
-                sys.exit(utils.color_msg("error", "No '%s' in meta data!" % m))
+                logging.error("No '%s' in meta data!" % m)
+                sys.exit(1)
 
         return meta_datas
 
@@ -122,7 +122,9 @@ class PageGenerator(BaseGenerator):
         # Base markdown extensions support "fenced_code".
         mdown_extensions = ["fenced_code"]
         if self.site_settings["pygments"]:
+            #mdown_extensions.append("codehilite(linenums=inline)")
             mdown_extensions.append("codehilite(guess_lang=False)")
+            #mdown_extensions.append("codehilite(guess_lang=False, linenums=inline)")
 
         body_content = markdown.markdown(
             contents,
@@ -132,16 +134,21 @@ class PageGenerator(BaseGenerator):
         return body_content
 
     def get_tpl_vars(self):
-        catalog, _ = self.get_catalog_and_mdown(self.mdown_file)
+        category, _ = self.get_category_and_mdown(self.mdown_file)
         meta_yaml, contents = self.get_meta_and_content(self.mdown_file)
         meta_datas = self.get_meta_datas(meta_yaml, self.mdown_file)
         body_content = self.parse_mdown(contents)
         tpl_vars = {
             "site" : self.site_settings,
-            "catalog" : catalog,
+            "category" : category,
             "content" : body_content,
         }
         tpl_vars.update(meta_datas)
+
+        # if site.root endwith `\`, remote it.
+        site_root = tpl_vars["site"]["root"]
+        if site_root.endswith("/"):
+            tpl_vars["site"]["root"] = site_root[:-1]
 
         return tpl_vars
 
@@ -157,17 +164,16 @@ class PageGenerator(BaseGenerator):
 
     def output_to_file(self, html):
         """Write generated html to file"""
-        catalog, mdown = self.get_catalog_and_mdown(self.mdown_file)
-        output_catalog_path = osp.join(self.site_settings["destination"], catalog)
-        if not utils.check_path_exists(output_catalog_path):
-            print(utils.color_msg(
-                "info", 
-                "The output catalog %s not exists, create it" \
-                % output_catalog_path)
+        category, mdown = self.get_category_and_mdown(self.mdown_file)
+        output_category_path = osp.join(self.site_settings["destination"], category)
+        if not utils.check_path_exists(output_category_path):
+            logging.info(
+                "The output category %s not exists, create it" \
+                % output_category_path
             )
-            os.mkdir(output_catalog_path)
+            os.mkdir(output_category_path)
         mdown_name = osp.splitext(mdown)[0]
-        output_file = osp.join(output_catalog_path, mdown_name+".html")
+        output_file = osp.join(output_category_path, mdown_name+".html")
         with codecs.open(output_file, "wb", "utf-8") as fd:
             fd.write(html)
 
@@ -182,7 +188,8 @@ class CatalogGenerator(BaseGenerator):
         """
         catalog_page_list = {}
 
-        sub_dirs = [ _ for _ in os.listdir(self.site_settings["source"])]
+        sub_dirs = [unicode(_, "utf-8") for _ in \
+                os.listdir(self.site_settings["source"])]
         for sub_dir in sub_dirs:
             abs_sub_dir = osp.join(self.site_settings["source"], sub_dir)
             if not osp.isdir(abs_sub_dir):
@@ -206,7 +213,7 @@ class CatalogGenerator(BaseGenerator):
 
         tpl_vars = {
             "site" : self.site_settings,
-            "catalog" : catalog_page_list,
+            "category" : catalog_page_list,
         }
 
         return tpl_vars

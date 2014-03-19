@@ -1,6 +1,5 @@
-# ----------------- #
-#    Main Configs   #
-# ----------------- #
+# Simiki Configuration
+# Doc: http://simiki.org/configuration.html
 
 # e.g: "http://example.com"
 url: 
@@ -9,26 +8,23 @@ keywords:
 description: 
 author: 
 
-# The catalog of theme.
+# If publishing to a subdirectory as in http://example.com/project set 'root: /project'
+root: /
+source: content
+destination: output
+themes_dir: themes
+
+# choose the theme
 theme: simple
 
-# The base directory of the site.
-# If base_dir is `None`, default site structure is:
-#   ./
-#   ├── _config.yml
-#   ├── content
-#   └── html
-base_dir: 
-
-# Set the makrdown files source, and output html files destination.
-source: content
-destination: html
-
+# default file extension
 default_ext: "md"
 
-# TODO
 # Replace the default home page with indexes.
 default_home_page: 
 
-# Open the code highlight feature.
+# Enable the code highlight feature.
 pygments: true
+
+# Debug Mode, default is False
+debug: false

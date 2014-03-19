@@ -22,9 +22,9 @@ class TestPageGenerator(unittest.TestCase):
     def setUp(self):
         self.generator = PageGenerator(TEST_INPUT_FILE)
 
-    def test_get_catalog_and_md_name(self):
-        catalog_name, md_name = self.generator.get_catalog_and_md_name()
-        self.assertEqual((catalog_name, md_name), (u'tests', u'test_input'))
+    def test_get_category_and_md_name(self):
+        category_name, md_name = self.generator.get_category_and_md_name()
+        self.assertEqual((category_name, md_name), (u'tests', u'test_input'))
 
     def test_get_meta_datas(self):
         meta_yaml, _ = self.generator.split_meta_and_content()

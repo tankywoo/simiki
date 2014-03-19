@@ -1,19 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import sys
+import logging
 from os import path as osp
 from pprint import pprint
-
 import yaml
-
-from simiki import utils
+from simiki.utils import check_path_exists
 
 def parse_configs(config_file):
-    base_dir = osp.dirname(osp.dirname(osp.realpath(__file__)))
-
-    if not utils.check_path_exists(config_file):
-        sys.exit(utils.color_msg("error", "{} not exists".format(config_file)))
+    if not check_path_exists(config_file):
+        logging.error("{} not exists".format(config_file))
+        sys.exit(1)
 
     try:
         with open(config_file, "rb") as fd:
@@ -22,34 +21,40 @@ def parse_configs(config_file):
         msg = "Yaml format error in {}:\n{}".format(
                 config_file,
                 unicode(str(e), "utf-8")
-                )
-        sys.exit(utils.color_msg("error", msg))
+            )
+        logging.error(msg)
+        sys.exit(1)
 
-    if configs["base_dir"] is None:
-        configs["base_dir"] = osp.dirname(osp.realpath(config_file))
-
-    configs.update(
-        # The directory to store markdown files
-        source = osp.join(configs["base_dir"], configs["source"]),
-        # The directory to store the generated html files
-        destination = osp.join(configs["base_dir"],  configs["destination"]),
-        # The path of html template file
-        tpl_path = osp.join(base_dir, "simiki/themes", configs["theme"]),
-    )
-    if configs.get("url", "") is None:
+    if not configs.get("url", ""):
         configs["url"] = ""
     elif configs["url"].endswith("/"):
         configs["url"] = configs["url"][:-1]
     else:
         pass
-    if configs.get("keywords", "") is None:
+    if not configs.get("keywords", ""):
         configs["keywords"] = ""
-    if configs.get("description", "") is None:
+    if not configs.get("description", ""):
         configs["description"] = ""
 
     return configs
 
 if __name__ == "__main__":
-    BASE_DIR = osp.dirname(osp.dirname(osp.realpath(__file__)))
-    config_file = osp.join(BASE_DIR, "_config.yml")
+    """
+    Usage:
+        python -m simiki.configs : to test config template
+        python -m simiki.configs _config.yml : to test _config.yml file in \
+                                                curren dir
+    """
+    if len(sys.argv) == 1:
+        base_dir = os.path.dirname(__file__)
+        config_file = osp.join(base_dir, "conf_templates/_config.yml.in")
+    elif len(sys.argv) == 2:
+        base_dir = os.getcwd()
+        config_file = osp.join(base_dir, sys.argv[1])
+    else:
+        logging.error("Use the template config file by default, "
+                "you can specify the config file to parse. \n"
+                "Usage: `python -m simiki.configs [_config.yml]'")
+        sys.exit(1)
+
     pprint(parse_configs(config_file))
