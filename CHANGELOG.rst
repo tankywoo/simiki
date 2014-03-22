@@ -1,3 +1,9 @@
+v0.2.1 (2014-03-23)
+===================
+
+* Change catalog order from date to title letter
+
+
 v0.2.0 (2014-03-19)
 ===================
 

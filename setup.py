@@ -19,7 +19,7 @@ requires = [
 
 setup(
     name = "simiki",
-    version = "0.2.0",
+    version = "0.2.1",
     url = "https://github.com/tankywoo/simiki",
     author = "Tanky Woo",
     author_email = "me@tankywoo.com",
