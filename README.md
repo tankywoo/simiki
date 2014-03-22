@@ -14,6 +14,8 @@ Simki 是取 Simple Wiki 的前三个字母和后三个字母拼起来的.
 
 ## 安装 ##
 
+如果直接在默认系统环境下运行，需要 `root` 权限；也可以使用 [virtualenv](http://www.virtualenv.org/) 等Python虚拟环境，这样则不需要 root 权限。
+
 	pip install simiki
 
 或者
