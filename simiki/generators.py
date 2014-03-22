@@ -205,10 +205,7 @@ class CatalogGenerator(BaseGenerator):
                 meta_datas.update(name = r)
                 catalog_page_list[sub_dir].append(meta_datas)
             catalog_page_list[sub_dir].sort(
-                key=lambda d: datetime.datetime.strptime(
-                    d["date"], "%Y-%m-%d %H:%M"
-                ),
-                reverse=True,
+                key = lambda p: p["title"].lower()
             )
 
         tpl_vars = {
