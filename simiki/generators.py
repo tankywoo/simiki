@@ -11,6 +11,7 @@ import sys
 import codecs
 import datetime
 import logging
+import copy
 from os import path as osp
 from pprint import pprint
 
@@ -24,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 class BaseGenerator(object):
     def __init__(self, site_settings):
-        self.site_settings = site_settings
+        self.site_settings = copy.deepcopy(site_settings)
         self.env = Environment(
             loader = FileSystemLoader(osp.join(
                 os.getcwd(),
@@ -212,6 +213,11 @@ class CatalogGenerator(BaseGenerator):
             "site" : self.site_settings,
             "category" : catalog_page_list,
         }
+
+        # if site.root endwith `\`, remote it.
+        site_root = tpl_vars["site"]["root"]
+        if site_root.endswith("/"):
+            tpl_vars["site"]["root"] = site_root[:-1]
 
         return tpl_vars
 
