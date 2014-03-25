@@ -183,6 +183,12 @@ class CatalogGenerator(BaseGenerator):
     def __init__(self, site_settings):
         super(CatalogGenerator, self).__init__(site_settings)
 
+    @staticmethod
+    def listdir_nohidden(path):
+        for f in os.listdir(path):
+            if not f.startswith('.'):
+                yield f
+
     def get_tpl_vars(self):
         """
         XXX: Only for one level dir.
@@ -190,13 +196,13 @@ class CatalogGenerator(BaseGenerator):
         catalog_page_list = {}
 
         sub_dirs = [unicode(_, "utf-8") for _ in \
-                os.listdir(self.site_settings["source"])]
+                CatalogGenerator.listdir_nohidden(self.site_settings["source"])]
         for sub_dir in sub_dirs:
             abs_sub_dir = osp.join(self.site_settings["source"], sub_dir)
             if not osp.isdir(abs_sub_dir):
                 continue
             catalog_page_list[sub_dir] = []
-            for f in os.listdir(abs_sub_dir):
+            for f in CatalogGenerator.listdir_nohidden(abs_sub_dir):
                 if not utils.check_extension(f):
                     continue
                 fn = osp.join(abs_sub_dir, f)
