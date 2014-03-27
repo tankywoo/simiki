@@ -39,7 +39,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 { font-size: 2.0em; }
-h2 { font-size: 1.6em; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+h2 { font-size: 1.6em; border-bottom: 1px solid #ddd; padding-bottom: 5px; overflow:hidden }
 h3 { font-size: 1.4em; }
 h4 { font-size: 1.2em; }
 h5 { font-size: 1.0em; }
@@ -167,6 +167,28 @@ li.postlist {
 
 li.postlist:before {
     content: "\0BB \020";
+}
+
+/* Table of Contents */
+.toc {
+	margin: 0 0.5em;
+	padding: 0.5em 1em;
+	border: 1px solid silver;
+	background-color: #ecf5ff;
+	float: right;
+	display: block;
+	font-size: 90%;
+}
+
+.toc > .toctitle {
+	display: block;
+	text-align: center;
+	font-weight: bold;
+	margin-bottom: 1em;
+}
+
+.toc ul {
+	margin: 0;
 }
 
 /* Hackers */
