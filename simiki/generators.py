@@ -125,6 +125,7 @@ class PageGenerator(BaseGenerator):
         if self.site_settings["pygments"]:
             #mdown_extensions.append("codehilite(linenums=inline)")
             mdown_extensions.append("codehilite(guess_lang=False)")
+            mdown_extensions.append("toc(title=Table of Contents)")
             #mdown_extensions.append("codehilite(guess_lang=False, linenums=inline)")
 
         body_content = markdown.markdown(
