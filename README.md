@@ -1,5 +1,8 @@
 # Simiki #
 
+[![Latest Version](http://img.shields.io/pypi/v/simiki.svg)](https://pypi.python.org/pypi/simiki)
+[![The MIT License](http://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/tankywoo/simiki/blob/master/LICENSE)
+
 Simiki 是一个用[Python](https://www.python.org/)写的简单的 wiki 框架, 适合分类记录一些技术文档.
 
 * 简单，适合做个人维基
