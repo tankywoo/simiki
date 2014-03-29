@@ -98,6 +98,8 @@ class Simiki(object):
 
         pcnt = 0
         for root, dirs, files in os.walk(content_path):
+            files = [f for f in files if not f.startswith(".")]
+            dirs[:] = [d for d in dirs if not d.startswith(".")]
             for filename in files:
                 if not check_extension(filename):
                     continue
