@@ -1,3 +1,10 @@
+v0.2.2 (2014-03-29)
+===================
+
+* Fixed #5 css path error when there is no wiki
+* Fixed #6 ignore hidden dirs and files when use os.walk or os.listdir
+* support table of contents(toc) both generator and default theme
+
 v0.2.1 (2014-03-23)
 ===================
 
