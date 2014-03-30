@@ -6,7 +6,10 @@ from __future__ import print_function, unicode_literals
 import os
 import shutil
 import errno
+import logging
 from os import path as osp
+
+logger = logging.getLogger(__name__)
 
 COLOR_CODES = {
     "reset" : "\033[0m",
@@ -63,6 +66,26 @@ def copytree(src, dst, symlinks=False, ignore=None):
             shutil.copytree(s, d, symlinks, ignore)
         else:
             shutil.copy2(s, d)
+
+def emptytree(directory):
+    """Delete all the files and dirs under specified directory"""
+
+    for p in os.listdir(directory):
+        fp = osp.join(directory, p)
+        if osp.isdir(fp):
+            try:
+                shutil.rmtree(fp)
+                logger.info("Delete directory %s" % fp)
+            except Exception, e:
+                logger.error("Unable to delete directory %s: %s" % (fp, str(e)))
+        elif osp.isfile(fp):
+            try:
+                logging.info("Delete file %s" % fp)
+                os.remove(fp)
+            except Exception, e:
+                logger.error("Unable to delete file %s: %s" % (fp, str(e)))
+        else:
+            logger.error("Unable to delete %s, unknown filetype" % fp)
 
 if __name__ == "__main__":
     print(color_msg("black", "Black"))

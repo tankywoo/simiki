@@ -7,7 +7,7 @@ Simiki CLI
 Usage:
   simiki init
   simiki new -t <title> -c <category> [-f <file>]
-  simiki generate
+  simiki generate [--delete]
   simiki preview
   simiki -h | --help
   simiki -V | --version
@@ -18,6 +18,7 @@ Options:
   -c <category>          Specify the category.
   -t <title>             Specify the new post title.
   -f <file>              Specify the new post filename.
+  --delete               Delete the contents of output directory before generate.
 
 """
 
@@ -39,7 +40,7 @@ from simiki.initsite import InitSite
 from simiki.configs import parse_configs
 from simiki.log import logging_init
 from simiki.server import preview
-from simiki.utils import check_path_exists, copytree, check_extension
+from simiki.utils import (check_path_exists, emptytree, check_extension)
 from simiki import __version__
 
 logger = logging.getLogger(__name__)
@@ -113,7 +114,12 @@ class Simiki(object):
         cgen = CatalogGenerator(self.configs)
         cgen.update_catalog_page()
 
-    def generate(self):
+    def generate(self, delete_output_dir=False):
+        if delete_output_dir:
+            logger.info("Delete all the files and dirs under output directory")
+            output_dir = osp.join(os.getcwd(), self.configs["destination"])
+            emptytree(output_dir)
+
         self.generate_all_pages()
         self.generate_catalog()
 
@@ -139,7 +145,7 @@ def main():
     simiki = Simiki(configs)
 
     if args["generate"]:
-        simiki.generate()
+        simiki.generate(args["--delete"])
     elif args["new"] and args["-t"]:
         pocw = param_of_create_wiki(args["-t"], args["-c"], args["-f"])
         simiki.create_new_wiki(*pocw)
