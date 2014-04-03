@@ -40,15 +40,16 @@ class InitSite(object):
         except (shutil.Error, IOError), e:
             logging.error(str(e))
 
-    def install_theme(self):
-        # TODO copy non-html files and directorys
-        src_theme = osp.join(self.current_dir, "themes/{}/css".format(self.configs["theme"]))
-        dst_theme = osp.join(self.current_dir, "output/css")
+    @staticmethod
+    def install_theme(current_dir, theme_name):
+        """Copy static directory under theme to output directory"""
+        src_theme = osp.join(current_dir, "themes/{}/static".format(theme_name))
+        dst_theme = osp.join(current_dir, "output/static")
         if osp.exists(dst_theme):
             shutil.rmtree(dst_theme)
 
         copytree(src_theme, dst_theme)
-        logging.info("Installing theme: {}".format(self.configs["theme"]))
+        logging.info("Installing theme: {}".format(theme_name))
 
     def init_site(self):
         content_path = osp.join(self.current_dir, self.configs["source"])
@@ -69,7 +70,7 @@ class InitSite(object):
         logging.info("Copying themes: {}".format(theme_path))
 
         self.get_conf()
-        self.install_theme()
+        InitSite.install_theme(self.current_dir, self.configs["theme"])
 
 if __name__ == "__main__":
     logging_init(logging.DEBUG)

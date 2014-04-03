@@ -122,6 +122,7 @@ class Simiki(object):
 
         self.generate_all_pages()
         self.generate_catalog()
+        InitSite.install_theme(os.getcwd(), self.configs["theme"])
 
     def preview(self):
         default_path = self.configs["destination"]
