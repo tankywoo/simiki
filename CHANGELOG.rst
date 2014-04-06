@@ -1,3 +1,11 @@
+v0.3.0 (2014-04-06)
+===================
+
+* Move all static files to static/ dir in theme
+* Fixed #4 Reinstall theme every generate action
+* Fixed #1 add generate option to empty output directory first
+
+
 v0.2.2 (2014-03-29)
 ===================
 

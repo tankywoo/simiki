@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
+import simiki
 
 
 entry_points = {
@@ -19,7 +20,7 @@ requires = [
 
 setup(
     name = "simiki",
-    version = "0.2.2",
+    version = simiki.__version__,
     url = "https://github.com/tankywoo/simiki",
     author = "Tanky Woo",
     author_email = "me@tankywoo.com",

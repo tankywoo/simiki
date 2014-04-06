@@ -13,8 +13,6 @@ Simiki 是一个用[Python](https://www.python.org/)写的简单的 wiki 框架,
 
 ## Quick Start ##
 
-Version : `0.2.2`
-
 ### 安装 ###
 
 	pip install simiki
