@@ -13,6 +13,9 @@ from simiki.utils import check_path_exists
 
 logger = logging.getLogger(__name__)
 
+class Reuse_TCPServer(SocketServer.TCPServer):
+    allow_reuse_address = True
+
 def preview(path, port=8000):
     if check_path_exists(path):
         os.chdir(path)
@@ -20,7 +23,7 @@ def preview(path, port=8000):
         logger.error("Path {} not exists".format(path))
     try:
         Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-        httpd = SocketServer.TCPServer(("", port), Handler)
+        httpd = Reuse_TCPServer(("", port), Handler)
     except OSError as e:
         logger.error("Could not listen on port {}".format(port))
         sys.exit(getattr(e, 'exitcode', 1))
