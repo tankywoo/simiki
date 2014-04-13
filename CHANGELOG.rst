@@ -1,3 +1,9 @@
+v0.3.1 (2014-04-13)
+===================
+
+* Fixed "socket.error: [Errno 48] Address already in use" problem in preview
+
+
 v0.3.0 (2014-04-06)
 ===================
 
