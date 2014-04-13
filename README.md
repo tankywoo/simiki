@@ -3,57 +3,48 @@
 [![Latest Version](http://img.shields.io/pypi/v/simiki.svg)](https://pypi.python.org/pypi/simiki)
 [![The MIT License](http://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/tankywoo/simiki/blob/master/LICENSE)
 
-Simiki 是一个用[Python](https://www.python.org/)写的简单的 wiki 框架, 适合分类记录一些技术文档.
+Simiki is a simple wiki framework, written in [Python](https://www.python.org/).
 
-* 简单，适合做个人维基
-* 使用 Markdown 撰写
-* 以分类目录为导向，分类存放源文件
-* 生成静态 HTML 页面
-* 命令行管理工具
+* Easy to use. Creating a wiki only needs a few steps
+* Use [Markdown](http://daringfireball.net/projects/markdown/). Just open your editor and write
+* Store source files by category
+* Static HTML output
+* A CLI tool to manage the wiki
+
+Simiki is short for `Simple Wiki` :)
 
 ## Quick Start ##
 
-### 安装 ###
+### Install ###
 
 	pip install simiki
 
-### 升级 ###
+### Update ###
 
 	pip install -U simiki
 
-### 构建站点 ###
+### Init Site ###
 
 	mkdir mywiki && cd mywiki
 	simiki init
 
-编辑wiki配置文件`_config.yml` 进行相应配置
+### Create a new wiki ###
 
-### 新建一篇 wiki ###
+	simiki new -t "Hello Simiki" -c first-catetory
 
-	simiki new -t "Hello Simiki" -c base
-
-### 生成/更新静态页面 ###
+### Generate ###
 
 	simiki generate
 
-### 预览 ###
+### Preview ###
 
 	simiki preview
 
-更多可以查看帮助:
+For more information, `simiki -h` or have a look at [Simiki.org](http://simiki.org)
 
-	simiki -h
+## Others ##
 
-或访问网站 [simiki.org](http://simiki.org/)
-
-
-## 为什么叫Simiki? ##
-
-`Simple Wiki`，取了前后各三个字母组成
-
-## 其它 ##
-
-* [simiki.org](http://simiki.org/)
+* [simiki.org](http://simiki.org)
 * <https://github.com/tankywoo/simiki>
 * Email: <me@tankywoo.com>
 
