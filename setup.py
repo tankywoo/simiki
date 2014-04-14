@@ -24,7 +24,7 @@ setup(
     url = "https://github.com/tankywoo/simiki",
     author = "Tanky Woo",
     author_email = "me@tankywoo.com",
-    description = "Simiki is a simple static site generator for wiki.",
+    description = "Simiki is a simple wiki framework, written in Python.",
     license = "MIT License",
     packages = find_packages(),
     include_package_data=True,
