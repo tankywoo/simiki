@@ -260,7 +260,7 @@ class CustomCatalogGenerator(CatalogGenerator):
 
         tpl_vars = {
             "site" : self.site_settings,
-            "idx_content" : idx_content,
+            "index_content" : idx_content,
         }
 
         # if site.root endwith `\`, remote it.
@@ -269,8 +269,3 @@ class CustomCatalogGenerator(CatalogGenerator):
             tpl_vars["site"]["root"] = site_root[:-1]
 
         return tpl_vars
-
-    def generate_catalog_html(self):
-        tpl_vars = self.get_tpl_vars()
-        html = self.env.get_template("custom_index.html").render(tpl_vars)
-        return html
