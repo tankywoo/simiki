@@ -135,6 +135,11 @@ class PageGenerator(BaseGenerator):
 
         return body_content
 
+    def get_raw_html(self):
+        _, contents = self.get_meta_and_content(self.mdown_file)
+        body_content = self.parse_mdown(contents)
+        return body_content
+
     def get_tpl_vars(self):
         category, _ = self.get_category_and_mdown(self.mdown_file)
         meta_yaml, contents = self.get_meta_and_content(self.mdown_file)
@@ -238,3 +243,34 @@ class CatalogGenerator(BaseGenerator):
         catalog_file = osp.join(self.site_settings["destination"], "index.html")
         with codecs.open(catalog_file, "wb", "utf-8") as fd:
             fd.write(catalog_html)
+
+class CustomCatalogGenerator(CatalogGenerator):
+
+    def __init__(self, site_settings):
+        super(CustomCatalogGenerator, self).__init__(site_settings)
+
+    def get_tpl_vars(self):
+        if self.site_settings["index"] is True:
+            fn = "index.md"
+        else:
+            fn = self.site_settings["index"]
+        idx_mfile = osp.join(os.path.abspath(self.site_settings["source"]), fn)
+        pg = PageGenerator(self.site_settings, idx_mfile)
+        idx_content = pg.get_raw_html()
+
+        tpl_vars = {
+            "site" : self.site_settings,
+            "idx_content" : idx_content,
+        }
+
+        # if site.root endwith `\`, remote it.
+        site_root = tpl_vars["site"]["root"]
+        if site_root.endswith("/"):
+            tpl_vars["site"]["root"] = site_root[:-1]
+
+        return tpl_vars
+
+    def generate_catalog_html(self):
+        tpl_vars = self.get_tpl_vars()
+        html = self.env.get_template("custom_index.html").render(tpl_vars)
+        return html

@@ -14,10 +14,10 @@ source: content
 destination: output
 themes_dir: themes
 
-# choose the theme
+# Choose the theme
 theme: simple
 
-# default file extension
+# Default file extension
 default_ext: "md"
 
 # Replace the default home page with indexes.
@@ -28,3 +28,9 @@ pygments: true
 
 # Debug Mode, default is False
 debug: false
+
+# Set `true` to use "index.md" under source dir as index,
+# or you can set any wiki file as index, such as "tool/git.md".
+# If not set or set `false`, simiki will auto generate catalog as index, this is 
+# the default action
+index: 
