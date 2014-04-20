@@ -35,7 +35,7 @@ from pprint import pprint
 
 from docopt import docopt
 
-from simiki.generators import (PageGenerator, CatalogGenerator)
+from simiki.generators import (PageGenerator, CatalogGenerator, CustomCatalogGenerator)
 from simiki.initsite import InitSite
 from simiki.configs import parse_configs
 from simiki.log import logging_init
@@ -111,7 +111,10 @@ class Simiki(object):
 
     def generate_catalog(self):
         logger.info("Generate catalog page.")
-        cgen = CatalogGenerator(self.configs)
+        if self.configs["index"]:
+            cgen = CustomCatalogGenerator(self.configs)
+        else:
+            cgen = CatalogGenerator(self.configs)
         cgen.update_catalog_page()
 
     def generate(self, delete_output_dir=False):
