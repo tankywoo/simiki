@@ -1,2 +1,4 @@
 include README.md
-recursive-include simiki *.html *.css *png *.in *.md *.mkd *.markdown *.py
+include CHANGELOG.rst
+include LICENSE
+recursive-include simiki *.html *.css *.in *.md *.py
