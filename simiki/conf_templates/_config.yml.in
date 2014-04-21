@@ -20,9 +20,6 @@ theme: simple
 # Default file extension
 default_ext: "md"
 
-# Replace the default home page with indexes.
-default_home_page: 
-
 # Enable the code highlight feature.
 pygments: true
 
