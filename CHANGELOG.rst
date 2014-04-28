@@ -1,7 +1,17 @@
+v0.4.1 (2014-04-28)
+===================
+
+* change font-family and code highlight class to hlcode
+* fix bug: not use the right code highlight css file in base.html
+* default theme change pygments style from autumn to tango
+* remove repetitive index setting in config template
+
+
 v0.4.0 (2014-04-20)
 ===================
 
 * Add custom index feature
+
 
 v0.3.1 (2014-04-13)
 ===================
