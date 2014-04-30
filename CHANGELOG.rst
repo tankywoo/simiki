@@ -1,3 +1,11 @@
+v0.5.0 (2014-04-30)
+===================
+
+* fabric: rsync output to remote server
+* fabric: remote update simiki
+* get fabfile when init site
+* fix: do not overwrite _config.yml while init site again
+
 v0.4.1 (2014-04-28)
 ===================
 
