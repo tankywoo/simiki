@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-@todo:
-    - theme_path in config file
-"""
-
 from __future__ import print_function, unicode_literals
 
 import os
@@ -40,6 +35,18 @@ class InitSite(object):
         except (shutil.Error, IOError), e:
             logging.error(str(e))
 
+    def get_fabfile(self):
+        src_fabfile = osp.join(osp.dirname(__file__), "conf_templates/fabfile.py")
+        dst_fabfile = osp.join(self.current_dir, "fabfile.py")
+        if check_path_exists(dst_fabfile):
+            logging.warning("{} already exists! if you want overwrite it, " \
+                        "please remove it first".format(dst_fabfile))
+        try:
+            shutil.copyfile(src_fabfile, dst_fabfile)
+            logging.info("Creating config file: {}".format(dst_fabfile))
+        except (shutil.Error, IOError), e:
+            logging.error(str(e))
+
     @staticmethod
     def install_theme(current_dir, theme_name):
         """Copy static directory under theme to output directory"""
@@ -70,6 +77,7 @@ class InitSite(object):
         logging.info("Copying themes: {}".format(theme_path))
 
         self.get_conf()
+        self.get_fabfile()
         InitSite.install_theme(self.current_dir, self.configs["theme"])
 
 if __name__ == "__main__":
