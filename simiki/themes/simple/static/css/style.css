@@ -68,6 +68,8 @@ ul, ol {
 
 ul li { list-style-type: square; }
 
+ul li p { margin: 0; }
+
 img {
     border: 0;
     vertical-align: middle;
@@ -170,24 +172,24 @@ li.postlist:before {
 
 /* Table of Contents */
 .toc {
-	margin: 0 0.5em;
-	padding: 0.5em 1em;
-	border: 1px solid silver;
-	background-color: #ecf5ff;
-	float: right;
-	display: block;
-	font-size: 90%;
+    margin: 0 0.5em;
+    padding: 0.5em 1em;
+    border: 1px solid silver;
+    background-color: #ecf5ff;
+    float: right;
+    display: block;
+    font-size: 90%;
 }
 
 .toc > .toctitle {
-	display: block;
-	text-align: center;
-	font-weight: bold;
-	margin-bottom: 1em;
+    display: block;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 1em;
 }
 
 .toc ul {
-	margin: 0;
+    margin: 0;
 }
 
 /* Hackers */
