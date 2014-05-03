@@ -29,6 +29,7 @@ class InitSite(object):
         if check_path_exists(dst_config_file):
             logging.warning("{} already exists! if you want overwrite it, " \
                         "please remove it first".format(dst_config_file))
+            return
         try:
             shutil.copyfile(self.config_file, dst_config_file)
             logging.info("Creating config file: {}".format(dst_config_file))
@@ -41,6 +42,7 @@ class InitSite(object):
         if check_path_exists(dst_fabfile):
             logging.warning("{} already exists! if you want overwrite it, " \
                         "please remove it first".format(dst_fabfile))
+            return
         try:
             shutil.copyfile(src_fabfile, dst_fabfile)
             logging.info("Creating config file: {}".format(dst_fabfile))
