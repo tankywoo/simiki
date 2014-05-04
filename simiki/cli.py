@@ -89,7 +89,7 @@ class Simiki(object):
 
     def generate_single_page(self, md_file):
         logger.debug("Generate {}".format(md_file))
-        pgen = PageGenerator(self.configs, md_file)
+        pgen = PageGenerator(self.configs, os.getcwd(), md_file)
         html = pgen.mdown2html()
         pgen.output_to_file(html)
 
@@ -101,6 +101,7 @@ class Simiki(object):
         for root, dirs, files in os.walk(content_path):
             files = [f for f in files if not f.startswith(".")]
             dirs[:] = [d for d in dirs if not d.startswith(".")]
+            #dirs[:] = [d for d in dirs if not unicode(d, "utf-8").startswith(".")]
             for filename in files:
                 if not check_extension(filename):
                     continue
@@ -112,9 +113,9 @@ class Simiki(object):
     def generate_catalog(self):
         logger.info("Generate catalog page.")
         if self.configs["index"]:
-            cgen = CustomCatalogGenerator(self.configs)
+            cgen = CustomCatalogGenerator(self.configs, os.getcwd())
         else:
-            cgen = CatalogGenerator(self.configs)
+            cgen = CatalogGenerator(self.configs, os.getcwd())
         cgen.update_catalog_page()
 
     def generate(self, delete_output_dir=False):

@@ -24,15 +24,21 @@ from simiki import utils
 logger = logging.getLogger(__name__)
 
 class BaseGenerator(object):
-    def __init__(self, site_settings):
+    def __init__(self, site_settings, base_path):
         self.site_settings = copy.deepcopy(site_settings)
-        self.env = Environment(
-            loader = FileSystemLoader(osp.join(
-                os.getcwd(),
-                site_settings["themes_dir"],
-                site_settings["theme"]
-            ))
+        self.base_path = base_path
+        _template_path = osp.join(
+            self.base_path,
+            site_settings["themes_dir"],
+            site_settings["theme"]
         )
+        try:
+            self.env = Environment(
+                loader = FileSystemLoader(_template_path)
+            )
+        except Exception, e:
+            logging.error(str(e))
+            sys.exit()
 
     def get_category_and_mdown(self, mdown_file):
         """Get the category's and markdown's(with extension) name.
@@ -44,9 +50,9 @@ class BaseGenerator(object):
             category = python
             mdown = test.md
         """
-        # @todo, if path with `/`?
-        split_path = mdown_file.split("/")
-        mdown, category = split_path[-1], split_path[-2]
+        source_dir = osp.join(self.base_path, self.site_settings["source"])
+        relpath = osp.relpath(mdown_file, source_dir)
+        category, mdown = osp.split(relpath)
 
         return (category, mdown)
 
@@ -107,11 +113,11 @@ class BaseGenerator(object):
 
 class PageGenerator(BaseGenerator):
 
-    def __init__(self, site_settings, mdown_file):
+    def __init__(self, site_settings, base_path, mdown_file):
         """
         :param mdown_file: The path of markdown file
         """
-        super(PageGenerator, self).__init__(site_settings)
+        super(PageGenerator, self).__init__(site_settings, base_path)
         self.mdown_file = osp.realpath(mdown_file)
 
     def parse_mdown(self, contents):
@@ -123,10 +129,12 @@ class PageGenerator(BaseGenerator):
         # Base markdown extensions support "fenced_code".
         mdown_extensions = ["fenced_code"]
         if self.site_settings["pygments"]:
-            #mdown_extensions.append("codehilite(linenums=inline)")
-            mdown_extensions.append("codehilite(guess_lang=False, css_class=hlcode)")
-            mdown_extensions.append("toc(title=Table of Contents)")
-            #mdown_extensions.append("codehilite(guess_lang=False, linenums=inline)")
+            #mdown_extensions.append("codehilite(guess_lang=False, css_class=hlcode)")
+            #mdown_extensions.append("toc(title=Table of Contents)")
+            mdown_extensions.extend([
+                "codehilite(css_class=hlcode)",
+                "toc(title=Table of Contents)"
+            ])
 
         body_content = markdown.markdown(
             contents,
@@ -178,7 +186,7 @@ class PageGenerator(BaseGenerator):
                 "The output category %s not exists, create it" \
                 % output_category_path
             )
-            os.mkdir(output_category_path)
+            utils.mkdir_p(output_category_path)
         mdown_name = osp.splitext(mdown)[0]
         output_file = osp.join(output_category_path, mdown_name+".html")
         with codecs.open(output_file, "wb", "utf-8") as fd:
@@ -186,8 +194,8 @@ class PageGenerator(BaseGenerator):
 
 class CatalogGenerator(BaseGenerator):
 
-    def __init__(self, site_settings):
-        super(CatalogGenerator, self).__init__(site_settings)
+    def __init__(self, site_settings, base_path):
+        super(CatalogGenerator, self).__init__(site_settings, base_path)
 
     @staticmethod
     def listdir_nohidden(path):
@@ -246,8 +254,8 @@ class CatalogGenerator(BaseGenerator):
 
 class CustomCatalogGenerator(CatalogGenerator):
 
-    def __init__(self, site_settings):
-        super(CustomCatalogGenerator, self).__init__(site_settings)
+    def __init__(self, site_settings, base_path):
+        super(CustomCatalogGenerator, self).__init__(site_settings, base_path)
 
     def get_tpl_vars(self):
         if self.site_settings["index"] is True:
