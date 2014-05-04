@@ -145,12 +145,12 @@ class PageGenerator(BaseGenerator):
         meta_yaml, contents = self.get_meta_and_content(self.mdown_file)
         meta_datas = self.get_meta_datas(meta_yaml, self.mdown_file)
         body_content = self.parse_mdown(contents)
+        page = {"category" : category, "content" : body_content}
+        page.update(meta_datas)
         tpl_vars = {
             "site" : self.site_settings,
-            "category" : category,
-            "content" : body_content,
+            "page" : page,
         }
-        tpl_vars.update(meta_datas)
 
         # if site.root endwith `\`, remote it.
         site_root = tpl_vars["site"]["root"]
@@ -221,9 +221,9 @@ class CatalogGenerator(BaseGenerator):
                 key = lambda p: p["title"].lower()
             )
 
+        self.site_settings["categories"] = catalog_page_list
         tpl_vars = {
             "site" : self.site_settings,
-            "category" : catalog_page_list,
         }
 
         # if site.root endwith `\`, remote it.
@@ -257,10 +257,11 @@ class CustomCatalogGenerator(CatalogGenerator):
         idx_mfile = osp.join(os.path.abspath(self.site_settings["source"]), fn)
         pg = PageGenerator(self.site_settings, idx_mfile)
         idx_content = pg.get_raw_html()
+        page = {"content" : idx_content }
 
         tpl_vars = {
             "site" : self.site_settings,
-            "index_content" : idx_content,
+            "page" : page,
         }
 
         # if site.root endwith `\`, remote it.
