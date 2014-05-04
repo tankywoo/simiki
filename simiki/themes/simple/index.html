@@ -6,13 +6,13 @@
     <div id="wiki_title">{{ site.title }}</div>
 
   {% if site.index %}
-    {{ index_content }}
+    {{ page.content }}
   {% else %}
-    {% for cate_name, posts_list in category.iteritems() %}
-    <h2 id="{{ cate_name }}">{{ cate_name }}</h2>
+    {% for category_name, pages_list in site.categories.iteritems() %}
+    <h2 id="{{ category_name }}">{{ category_name }}</h2>
     <ul>
-        {%- for post in posts_list %}
-        <li class="postlist"><a href="./{{ cate_name }}/{{ post.name }}.html">{{ post.title }}</a></li>
+        {%- for page in pages_list %}
+        <li class="pagelist"><a href="./{{ category_name }}/{{ page.name }}.html">{{ page.title }}</a></li>
         {%- endfor %}
     </ul>
     <div class="clearfix"></div>
