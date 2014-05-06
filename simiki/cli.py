@@ -90,7 +90,7 @@ class Simiki(object):
     def generate_single_page(self, md_file):
         logger.debug("Generate {}".format(md_file))
         pgen = PageGenerator(self.configs, os.getcwd(), md_file)
-        html = pgen.mdown2html()
+        html = pgen.markdown2html()
         pgen.output_to_file(html)
 
     def generate_all_pages(self):
@@ -100,8 +100,8 @@ class Simiki(object):
         pcnt = 0
         for root, dirs, files in os.walk(content_path):
             files = [f for f in files if not f.startswith(".")]
+            # TODO: directory use chinese
             dirs[:] = [d for d in dirs if not d.startswith(".")]
-            #dirs[:] = [d for d in dirs if not unicode(d, "utf-8").startswith(".")]
             for filename in files:
                 if not check_extension(filename):
                     continue

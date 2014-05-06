@@ -95,6 +95,10 @@ def mkdir_p(path):
             pass
         else: raise
 
+def listdir_nohidden(path):
+    for f in os.listdir(path):
+        if not f.startswith('.'):
+            yield f
 
 if __name__ == "__main__":
     print(color_msg("black", "Black"))

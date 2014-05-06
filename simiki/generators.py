@@ -17,16 +17,19 @@ from pprint import pprint
 
 import markdown
 import yaml
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import (Environment, FileSystemLoader, TemplateError)
 
 from simiki import utils
 
 logger = logging.getLogger(__name__)
 
 class BaseGenerator(object):
-    def __init__(self, site_settings, base_path):
+    """Base generator class"""
+
+    def __init__(self, site_settings, base_path, file_path):
         self.site_settings = copy.deepcopy(site_settings)
         self.base_path = base_path
+        self.file_path = file_path
         _template_path = osp.join(
             self.base_path,
             site_settings["themes_dir"],
@@ -36,200 +39,222 @@ class BaseGenerator(object):
             self.env = Environment(
                 loader = FileSystemLoader(_template_path)
             )
-        except Exception, e:
+        except TemplateError, e:
             logging.error(str(e))
-            sys.exit()
-
-    def get_category_and_mdown(self, mdown_file):
-        """Get the category's and markdown's(with extension) name.
-
-        :param mdown_file: TODO
-
-        e.g: 
-            mdown_file is /home/user/simiki/content/python/test.md
-            category = python
-            mdown = test.md
-        """
-        source_dir = osp.join(self.base_path, self.site_settings["source"])
-        relpath = osp.relpath(mdown_file, source_dir)
-        category, mdown = osp.split(relpath)
-
-        return (category, mdown)
-
-    def get_meta_and_content(self, mdown_file):
-        """Split the markdown file texts by triple-dashed lines.
-
-        The content in the middle of triple-dashed lines is meta datas, which 
-            use Yaml format.
-        The other content is the markdown texts.
-        """
-        with codecs.open(mdown_file, "rb", "utf-8") as fd:
-            text_lists = fd.readlines()
-
-        meta_notation = "---\n"
-        if text_lists[0] != meta_notation:
-            logging.error("{} First line must be triple-dashed!".format(mdown_file))
             sys.exit(1)
 
-        meta_lists = []
-        meta_end_flag = False
-        idx = 1
-        max_idx = len(text_lists)
-        while not meta_end_flag:
-            meta_lists.append(text_lists[idx])
-            idx += 1
-            if idx >= max_idx:
-                logging.error("{} doesn't have end triple-dashed!".format(mdown_file))
-                sys.exit(1)
-            if text_lists[idx] == meta_notation:
-                meta_end_flag = True
-        content_lists = text_lists[idx+1:]
-        meta_yaml = "".join(meta_lists)
-        contents = "".join(content_lists)
+    def get_category_and_file(self):
+        """Get the name of category and file(with extension)"""
+        source_dir = osp.join(self.base_path, self.site_settings["source"])
+        relpath = osp.relpath(self.file_path, source_dir)
+        category, filename = osp.split(relpath)
 
-        return (meta_yaml, contents)
+        return (category, filename)
 
-    def get_meta_datas(self, meta_yaml, mdown_file):
-        """Get meta datas and validate them
+    def __check_metadata(self, metadata):
+        """Check if metadata is right"""
+        is_metadata_right = True
+        if "title" not in metadata:
+            logging.error("No `title' in metadata")
+            is_metadata_right = False
+        return is_metadata_right
 
-        :param meta_yaml: Meta info in yaml format
+    def __get_metadata(self, metadata_yaml):
+        """Get metadata and validate them
+
+        :param metadata_yaml: metadata in yaml format
         """
         try:
-            meta_datas = yaml.load(meta_yaml)
+            metadata = yaml.load(metadata_yaml)
         except yaml.YAMLError, e:
             msg = "Yaml format error in {}:\n{}".format(
-                    mdown_file, 
-                    unicode(str(e), "utf-8")
-                    )
+                self.file_path,
+                unicode(str(e), "utf-8")
+            )
             logging.error(msg)
             sys.exit(1)
 
-        for m in ("title", "date"):
-            if m not in meta_datas:
-                logging.error("No '%s' in meta data!" % m)
-                sys.exit(1)
+        if not self.__check_metadata(metadata):
+            sys.exit(1)
 
-        return meta_datas
+        return metadata
+
+    def __get_metadata_and_content_textlist(self):
+        """Split the source file texts by triple-dashed lines
+        #TODO#
+        The metadata is yaml format text in the middle of triple-dashed lines
+        The content is the other source texts
+        """
+        with codecs.open(self.file_path, "rb", "utf-8") as fd:
+            textlist = fd.readlines()
+
+        metadata_notation = "---\n"
+        if textlist[0] != metadata_notation:
+            logging.error(
+                "{} first line must be triple-dashed!".format(self.file_path)
+            )
+            sys.exit(1)
+
+        metadata_textlist = []
+        metadata_end_flag = False
+        idx = 1
+        max_idx = len(textlist)
+        while not metadata_end_flag:
+            metadata_textlist.append(textlist[idx])
+            idx += 1
+            if idx >= max_idx:
+                logging.error(
+                    "{} doesn't have end triple-dashed!".format(self.file_path)
+                )
+                sys.exit(1)
+            if textlist[idx] == metadata_notation:
+                metadata_end_flag = True
+        content_textlist = textlist[idx+1:]
+
+        return (metadata_textlist, content_textlist)
+
+    def get_metadata_and_content(self):
+        metadata_textlist, content_textlist = \
+            self.__get_metadata_and_content_textlist()
+        metadata_yaml = "".join(metadata_textlist)
+        metadata = self.__get_metadata(metadata_yaml)
+        content = "".join(content_textlist)
+
+        return (metadata, content)
+
 
 class PageGenerator(BaseGenerator):
 
-    def __init__(self, site_settings, base_path, mdown_file):
-        """
-        :param mdown_file: The path of markdown file
-        """
-        super(PageGenerator, self).__init__(site_settings, base_path)
-        self.mdown_file = osp.realpath(mdown_file)
+    def __init__(self, site_settings, base_path, file_path):
+        super(PageGenerator, self).__init__(site_settings, base_path, file_path)
+        self.file_path = osp.realpath(file_path)
 
-    def parse_mdown(self, contents):
-        """Parse markdown text to html.
-
-        :param contents: Markdown text lists
-        """
-
+    def __set_markdown_extensions(self):
+        """Set the extensions for markdown parser"""
         # Base markdown extensions support "fenced_code".
-        mdown_extensions = ["fenced_code"]
+        markdown_extensions = ["fenced_code"]
         if self.site_settings["pygments"]:
-            #mdown_extensions.append("codehilite(guess_lang=False, css_class=hlcode)")
-            #mdown_extensions.append("toc(title=Table of Contents)")
-            mdown_extensions.extend([
+            markdown_extensions.extend([
                 "codehilite(css_class=hlcode)",
                 "toc(title=Table of Contents)"
             ])
 
-        body_content = markdown.markdown(
-            contents,
-            extensions=mdown_extensions,
+        return markdown_extensions
+
+    def parse_markdown(self, markdown_content):
+        """Parse markdown text to html.
+
+        :param markdown_content: Markdown text lists #TODO#
+        """
+        markdown_extensions = self.__set_markdown_extensions()
+
+        html_content = markdown.markdown(
+            markdown_content,
+            extensions=markdown_extensions,
         )
 
-        return body_content
+        return html_content
 
-    def get_raw_html(self):
-        _, contents = self.get_meta_and_content(self.mdown_file)
-        body_content = self.parse_mdown(contents)
-        return body_content
-
-    def get_tpl_vars(self):
-        category, _ = self.get_category_and_mdown(self.mdown_file)
-        meta_yaml, contents = self.get_meta_and_content(self.mdown_file)
-        meta_datas = self.get_meta_datas(meta_yaml, self.mdown_file)
-        body_content = self.parse_mdown(contents)
-        page = {"category" : category, "content" : body_content}
-        page.update(meta_datas)
-        tpl_vars = {
+    def get_template_vars(self):
+        """Get template variables, include site settings and page settings"""
+        category, _ = self.get_category_and_file()
+        meta_data, markdown_content = self.get_metadata_and_content()
+        body_html_content = self.parse_markdown(markdown_content)
+        page = {"category" : category, "content" : body_html_content}
+        page.update(meta_data)
+        template_vars = {
             "site" : self.site_settings,
             "page" : page,
         }
 
-        # if site.root endwith `\`, remote it.
-        site_root = tpl_vars["site"]["root"]
+        # if site.root endswith `/`, remove it.
+        site_root = template_vars["site"]["root"]
         if site_root.endswith("/"):
-            tpl_vars["site"]["root"] = site_root[:-1]
+            template_vars["site"]["root"] = site_root[:-1]
 
-        return tpl_vars
+        return template_vars
 
-    def mdown2html(self):
-        """Load template, and generate html.
+    def __get_layout(self):
+        """Get layout setting in metadata, default is 'page'"""
+        metadata, markdown_content = self.get_metadata_and_content()
+        if "layout" in metadata:
+            layout = metadata["layout"]
+        else:
+            layout = "page"
 
-        XXX: The post template must named `post.html`
-        """
-        tpl_vars = self.get_tpl_vars()
-        html = self.env.get_template("post.html").render(tpl_vars)
+        return layout
+
+    def markdown2html(self):
+        """Load template, and generate html"""
+        layout = self.__get_layout()
+        template_html_file = "{}.html".format(layout)
+        template_vars = self.get_template_vars()
+        try:
+            html = self.env.get_template(template_html_file).render(template_vars)
+        except TemplateError, e:
+            logging.error("Unable to load template {}; error: {}"\
+                    .format(template_html_file, str(e)))
+            sys.exit(1)
 
         return html
 
     def output_to_file(self, html):
         """Write generated html to file"""
-        category, mdown = self.get_category_and_mdown(self.mdown_file)
-        output_category_path = osp.join(self.site_settings["destination"], category)
+        category, markdown = self.get_category_and_file()
+        output_category_path = osp.join(
+            self.site_settings["destination"], 
+            category
+        )
         if not utils.check_path_exists(output_category_path):
             logging.info(
                 "The output category %s not exists, create it" \
                 % output_category_path
             )
             utils.mkdir_p(output_category_path)
-        mdown_name = osp.splitext(mdown)[0]
-        output_file = osp.join(output_category_path, mdown_name+".html")
+        markdown_name = osp.splitext(markdown)[0]
+        output_file = osp.join(output_category_path, markdown_name+".html")
         with codecs.open(output_file, "wb", "utf-8") as fd:
             fd.write(html)
 
 class CatalogGenerator(BaseGenerator):
 
     def __init__(self, site_settings, base_path):
-        super(CatalogGenerator, self).__init__(site_settings, base_path)
+        super(CatalogGenerator, self).__init__(site_settings, base_path, None)
 
-    @staticmethod
-    def listdir_nohidden(path):
-        for f in os.listdir(path):
-            if not f.startswith('.'):
-                yield f
-
-    def get_tpl_vars(self):
+    def __get_catalog_page_list(self, d):
         """
-        XXX: Only for one level dir.
+        XXX: Only for root and one level dir.
         """
         catalog_page_list = {}
-
         sub_dirs = [unicode(_, "utf-8") for _ in \
-                CatalogGenerator.listdir_nohidden(self.site_settings["source"])]
+                utils.listdir_nohidden(d)]
         for sub_dir in sub_dirs:
             abs_sub_dir = osp.join(self.site_settings["source"], sub_dir)
+            # If file under the root of content directory, ignore it.
+            # TODO: support root level.
             if not osp.isdir(abs_sub_dir):
                 continue
             catalog_page_list[sub_dir] = []
-            for f in CatalogGenerator.listdir_nohidden(abs_sub_dir):
+            for f in utils.listdir_nohidden(abs_sub_dir):
+                if osp.isdir(f):
+                    catalog_page_list[sub_dir][f] = {}
                 if not utils.check_extension(f):
                     continue
                 fn = osp.join(abs_sub_dir, f)
-                meta_yaml, contents = self.get_meta_and_content(fn)
-                meta_datas = self.get_meta_datas(meta_yaml, fn)
+                pg = PageGenerator(self.site_settings, self.base_path, fn)
+                metadata, _ = pg.get_metadata_and_content()
                 r, e = osp.splitext(f)
-                meta_datas.update(name = r)
-                catalog_page_list[sub_dir].append(meta_datas)
+                metadata.update(name = r)
+                catalog_page_list[sub_dir].append(metadata)
             catalog_page_list[sub_dir].sort(
                 key = lambda p: p["title"].lower()
             )
 
-        self.site_settings["categories"] = catalog_page_list
+        return catalog_page_list
+
+    def get_template_vars(self):
+        self.site_settings["categories"] = \
+            self.__get_catalog_page_list(self.site_settings["source"])
         tpl_vars = {
             "site" : self.site_settings,
         }
@@ -242,7 +267,7 @@ class CatalogGenerator(BaseGenerator):
         return tpl_vars
 
     def generate_catalog_html(self):
-        tpl_vars = self.get_tpl_vars()
+        tpl_vars = self.get_template_vars()
         html = self.env.get_template("index.html").render(tpl_vars)
         return html
 
@@ -257,15 +282,16 @@ class CustomCatalogGenerator(CatalogGenerator):
     def __init__(self, site_settings, base_path):
         super(CustomCatalogGenerator, self).__init__(site_settings, base_path)
 
-    def get_tpl_vars(self):
+    def get_template_vars(self):
         if self.site_settings["index"] is True:
             fn = "index.md"
         else:
             fn = self.site_settings["index"]
         idx_mfile = osp.join(os.path.abspath(self.site_settings["source"]), fn)
-        pg = PageGenerator(self.site_settings, idx_mfile)
-        idx_content = pg.get_raw_html()
-        page = {"content" : idx_content }
+        pg = PageGenerator(self.site_settings, self.base_path, idx_mfile)
+        _, raw_idx_content = pg.get_metadata_and_content()
+        idx_content = pg.parse_markdown(raw_idx_content)
+        page = {"content" : idx_content}
 
         tpl_vars = {
             "site" : self.site_settings,
