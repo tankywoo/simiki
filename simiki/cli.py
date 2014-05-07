@@ -88,6 +88,7 @@ class Simiki(object):
                 fd.write(meta)
 
     def generate_single_page(self, md_file):
+        md_file = md_file.decode('utf8')
         logger.debug("Generate {}".format(md_file))
         pgen = PageGenerator(self.configs, md_file)
         html = pgen.mdown2html()
@@ -99,8 +100,8 @@ class Simiki(object):
 
         pcnt = 0
         for root, dirs, files in os.walk(content_path):
-            files = [f for f in files if not f.startswith(".")]
-            dirs[:] = [d for d in dirs if not d.startswith(".")]
+            files = [f for f in files if not f.decode("utf-8").startswith(".")]
+            dirs[:] = [d for d in dirs if not d.decode("utf-8").startswith(".")]
             for filename in files:
                 if not check_extension(filename):
                     continue
@@ -136,7 +137,7 @@ def main():
 
     if args["init"]:
         logging_init(logging.DEBUG)
-        default_config_file = osp.join(os.path.dirname(__file__), 
+        default_config_file = osp.join(os.path.dirname(__file__),
                                         "conf_templates/_config.yml.in")
         isite = InitSite(default_config_file)
         isite.init_site()
