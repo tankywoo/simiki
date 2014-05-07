@@ -42,11 +42,29 @@ Simiki is short for `Simple Wiki` :)
 
 For more information, `simiki -h` or have a look at [Simiki.org](http://simiki.org)
 
+## Syntax Highlighter ##
+
+[Pygments](http://pygments.org/) is employed here to provide syntax highlighter working with Markdown.
+
+    ~~~~{.c}
+    #include <pmmintrin.h> //SSE3
+
+    void matrix_gen(int size, float *matrix1, float *matrix2)
+    {
+        int i;
+        for (i = 0; i < size * size; i++) {
+            matrix1[i] = i * 1.2f + 1;
+            matrix2[i] = i * 1.3f + 1;
+        }
+    }
+    ~~~~
+
 ## Others ##
 
 * [simiki.org](http://simiki.org)
 * <https://github.com/tankywoo/simiki>
 * Email: <me@tankywoo.com>
+
 
 ## License ##
 
