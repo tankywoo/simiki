@@ -79,7 +79,7 @@ class Simiki(object):
             os.mkdir(category_path)
             logger.info("Creating category {}.".format(category))
 
-        fn = osp.join(category_path, filename)
+        fn = osp.join(category_path, filename).decode("utf-8")
         if check_path_exists(fn):
             logger.warning("wiki file exists: {}".format(fn))
         else:
