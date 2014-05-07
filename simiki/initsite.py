@@ -12,7 +12,7 @@ from pprint import pprint
 
 from simiki.configs import parse_configs
 from simiki.log import logging_init
-from simiki.utils import check_path_exists, copytree
+from simiki.utils import (check_path_exists, copytree, mkdir_p)
 
 class InitSite(object):
 
@@ -21,33 +21,60 @@ class InitSite(object):
         if not check_path_exists(self.config_file):
             logging.error("{} not exists".format(self.config_file))
             sys.exit(1)
-        self.configs = parse_configs(self.config_file)
+        try:
+            self.configs = parse_configs(self.config_file)
+        except Exception as e:
+            logging.error(str(e))
         self.current_dir = os.getcwd()
 
-    def get_conf(self):
-        dst_config_file = osp.join(self.current_dir, "_config.yml")
-        if check_path_exists(dst_config_file):
+    def get_file(self, src, dst):
+        if check_path_exists(dst):
             logging.warning("{} already exists! if you want overwrite it, " \
-                        "please remove it first".format(dst_config_file))
+                        "please remove it first".format(dst))
             return
+
+        # Create parent directory
+        dst_directory = osp.dirname(dst)
+        if not check_path_exists(dst_directory):
+            mkdir_p(dst_directory)
+            logging.info("Creating directory: {}".format(dst_directory))
+
         try:
-            shutil.copyfile(self.config_file, dst_config_file)
-            logging.info("Creating config file: {}".format(dst_config_file))
+            shutil.copyfile(src, dst)
+            logging.info("Creating config file: {}".format(dst))
         except (shutil.Error, IOError), e:
             logging.error(str(e))
 
+    def get_config_file(self):
+        dst_config_file = osp.join(self.current_dir, "_config.yml")
+        self.get_file(self.config_file, dst_config_file)
+
     def get_fabfile(self):
-        src_fabfile = osp.join(osp.dirname(__file__), "conf_templates/fabfile.py")
+        src_fabfile = osp.join(
+            osp.dirname(__file__),
+            "conf_templates/fabfile.py"
+        )
         dst_fabfile = osp.join(self.current_dir, "fabfile.py")
-        if check_path_exists(dst_fabfile):
-            logging.warning("{} already exists! if you want overwrite it, " \
-                        "please remove it first".format(dst_fabfile))
-            return
-        try:
-            shutil.copyfile(src_fabfile, dst_fabfile)
-            logging.info("Creating config file: {}".format(dst_fabfile))
-        except (shutil.Error, IOError), e:
-            logging.error(str(e))
+        self.get_file(src_fabfile, dst_fabfile)
+
+    def get_first_page(self):
+        src_fabfile = osp.join(
+            osp.dirname(__file__),
+            "conf_templates/gettingstarted.md"
+        )
+        dst_fabfile = osp.join(
+            self.current_dir, 
+            "content/intro/gettingstarted.md"
+        )
+        self.get_file(src_fabfile, dst_fabfile)
+
+    def get_default_theme(self, theme_path):
+        src_theme = osp.join(os.path.dirname(__file__), "themes")
+        if osp.exists(theme_path):
+            shutil.rmtree(theme_path)
+
+        copytree(src_theme, theme_path)
+        logging.info("Copying default theme to: {}".format(theme_path))
 
     @staticmethod
     def install_theme(current_dir, theme_name):
@@ -71,15 +98,10 @@ class InitSite(object):
                 os.mkdir(path)
                 logging.info("Creating directory: {}".format(path))
 
-        src_theme = osp.join(os.path.dirname(__file__), "themes")
-        if osp.exists(theme_path):
-            shutil.rmtree(theme_path)
-
-        copytree(src_theme, theme_path)
-        logging.info("Copying themes: {}".format(theme_path))
-
-        self.get_conf()
+        self.get_config_file()
         self.get_fabfile()
+        self.get_first_page()
+        self.get_default_theme(theme_path)
         InitSite.install_theme(self.current_dir, self.configs["theme"])
 
 if __name__ == "__main__":
@@ -92,6 +114,6 @@ if __name__ == "__main__":
     else:
         logging.error("Usage: `python -m simiki.configs [config.yml]'")
         sys.exit(1)
-        
+
     i = InitSite(config_file)
     i.init_site()
