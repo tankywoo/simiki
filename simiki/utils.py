@@ -35,16 +35,15 @@ def check_path_exists(path):
     return False
 
 def check_extension(filename):
-    """Filter file by suffix
-    If the file suffix not in the allowed suffixes, the return true and filter.
+    """Check if the file extension is in the allowed extensions
+
     The `fnmatch` module can also get the suffix:
         patterns = ["*.md", "*.mkd", "*.markdown"]
         fnmatch.filter(files, pattern)
     """
 
-    # Allowed suffixes ( aka "extensions" )
-    exts = {".md", ".mkd", ".mdown", ".markdown"}
-    return osp.splitext(filename)[1] in exts
+    allowed_extensions = {".md", ".mkd", ".mdown", ".markdown"}
+    return osp.splitext(filename)[1] in allowed_extensions
 
 #def copytree(src, dst):
 #    try:
@@ -55,8 +54,9 @@ def check_extension(filename):
 #        else: raise
 
 def copytree(src, dst, symlinks=False, ignore=None):
+    """Copy from source directory to destination"""
 
-    # OSError: [Errno 17] File exists: '/home/tankywoo/simiki/html/css'
+    # TODO: OSError: [Errno 17] File exists: '/home/tankywoo/simiki/html/css'
     if not osp.exists(dst):
         os.makedirs(dst)
     for item in os.listdir(src):
@@ -86,6 +86,21 @@ def emptytree(directory):
                 logger.error("Unable to delete file %s: %s" % (fp, str(e)))
         else:
             logger.error("Unable to delete %s, unknown filetype" % fp)
+
+def mkdir_p(path):
+    """Make parent directories as needed, like `mkdir -p`"""
+    try:
+        os.makedirs(path)
+    except OSError as exc: # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else: raise
+
+def listdir_nohidden(path):
+    """List not hidden files or directories under path"""
+    for f in os.listdir(path):
+        if not f.startswith('.'):
+            yield f
 
 if __name__ == "__main__":
     print(color_msg("black", "Black"))

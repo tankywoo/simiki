@@ -9,6 +9,16 @@ from pprint import pprint
 import yaml
 from simiki.utils import check_path_exists
 
+def _post_process(configs):
+    for s in ("url", "title", "keyworkds", "description", "author"):
+        if configs.get(s) is None:
+            configs[s] = ""
+
+    if configs["url"].endswith("/"):
+        configs["url"] = configs["url"][:-1]
+
+    return configs
+
 def parse_configs(config_file):
     if not check_path_exists(config_file):
         logging.error("{} not exists".format(config_file))
@@ -25,16 +35,7 @@ def parse_configs(config_file):
         logging.error(msg)
         sys.exit(1)
 
-    if not configs.get("url", ""):
-        configs["url"] = ""
-    elif configs["url"].endswith("/"):
-        configs["url"] = configs["url"][:-1]
-    else:
-        pass
-    if not configs.get("keywords", ""):
-        configs["keywords"] = ""
-    if not configs.get("description", ""):
-        configs["description"] = ""
+    configs = _post_process(configs)
 
     return configs
 

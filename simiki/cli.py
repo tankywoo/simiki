@@ -90,8 +90,8 @@ class Simiki(object):
     def generate_single_page(self, md_file):
         md_file = md_file.decode('utf8')
         logger.debug("Generate {}".format(md_file))
-        pgen = PageGenerator(self.configs, md_file)
-        html = pgen.mdown2html()
+        pgen = PageGenerator(self.configs, os.getcwd(), md_file)
+        html = pgen.markdown2html()
         pgen.output_to_file(html)
 
     def generate_all_pages(self):
@@ -113,9 +113,9 @@ class Simiki(object):
     def generate_catalog(self):
         logger.info("Generate catalog page.")
         if self.configs["index"]:
-            cgen = CustomCatalogGenerator(self.configs)
+            cgen = CustomCatalogGenerator(self.configs, os.getcwd())
         else:
-            cgen = CatalogGenerator(self.configs)
+            cgen = CatalogGenerator(self.configs, os.getcwd())
         cgen.update_catalog_page()
 
     def generate(self, delete_output_dir=False):
