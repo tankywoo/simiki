@@ -178,7 +178,11 @@ class PageGenerator(BaseGenerator):
         """Get layout setting in metadata, default is 'page'"""
         metadata, markdown_content = self.get_metadata_and_content()
         if "layout" in metadata:
-            layout = metadata["layout"]
+            # Compatible with previous version, default layout is "post"
+            if metadata["layout"] == "post":
+                layout = "page"
+            else:
+                layout = metadata["layout"]
         else:
             layout = "page"
 
