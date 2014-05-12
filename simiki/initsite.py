@@ -12,7 +12,7 @@ from pprint import pprint
 
 from simiki.configs import parse_configs
 from simiki.log import logging_init
-from simiki.utils import (check_path_exists, copytree, mkdir_p)
+from simiki.utils import (check_path_exists, copytree, mkdir_p, listdir_nohidden)
 
 class InitSite(object):
 
@@ -58,6 +58,11 @@ class InitSite(object):
         self.get_file(src_fabfile, dst_fabfile)
 
     def get_first_page(self):
+        nohidden_dir = listdir_nohidden(osp.join(self.current_dir, "content/"))
+        # If there is directory under content, do not create first page
+        if next(nohidden_dir, False):
+            return
+
         src_fabfile = osp.join(
             osp.dirname(__file__),
             "conf_templates/gettingstarted.md"
