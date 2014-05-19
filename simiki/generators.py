@@ -135,6 +135,7 @@ class PageGenerator(BaseGenerator):
         markdown_extensions = ["fenced_code"]
         if self.site_settings["pygments"]:
             markdown_extensions.extend([
+                "extra",
                 "codehilite(css_class=hlcode)",
                 "toc(title=Table of Contents)"
             ])
