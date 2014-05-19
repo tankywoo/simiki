@@ -1,33 +1,8 @@
-# Simiki Configuration
-# Doc: http://simiki.org/configuration.html
+# Document:
+# http://simiki.org/docs/configuration.html
 
-# e.g: "http://example.com"
 url: 
 title: 
 keywords: 
 description: 
 author: 
-
-# If publishing to a subdirectory as in http://example.com/project set 'root: /project'
-root: /
-source: content
-destination: output
-themes_dir: themes
-
-# Choose the theme
-theme: simple
-
-# Default file extension
-default_ext: "md"
-
-# Enable the code highlight feature.
-pygments: true
-
-# Debug Mode, default is False
-debug: false
-
-# Set `true` to use "index.md" under source dir as index,
-# or you can set any wiki file as index, such as "tool/git.md".
-# If not set or set `false`, simiki will auto generate catalog as index, this is 
-# the default action
-index: false
