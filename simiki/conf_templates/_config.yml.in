@@ -30,4 +30,4 @@ debug: false
 # or you can set any wiki file as index, such as "tool/git.md".
 # If not set or set `false`, simiki will auto generate catalog as index, this is 
 # the default action
-index: 
+index: false
