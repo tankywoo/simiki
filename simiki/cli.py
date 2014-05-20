@@ -40,7 +40,7 @@ from simiki.initsite import InitSite
 from simiki.configs import parse_configs
 from simiki.log import logging_init
 from simiki.server import preview
-from simiki.utils import (check_path_exists, emptytree, check_extension)
+from simiki.utils import (check_path_exists, copytree, emptytree, check_extension)
 from simiki import __version__
 
 logger = logging.getLogger(__name__)
@@ -118,6 +118,16 @@ class Simiki(object):
             cgen = CatalogGenerator(self.configs, os.getcwd())
         cgen.update_catalog_page()
 
+    def install_theme(self, current_dir, theme_name):
+        """Copy static directory under theme to output directory"""
+        src_theme = osp.join(current_dir, "themes/{}/static".format(theme_name))
+        dst_theme = osp.join(current_dir, "output/static")
+        if osp.exists(dst_theme):
+            shutil.rmtree(dst_theme)
+
+        copytree(src_theme, dst_theme)
+        logging.info("Installing theme: {}".format(theme_name))
+
     def generate(self, delete_output_dir=False):
         if delete_output_dir:
             logger.info("Delete all the files and dirs under output directory")
@@ -126,7 +136,7 @@ class Simiki(object):
 
         self.generate_all_pages()
         self.generate_catalog()
-        InitSite.install_theme(os.getcwd(), self.configs["theme"])
+        self.install_theme(os.getcwd(), self.configs["theme"])
 
     def preview(self):
         default_path = self.configs["destination"]

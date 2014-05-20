@@ -29,8 +29,7 @@ class InitSite(object):
 
     def get_file(self, src, dst):
         if check_path_exists(dst):
-            logging.warning("{} already exists! if you want overwrite it, " \
-                        "please remove it first".format(dst))
+            logging.warning("{} exists".format(dst))
             return
 
         # Create parent directory
@@ -80,17 +79,6 @@ class InitSite(object):
 
         copytree(src_theme, theme_path)
         logging.info("Copying default theme to: {}".format(theme_path))
-
-    @staticmethod
-    def install_theme(current_dir, theme_name):
-        """Copy static directory under theme to output directory"""
-        src_theme = osp.join(current_dir, "themes/{}/static".format(theme_name))
-        dst_theme = osp.join(current_dir, "output/static")
-        if osp.exists(dst_theme):
-            shutil.rmtree(dst_theme)
-
-        copytree(src_theme, dst_theme)
-        logging.info("Installing theme: {}".format(theme_name))
 
     def init_site(self):
         content_path = osp.join(self.current_dir, self.configs["source"])
