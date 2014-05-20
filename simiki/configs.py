@@ -54,8 +54,7 @@ def parse_configs(config_file):
         sys.exit(1)
 
     default_configs.update(configs)
-    configs = deepcopy(default_configs)
-    configs = _post_process(configs)
+    configs = _post_process(deepcopy(default_configs))
 
     return configs
 
