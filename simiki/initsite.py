@@ -107,7 +107,6 @@ class InitSite(object):
         self.get_fabfile()
         self.get_first_page()
         self.get_default_theme(theme_path)
-        InitSite.install_theme(self.current_dir, self.configs["theme"])
 
 if __name__ == "__main__":
     logging_init(logging.DEBUG)
