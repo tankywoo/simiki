@@ -30,6 +30,10 @@ def _set_default_configs():
     return configs
 
 def _post_process(configs):
+    for k,v in configs.items():
+        if v is None:
+            configs[k] = ""
+
     if configs["url"].endswith("/"):
         configs["url"] = configs["url"][:-1]
 
