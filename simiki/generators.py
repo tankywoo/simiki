@@ -231,8 +231,7 @@ class CatalogGenerator(BaseGenerator):
         XXX: Only for root and one level dir.
         """
         catalog_page_list = {}
-        sub_dirs = [unicode(_, "utf-8") for _ in \
-                utils.listdir_nohidden(d)]
+        sub_dirs = [_ for _ in utils.listdir_nohidden(d)]
         for sub_dir in sub_dirs:
             abs_sub_dir = osp.join(self.site_settings["source"], sub_dir)
             # If file under the root of content directory, ignore it.

@@ -55,6 +55,7 @@ def param_of_create_wiki(title, category, filename):
         filename = "{}.md".format("-".join(title_.split()).lower())
     cur_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     title = title.decode("utf-8")
+    category = category.decode("utf-8")
     return (category, filename, title, cur_date)
 
 class Simiki(object):
@@ -79,7 +80,7 @@ class Simiki(object):
             os.mkdir(category_path)
             logger.info("Creating category {}.".format(category))
 
-        fn = osp.join(category_path, filename).decode("utf-8")
+        fn = osp.join(category_path, filename)
         if check_path_exists(fn):
             logger.warning("wiki file exists: {}".format(fn))
         else:

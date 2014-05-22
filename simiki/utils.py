@@ -99,6 +99,8 @@ def mkdir_p(path):
 def listdir_nohidden(path):
     """List not hidden files or directories under path"""
     for f in os.listdir(path):
+        if isinstance(f, str):
+            f = unicode(f, "utf-8")
         if not f.startswith('.'):
             yield f
 
