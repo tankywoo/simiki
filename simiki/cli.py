@@ -91,7 +91,7 @@ class Simiki(object):
     def generate_single_page(self, md_file):
         md_file = md_file.decode('utf8')
         logger.debug("Generate {}".format(md_file))
-        pgen = PageGenerator(self.configs, os.getcwd(), md_file)
+        pgen = PageGenerator(self.configs, os.getcwd(), osp.realpath(md_file))
         html = pgen.markdown2html()
         pgen.output_to_file(html)
 

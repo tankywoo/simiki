@@ -127,7 +127,6 @@ class PageGenerator(BaseGenerator):
 
     def __init__(self, site_settings, base_path, sfile_path):
         super(PageGenerator, self).__init__(site_settings, base_path, sfile_path)
-        self.sfile_path = osp.realpath(sfile_path)
 
     def __set_markdown_extensions(self):
         """Set the extensions for markdown parser"""
