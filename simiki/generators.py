@@ -26,10 +26,10 @@ logger = logging.getLogger(__name__)
 class BaseGenerator(object):
     """Base generator class"""
 
-    def __init__(self, site_settings, base_path, file_path):
+    def __init__(self, site_settings, base_path, sfile_path):
         self.site_settings = copy.deepcopy(site_settings)
         self.base_path = base_path
-        self.file_path = file_path
+        self.sfile_path = sfile_path
         _template_path = osp.join(
             self.base_path,
             site_settings["themes_dir"],
@@ -46,7 +46,7 @@ class BaseGenerator(object):
     def get_category_and_file(self):
         """Get the name of category and file(with extension)"""
         source_dir = osp.join(self.base_path, self.site_settings["source"])
-        relpath = osp.relpath(self.file_path, source_dir)
+        relpath = osp.relpath(self.sfile_path, source_dir)
         category, filename = osp.split(relpath)
 
         return (category, filename)
@@ -68,7 +68,7 @@ class BaseGenerator(object):
             metadata = yaml.load(metadata_yaml)
         except yaml.YAMLError, e:
             msg = "Yaml format error in {}:\n{}".format(
-                self.file_path,
+                self.sfile_path,
                 unicode(str(e), "utf-8")
             )
             logging.error(msg)
@@ -85,13 +85,13 @@ class BaseGenerator(object):
         The metadata is yaml format text in the middle of triple-dashed lines
         The content is the other source texts
         """
-        with codecs.open(self.file_path, "rb", "utf-8") as fd:
+        with codecs.open(self.sfile_path, "rb", "utf-8") as fd:
             textlist = fd.readlines()
 
         metadata_notation = "---\n"
         if textlist[0] != metadata_notation:
             logging.error(
-                "{} first line must be triple-dashed!".format(self.file_path)
+                "{} first line must be triple-dashed!".format(self.sfile_path)
             )
             sys.exit(1)
 
@@ -104,7 +104,7 @@ class BaseGenerator(object):
             idx += 1
             if idx >= max_idx:
                 logging.error(
-                    "{} doesn't have end triple-dashed!".format(self.file_path)
+                    "{} doesn't have end triple-dashed!".format(self.sfile_path)
                 )
                 sys.exit(1)
             if textlist[idx] == metadata_notation:
@@ -125,9 +125,9 @@ class BaseGenerator(object):
 
 class PageGenerator(BaseGenerator):
 
-    def __init__(self, site_settings, base_path, file_path):
-        super(PageGenerator, self).__init__(site_settings, base_path, file_path)
-        self.file_path = osp.realpath(file_path)
+    def __init__(self, site_settings, base_path, sfile_path):
+        super(PageGenerator, self).__init__(site_settings, base_path, sfile_path)
+        self.sfile_path = osp.realpath(sfile_path)
 
     def __set_markdown_extensions(self):
         """Set the extensions for markdown parser"""
@@ -179,7 +179,8 @@ class PageGenerator(BaseGenerator):
         """Get layout setting in metadata, default is 'page'"""
         metadata, markdown_content = self.get_metadata_and_content()
         if "layout" in metadata:
-            # Compatible with previous version, default layout is "post"
+            # Compatible with previous version, which default layout is "post"
+            # XXX Will remove this checker in v2.0
             if metadata["layout"] == "post":
                 layout = "page"
             else:
