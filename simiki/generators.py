@@ -26,10 +26,9 @@ logger = logging.getLogger(__name__)
 class BaseGenerator(object):
     """Base generator class"""
 
-    def __init__(self, site_settings, base_path, sfile_path):
+    def __init__(self, site_settings, base_path):
         self.site_settings = copy.deepcopy(site_settings)
         self.base_path = base_path
-        self.sfile_path = sfile_path
         _template_path = osp.join(
             self.base_path,
             site_settings["themes_dir"],
@@ -43,7 +42,13 @@ class BaseGenerator(object):
             logging.error(str(e))
             sys.exit(1)
 
-    def get_category_and_file(self):
+class PageGenerator(BaseGenerator):
+
+    def __init__(self, site_settings, base_path, sfile_path):
+        super(PageGenerator, self).__init__(site_settings, base_path)
+        self.sfile_path = sfile_path
+
+    def __get_category_and_file(self):
         """Get the name of category and file(with extension)"""
         source_dir = osp.join(self.base_path, self.site_settings["source"])
         relpath = osp.relpath(self.sfile_path, source_dir)
@@ -122,12 +127,6 @@ class BaseGenerator(object):
 
         return (metadata, content)
 
-
-class PageGenerator(BaseGenerator):
-
-    def __init__(self, site_settings, base_path, sfile_path):
-        super(PageGenerator, self).__init__(site_settings, base_path, sfile_path)
-
     def __set_markdown_extensions(self):
         """Set the extensions for markdown parser"""
         # Base markdown extensions support "fenced_code".
@@ -157,7 +156,7 @@ class PageGenerator(BaseGenerator):
 
     def get_template_vars(self):
         """Get template variables, include site settings and page settings"""
-        category, _ = self.get_category_and_file()
+        category, _ = self.__get_category_and_file()
         meta_data, markdown_content = self.get_metadata_and_content()
         body_html_content = self.parse_markdown(markdown_content)
         page = {"category" : category, "content" : body_html_content}
@@ -205,7 +204,7 @@ class PageGenerator(BaseGenerator):
 
     def output_to_file(self, html):
         """Write generated html to file"""
-        category, markdown = self.get_category_and_file()
+        category, markdown = self.__get_category_and_file()
         output_category_path = osp.join(
             self.site_settings["destination"], 
             category
@@ -223,42 +222,27 @@ class PageGenerator(BaseGenerator):
 
 class CatalogGenerator(BaseGenerator):
 
-    def __init__(self, site_settings, base_path):
-        super(CatalogGenerator, self).__init__(site_settings, base_path, None)
+    def __init__(self, site_settings, base_path, pages):
+        super(CatalogGenerator, self).__init__(site_settings, base_path)
+        self.pages = pages
 
-    def __get_catalog_page_list(self, d):
-        """
-        XXX: Only for root and one level dir.
-        """
-        catalog_page_list = {}
-        sub_dirs = [_ for _ in utils.listdir_nohidden(d)]
-        for sub_dir in sub_dirs:
-            abs_sub_dir = osp.join(self.site_settings["source"], sub_dir)
-            # If file under the root of content directory, ignore it.
-            # TODO: support root level.
-            if not osp.isdir(abs_sub_dir):
-                continue
-            catalog_page_list[sub_dir] = []
-            for f in utils.listdir_nohidden(abs_sub_dir):
-                if osp.isdir(f):
-                    catalog_page_list[sub_dir][f] = {}
-                if not utils.check_extension(f):
-                    continue
-                fn = osp.join(abs_sub_dir, f)
-                pg = PageGenerator(self.site_settings, self.base_path, fn)
-                metadata, _ = pg.get_metadata_and_content()
-                r, e = osp.splitext(f)
-                metadata.update(name = r)
-                catalog_page_list[sub_dir].append(metadata)
-            catalog_page_list[sub_dir].sort(
-                key = lambda p: p["title"].lower()
-            )
+    def __get_content_structure_and_metadata(self):
+        """Ref: http://stackoverflow.com/a/9619101/1276501"""
+        dct = {}
+        for path, meta in self.pages.items():
+            p = dct
+            for x in path.split('/'):
+                if ".md" in x:
+                    meta["name"] = osp.splitext(x)[0]
+                    p = p.setdefault(x, meta)
+                else:
+                    p = p.setdefault(x, {})
 
-        return catalog_page_list
+        return dct["content"]
 
     def get_template_vars(self):
-        self.site_settings["categories"] = \
-            self.__get_catalog_page_list(self.site_settings["source"])
+        self.site_settings["structure"] = \
+            self.__get_content_structure_and_metadata()
         tpl_vars = {
             "site" : self.site_settings,
         }

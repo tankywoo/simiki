@@ -92,14 +92,17 @@ class Simiki(object):
         md_file = md_file.decode('utf8')
         logger.debug("Generate {}".format(md_file))
         pgen = PageGenerator(self.configs, os.getcwd(), osp.realpath(md_file))
+        meta_data, _ = pgen.get_metadata_and_content()
         html = pgen.markdown2html()
         pgen.output_to_file(html)
+        return meta_data
 
     def generate_all_pages(self):
         logger.info("Start generating markdown files.")
         content_path = self.configs["source"]
 
         pcnt = 0
+        pages = {}
         for root, dirs, files in os.walk(content_path):
             files = [f for f in files if not f.decode("utf-8").startswith(".")]
             dirs[:] = [d for d in dirs if not d.decode("utf-8").startswith(".")]
@@ -107,16 +110,17 @@ class Simiki(object):
                 if not check_extension(filename):
                     continue
                 md_file = osp.join(root, filename)
-                self.generate_single_page(md_file)
+                pages[md_file] = self.generate_single_page(md_file)
                 pcnt += 1
         logger.info("{} files generated.".format(pcnt))
+        return pages
 
-    def generate_catalog(self):
+    def generate_catalog(self, pages):
         logger.info("Generate catalog page.")
         if self.configs["index"]:
-            cgen = CustomCatalogGenerator(self.configs, os.getcwd())
+            cgen = CustomCatalogGenerator(self.configs, os.getcwd(), None)
         else:
-            cgen = CatalogGenerator(self.configs, os.getcwd())
+            cgen = CatalogGenerator(self.configs, os.getcwd(), pages)
         cgen.update_catalog_page()
 
     def install_theme(self, current_dir, theme_name):
@@ -135,8 +139,8 @@ class Simiki(object):
             output_dir = osp.join(os.getcwd(), self.configs["destination"])
             emptytree(output_dir)
 
-        self.generate_all_pages()
-        self.generate_catalog()
+        pages = self.generate_all_pages()
+        self.generate_catalog(pages)
         self.install_theme(os.getcwd(), self.configs["theme"])
 
     def preview(self):
