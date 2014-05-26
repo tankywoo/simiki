@@ -49,7 +49,7 @@ class PageGenerator(BaseGenerator):
         super(PageGenerator, self).__init__(site_settings, base_path)
         self.sfile_path = sfile_path
 
-    def __get_category_and_file(self):
+    def get_category_and_file(self):
         """Get the name of category and file(with extension)"""
         source_dir = osp.join(self.base_path, self.site_settings["source"])
         relpath = osp.relpath(self.sfile_path, source_dir)
@@ -57,7 +57,7 @@ class PageGenerator(BaseGenerator):
 
         return (category, filename)
 
-    def __check_metadata(self, metadata):
+    def check_metadata(self, metadata):
         """Check if metadata is right"""
         is_metadata_right = True
         if "title" not in metadata:
@@ -65,7 +65,7 @@ class PageGenerator(BaseGenerator):
             is_metadata_right = False
         return is_metadata_right
 
-    def __get_metadata(self, metadata_yaml):
+    def get_metadata(self, metadata_yaml):
         """Get metadata and validate them
 
         :param metadata_yaml: metadata in yaml format
@@ -80,12 +80,12 @@ class PageGenerator(BaseGenerator):
             logging.error(msg)
             sys.exit(1)
 
-        if not self.__check_metadata(metadata):
+        if not self.check_metadata(metadata):
             sys.exit(1)
 
         return metadata
 
-    def __get_metadata_and_content_textlist(self):
+    def get_metadata_and_content_textlist(self):
         """Split the source file texts by triple-dashed lines
         #TODO#
         The metadata is yaml format text in the middle of triple-dashed lines
@@ -121,14 +121,14 @@ class PageGenerator(BaseGenerator):
 
     def get_metadata_and_content(self):
         metadata_textlist, content_textlist = \
-            self.__get_metadata_and_content_textlist()
+            self.get_metadata_and_content_textlist()
         metadata_yaml = "".join(metadata_textlist)
-        metadata = self.__get_metadata(metadata_yaml)
+        metadata = self.get_metadata(metadata_yaml)
         content = "".join(content_textlist)
 
         return (metadata, content)
 
-    def __set_markdown_extensions(self):
+    def set_markdown_extensions(self):
         """Set the extensions for markdown parser"""
         # Base markdown extensions support "fenced_code".
         markdown_extensions = ["fenced_code"]
@@ -146,7 +146,7 @@ class PageGenerator(BaseGenerator):
 
         :param markdown_content: Markdown text lists #TODO#
         """
-        markdown_extensions = self.__set_markdown_extensions()
+        markdown_extensions = self.set_markdown_extensions()
 
         html_content = markdown.markdown(
             markdown_content,
@@ -157,7 +157,7 @@ class PageGenerator(BaseGenerator):
 
     def get_template_vars(self):
         """Get template variables, include site settings and page settings"""
-        category, _ = self.__get_category_and_file()
+        category, _ = self.get_category_and_file()
         meta_data, markdown_content = self.get_metadata_and_content()
         body_html_content = self.parse_markdown(markdown_content)
         page = {"category" : category, "content" : body_html_content}
@@ -174,7 +174,7 @@ class PageGenerator(BaseGenerator):
 
         return template_vars
 
-    def __get_layout(self):
+    def get_layout(self):
         """Get layout setting in metadata, default is 'page'"""
         metadata, markdown_content = self.get_metadata_and_content()
         if "layout" in metadata:
@@ -191,7 +191,7 @@ class PageGenerator(BaseGenerator):
 
     def markdown2html(self):
         """Load template, and generate html"""
-        layout = self.__get_layout()
+        layout = self.get_layout()
         template_html_file = "{}.html".format(layout)
         template_vars = self.get_template_vars()
         try:
@@ -210,7 +210,7 @@ class CatalogGenerator(BaseGenerator):
         super(CatalogGenerator, self).__init__(site_settings, base_path)
         self.pages = pages
 
-    def __get_content_structure_and_metadata(self):
+    def get_content_structure_and_metadata(self):
         """Ref: http://stackoverflow.com/a/9619101/1276501"""
         dct = {}
         for path, meta in self.pages.items():
@@ -226,7 +226,7 @@ class CatalogGenerator(BaseGenerator):
 
     def get_template_vars(self):
         self.site_settings["structure"] = \
-            self.__get_content_structure_and_metadata()
+            self.get_content_structure_and_metadata()
         tpl_vars = {
             "site" : self.site_settings,
         }
