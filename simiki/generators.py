@@ -42,6 +42,7 @@ class BaseGenerator(object):
             logging.error(str(e))
             sys.exit(1)
 
+
 class PageGenerator(BaseGenerator):
 
     def __init__(self, site_settings, base_path, sfile_path):
@@ -202,23 +203,6 @@ class PageGenerator(BaseGenerator):
 
         return html
 
-    def output_to_file(self, html):
-        """Write generated html to file"""
-        category, markdown = self.__get_category_and_file()
-        output_category_path = osp.join(
-            self.site_settings["destination"], 
-            category
-        )
-        if not utils.check_path_exists(output_category_path):
-            logging.info(
-                "The output category %s not exists, create it" \
-                % output_category_path
-            )
-            utils.mkdir_p(output_category_path)
-        markdown_name = osp.splitext(markdown)[0]
-        output_file = osp.join(output_category_path, markdown_name+".html")
-        with codecs.open(output_file, "wb", "utf-8") as fd:
-            fd.write(html)
 
 class CatalogGenerator(BaseGenerator):
 
@@ -258,12 +242,6 @@ class CatalogGenerator(BaseGenerator):
         tpl_vars = self.get_template_vars()
         html = self.env.get_template("index.html").render(tpl_vars)
         return html
-
-    def update_catalog_page(self):
-        catalog_html = self.generate_catalog_html()
-        catalog_file = osp.join(self.site_settings["destination"], "index.html")
-        with codecs.open(catalog_file, "wb", "utf-8") as fd:
-            fd.write(catalog_html)
 
 class CustomCatalogGenerator(CatalogGenerator):
 

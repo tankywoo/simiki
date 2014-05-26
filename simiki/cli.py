@@ -35,12 +35,14 @@ from pprint import pprint
 
 from docopt import docopt
 
-from simiki.generators import (PageGenerator, CatalogGenerator, CustomCatalogGenerator)
+from simiki.generators import (PageGenerator, CatalogGenerator,
+                            CustomCatalogGenerator)
 from simiki.initsite import InitSite
 from simiki.configs import parse_configs
 from simiki.log import logging_init
 from simiki.server import preview
-from simiki.utils import (check_path_exists, copytree, emptytree, check_extension)
+from simiki.utils import (check_path_exists, copytree, emptytree,
+                        check_extension, mkdir_p)
 from simiki import __version__
 
 logger = logging.getLogger(__name__)
@@ -57,6 +59,24 @@ def param_of_create_wiki(title, category, filename):
     title = title.decode("utf-8")
     category = category.decode("utf-8")
     return (category, filename, title, cur_date)
+
+def write_file(content, ofile, ftype="page"):
+    """Write content to output file.
+
+    :param content: content to write to ofile
+    :param ofile: output file
+    :param ftype: file type, "page" or "index"
+    """
+    if ftype == "page":
+        output_category,_ = osp.split(ofile)
+        if not check_path_exists(output_category):
+            logging.info(
+                "The output category %s not exists, create it" \
+                % output_category
+            )
+            mkdir_p(output_category)
+    with codecs.open(ofile, "wb", "utf-8") as fd:
+        fd.write(content)
 
 class Simiki(object):
 
@@ -94,7 +114,12 @@ class Simiki(object):
         pgen = PageGenerator(self.configs, os.getcwd(), osp.realpath(md_file))
         meta_data, _ = pgen.get_metadata_and_content()
         html = pgen.markdown2html()
-        pgen.output_to_file(html)
+        scategory, fname = osp.split(md_file)
+        fname, _ = osp.splitext(fname)
+        category = osp.relpath(scategory, self.configs["source"])
+        ocategory = osp.join(os.getcwd(), self.configs["destination"], category)
+        ofile = osp.join(ocategory, fname+".html")
+        write_file(html, ofile)
         return meta_data
 
     def generate_all_pages(self):
@@ -121,7 +146,9 @@ class Simiki(object):
             cgen = CustomCatalogGenerator(self.configs, os.getcwd(), None)
         else:
             cgen = CatalogGenerator(self.configs, os.getcwd(), pages)
-        cgen.update_catalog_page()
+        html = cgen.generate_catalog_html()
+        ofile = osp.join(os.getcwd(), self.configs["destination"], "index.html")
+        write_file(html, ofile, "index")
 
     def install_theme(self, current_dir, theme_name):
         """Copy static directory under theme to output directory"""
