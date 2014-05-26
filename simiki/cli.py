@@ -101,7 +101,17 @@ def create_new_wiki(source, category, filename, title, date):
         with codecs.open(fn, "wb", "utf-8") as fd:
             fd.write(meta)
 
-class Simiki(object):
+def install_theme(current_dir, theme_name):
+    """Copy static directory under theme to output directory"""
+    src_theme = osp.join(current_dir, "themes/{}/static".format(theme_name))
+    dst_theme = osp.join(current_dir, "output/static")
+    if osp.exists(dst_theme):
+        shutil.rmtree(dst_theme)
+
+    copytree(src_theme, dst_theme)
+    logging.info("Installing theme: {}".format(theme_name))
+
+class Generator(object):
 
     def __init__(self, configs):
         self.configs = configs
@@ -114,7 +124,7 @@ class Simiki(object):
 
         pages = self.generate_all_pages()
         self.generate_catalog(pages)
-        self.install_theme(os.getcwd(), self.configs["theme"])
+        install_theme(os.getcwd(), self.configs["theme"])
 
     def generate_all_pages(self):
         logger.info("Start generating markdown files.")
@@ -138,14 +148,19 @@ class Simiki(object):
         md_file = md_file.decode('utf8')
         logger.debug("Generate {}".format(md_file))
         pgen = PageGenerator(self.configs, os.getcwd(), osp.realpath(md_file))
-        meta_data, _ = pgen.get_metadata_and_content()
         html = pgen.markdown2html()
-        scategory, fname = osp.split(md_file)
-        fname, _ = osp.splitext(fname)
-        category = osp.relpath(scategory, self.configs["source"])
-        ocategory = osp.join(os.getcwd(), self.configs["destination"], category)
-        ofile = osp.join(ocategory, fname+".html")
+
+        def get_ofile():
+            scategory, fname = osp.split(md_file)
+            ofname = "{}.html".format(osp.splitext(fname)[0])
+            category = osp.relpath(scategory, self.configs["source"])
+            ocategory = osp.join(os.getcwd(), self.configs["destination"], category)
+            ofile = osp.join(ocategory, ofname)
+            return ofile
+
+        ofile = get_ofile()
         write_file(html, ofile)
+        meta_data, _ = pgen.get_metadata_and_content()
         return meta_data
 
     def generate_catalog(self, pages):
@@ -158,15 +173,6 @@ class Simiki(object):
         ofile = osp.join(os.getcwd(), self.configs["destination"], "index.html")
         write_file(html, ofile, "index")
 
-    def install_theme(self, current_dir, theme_name):
-        """Copy static directory under theme to output directory"""
-        src_theme = osp.join(current_dir, "themes/{}/static".format(theme_name))
-        dst_theme = osp.join(current_dir, "output/static")
-        if osp.exists(dst_theme):
-            shutil.rmtree(dst_theme)
-
-        copytree(src_theme, dst_theme)
-        logging.info("Installing theme: {}".format(theme_name))
 
 
 def main():
@@ -184,10 +190,10 @@ def main():
     configs = parse_configs(config_file)
     level = logging.DEBUG if configs["debug"] else logging.INFO
     logging_init(level)
-    simiki = Simiki(configs)
 
     if args["generate"]:
-        simiki.generate(args["--delete"])
+        gen = Generator(configs)
+        gen.generate(args["--delete"])
     elif args["new"] and args["-t"]:
         pocw = param_of_create_wiki(args["-t"], args["-c"], args["-f"])
         create_new_wiki(configs["source"], *pocw)
