@@ -106,19 +106,15 @@ class Simiki(object):
     def __init__(self, configs):
         self.configs = configs
 
-    def generate_single_page(self, md_file):
-        md_file = md_file.decode('utf8')
-        logger.debug("Generate {}".format(md_file))
-        pgen = PageGenerator(self.configs, os.getcwd(), osp.realpath(md_file))
-        meta_data, _ = pgen.get_metadata_and_content()
-        html = pgen.markdown2html()
-        scategory, fname = osp.split(md_file)
-        fname, _ = osp.splitext(fname)
-        category = osp.relpath(scategory, self.configs["source"])
-        ocategory = osp.join(os.getcwd(), self.configs["destination"], category)
-        ofile = osp.join(ocategory, fname+".html")
-        write_file(html, ofile)
-        return meta_data
+    def generate(self, delete_output_dir=False):
+        if delete_output_dir:
+            logger.info("Delete all the files and dirs under output directory")
+            output_dir = osp.join(os.getcwd(), self.configs["destination"])
+            emptytree(output_dir)
+
+        pages = self.generate_all_pages()
+        self.generate_catalog(pages)
+        self.install_theme(os.getcwd(), self.configs["theme"])
 
     def generate_all_pages(self):
         logger.info("Start generating markdown files.")
@@ -137,6 +133,20 @@ class Simiki(object):
                 pcnt += 1
         logger.info("{} files generated.".format(pcnt))
         return pages
+
+    def generate_single_page(self, md_file):
+        md_file = md_file.decode('utf8')
+        logger.debug("Generate {}".format(md_file))
+        pgen = PageGenerator(self.configs, os.getcwd(), osp.realpath(md_file))
+        meta_data, _ = pgen.get_metadata_and_content()
+        html = pgen.markdown2html()
+        scategory, fname = osp.split(md_file)
+        fname, _ = osp.splitext(fname)
+        category = osp.relpath(scategory, self.configs["source"])
+        ocategory = osp.join(os.getcwd(), self.configs["destination"], category)
+        ofile = osp.join(ocategory, fname+".html")
+        write_file(html, ofile)
+        return meta_data
 
     def generate_catalog(self, pages):
         logger.info("Generate catalog page.")
@@ -157,16 +167,6 @@ class Simiki(object):
 
         copytree(src_theme, dst_theme)
         logging.info("Installing theme: {}".format(theme_name))
-
-    def generate(self, delete_output_dir=False):
-        if delete_output_dir:
-            logger.info("Delete all the files and dirs under output directory")
-            output_dir = osp.join(os.getcwd(), self.configs["destination"])
-            emptytree(output_dir)
-
-        pages = self.generate_all_pages()
-        self.generate_catalog(pages)
-        self.install_theme(os.getcwd(), self.configs["theme"])
 
 
 def main():
