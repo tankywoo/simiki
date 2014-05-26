@@ -76,36 +76,35 @@ def write_file(content, ofile, ftype="page"):
     with codecs.open(ofile, "wb", "utf-8") as fd:
         fd.write(content)
 
+def create_new_wiki(source, category, filename, title, date):
+    try:
+        meta = "\n".join([
+            "---",
+            "title: \"{}\"".format(title),
+            "date: {}".format(date),
+            "---",
+        ]) + "\n\n"
+    except Exception, e:
+        logger.error(str(e))
+        sys.exit(1)
+
+    category_path = osp.join(source, category)
+    if not check_path_exists(category_path):
+        os.mkdir(category_path)
+        logger.info("Creating category {}.".format(category))
+
+    fn = osp.join(category_path, filename)
+    if check_path_exists(fn):
+        logger.warning("wiki file exists: {}".format(fn))
+    else:
+        logger.info("Creating wiki: {}".format(fn))
+        with codecs.open(fn, "wb", "utf-8") as fd:
+            fd.write(meta)
+
 class Simiki(object):
 
     def __init__(self, configs):
         self.configs = configs
-
-    def create_new_wiki(self, category, filename, title, date):
-        try:
-            meta = "\n".join([
-                "---",
-                "title: \"{}\"".format(title),
-                "layout: page",
-                "date: {}".format(date),
-                "---",
-            ]) + "\n\n"
-        except Exception, e:
-            logger.error(str(e))
-            sys.exit(1)
-
-        category_path = osp.join(self.configs["source"], category)
-        if not check_path_exists(category_path):
-            os.mkdir(category_path)
-            logger.info("Creating category {}.".format(category))
-
-        fn = osp.join(category_path, filename)
-        if check_path_exists(fn):
-            logger.warning("wiki file exists: {}".format(fn))
-        else:
-            logger.info("Creating wiki: {}".format(fn))
-            with codecs.open(fn, "wb", "utf-8") as fd:
-                fd.write(meta)
 
     def generate_single_page(self, md_file):
         md_file = md_file.decode('utf8')
@@ -191,7 +190,7 @@ def main():
         simiki.generate(args["--delete"])
     elif args["new"] and args["-t"]:
         pocw = param_of_create_wiki(args["-t"], args["-c"], args["-f"])
-        simiki.create_new_wiki(*pocw)
+        create_new_wiki(configs["source"], *pocw)
     elif args["preview"]:
         preview(configs["destination"])
     else:
