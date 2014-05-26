@@ -48,9 +48,7 @@ from simiki import __version__
 logger = logging.getLogger(__name__)
 
 def param_of_create_wiki(title, category, filename):
-    """
-    @todo: support 'Chinese' in title.
-    """
+    """Get parameters of creating wiki page"""
     if not filename:
         # `/` can't exists in filename
         title_ = title.decode("utf-8").replace("/", " slash ")
@@ -88,6 +86,7 @@ class Simiki(object):
             meta = "\n".join([
                 "---",
                 "title: \"{}\"".format(title),
+                "layout: page",
                 "date: {}".format(date),
                 "---",
             ]) + "\n\n"
@@ -170,9 +169,6 @@ class Simiki(object):
         self.generate_catalog(pages)
         self.install_theme(os.getcwd(), self.configs["theme"])
 
-    def preview(self):
-        default_path = self.configs["destination"]
-        preview(default_path)
 
 def main():
     args = docopt(__doc__, version="Simiki {}".format(__version__))
@@ -183,7 +179,7 @@ def main():
                                         "conf_templates/_config.yml.in")
         isite = InitSite(default_config_file)
         isite.init_site()
-        sys.exit(1)
+        return
 
     config_file = osp.join(os.getcwd(), "_config.yml")
     configs = parse_configs(config_file)
@@ -197,7 +193,7 @@ def main():
         pocw = param_of_create_wiki(args["-t"], args["-c"], args["-f"])
         simiki.create_new_wiki(*pocw)
     elif args["preview"]:
-        simiki.preview()
+        preview(configs["destination"])
     else:
         # docopt itself will display the help info.
         pass
