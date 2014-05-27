@@ -1,6 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import os
 import os.path
-from fabric.api import run, env
+from fabric.api import env, local, run
 from fabric.colors import blue
 import fabric.contrib.project as project
 
@@ -11,8 +14,8 @@ env.colorize_errors = True
 
 # Local output path
 env.local_output = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)), 
-        "output/")
+    os.path.abspath(os.path.dirname(__file__)),
+    "output/")
 # Remote path to deploy output
 env.remote_output = ""
 
@@ -30,3 +33,13 @@ def deploy():
         remote_dir = env.remote_output.rstrip("/") + "/",
         delete =True
     )
+
+def g():
+    local("simiki generate")
+
+def p():
+    local("simiki preview")
+
+def gp():
+    g()
+    p()

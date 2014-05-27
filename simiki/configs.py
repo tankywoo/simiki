@@ -5,14 +5,34 @@ import os
 import sys
 import logging
 from os import path as osp
+from copy import deepcopy
 from pprint import pprint
 import yaml
 from simiki.utils import check_path_exists
 
+def _set_default_configs():
+    configs = {
+        "url" : "",
+        "title" : "",
+        "keywords" : "",
+        "description" : "",
+        "author" : "",
+        "root" : "/",
+        "source" : "content",
+        "destination" : "output",
+        "themes_dir" : "themes",
+        "theme" : "simple",
+        "default_ext" : "md",
+        "pygments" : True,
+        "debug" : False,
+        "index" : False
+     }
+    return configs
+
 def _post_process(configs):
-    for s in ("url", "title", "keyworkds", "description", "author"):
-        if configs.get(s) is None:
-            configs[s] = ""
+    for k,v in configs.items():
+        if v is None:
+            configs[k] = ""
 
     if configs["url"].endswith("/"):
         configs["url"] = configs["url"][:-1]
@@ -20,6 +40,8 @@ def _post_process(configs):
     return configs
 
 def parse_configs(config_file):
+    default_configs = _set_default_configs()
+
     if not check_path_exists(config_file):
         logging.error("{} not exists".format(config_file))
         sys.exit(1)
@@ -35,7 +57,8 @@ def parse_configs(config_file):
         logging.error(msg)
         sys.exit(1)
 
-    configs = _post_process(configs)
+    default_configs.update(configs)
+    configs = _post_process(deepcopy(default_configs))
 
     return configs
 

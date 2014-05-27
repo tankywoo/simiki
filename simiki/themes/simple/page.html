@@ -6,7 +6,8 @@
     <div id="header">
         <div id="post-nav">
             {% if not default_home_page %}
-            <a href="{{ site.root }}/">Home</a> » <a href="{{ site.root }}/#{{ page.category }}">{{ page.category }}</a> » {{ page.title }}
+            <a href="{{ site.root }}/">Home</a>{%- if page.category %} » <a href="{{ site.root }}/#{{ page.category }}">{{ page.category }}</a>
+{%- endif %} » {{ page.title }}
             {% endif %}
         </div>
     </div>

@@ -12,7 +12,7 @@ from pprint import pprint
 
 from simiki.configs import parse_configs
 from simiki.log import logging_init
-from simiki.utils import (check_path_exists, copytree, mkdir_p)
+from simiki.utils import (check_path_exists, copytree, mkdir_p, listdir_nohidden)
 
 class InitSite(object):
 
@@ -29,8 +29,7 @@ class InitSite(object):
 
     def get_file(self, src, dst):
         if check_path_exists(dst):
-            logging.warning("{} already exists! if you want overwrite it, " \
-                        "please remove it first".format(dst))
+            logging.warning("{} exists".format(dst))
             return
 
         # Create parent directory
@@ -58,6 +57,11 @@ class InitSite(object):
         self.get_file(src_fabfile, dst_fabfile)
 
     def get_first_page(self):
+        nohidden_dir = listdir_nohidden(osp.join(self.current_dir, "content/"))
+        # If there is directory under content, do not create first page
+        if next(nohidden_dir, False):
+            return
+
         src_fabfile = osp.join(
             osp.dirname(__file__),
             "conf_templates/gettingstarted.md"
@@ -76,17 +80,6 @@ class InitSite(object):
         copytree(src_theme, theme_path)
         logging.info("Copying default theme to: {}".format(theme_path))
 
-    @staticmethod
-    def install_theme(current_dir, theme_name):
-        """Copy static directory under theme to output directory"""
-        src_theme = osp.join(current_dir, "themes/{}/static".format(theme_name))
-        dst_theme = osp.join(current_dir, "output/static")
-        if osp.exists(dst_theme):
-            shutil.rmtree(dst_theme)
-
-        copytree(src_theme, dst_theme)
-        logging.info("Installing theme: {}".format(theme_name))
-
     def init_site(self):
         content_path = osp.join(self.current_dir, self.configs["source"])
         output_path = osp.join(self.current_dir, self.configs["destination"])
@@ -102,7 +95,6 @@ class InitSite(object):
         self.get_fabfile()
         self.get_first_page()
         self.get_default_theme(theme_path)
-        InitSite.install_theme(self.current_dir, self.configs["theme"])
 
 if __name__ == "__main__":
     logging_init(logging.DEBUG)
