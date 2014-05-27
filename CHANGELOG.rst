@@ -1,3 +1,11 @@
+v1.0.0 (2014-05-28)
+===================
+
+* Support Chinese directory and file name
+* Simplify the default configuration file
+* Add introduction page when init site
+* Fix some bugs
+
 v0.5.0 (2014-04-30)
 ===================
 
