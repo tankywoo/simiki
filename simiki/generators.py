@@ -52,13 +52,14 @@ class PageGenerator(BaseGenerator):
     def markdown2html(self):
         """Load template, and generate html"""
         layout = self.get_layout()
-        template_html_file = "{}.html".format(layout)
+        template_file = "{}.html".format(layout)
         template_vars = self.get_template_vars()
         try:
-            html = self.env.get_template(template_html_file).render(template_vars)
+            template = self.env.get_template(template_file)
+            html = template.render(template_vars)
         except TemplateError, e:
-            logging.error("Unable to load template {}; error: {}"\
-                    .format(template_html_file, str(e)))
+            logging.error("Unable to load template {}: {}"\
+                    .format(template_file, str(e)))
             sys.exit(1)
 
         return html
