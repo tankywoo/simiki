@@ -9,11 +9,12 @@
     {{ page.content }}
   {% else %}
     {% for category_name, pages in site.structure.iteritems() %}
-    {% if ".md" not in category_name %}
+    {# Only list second-level directory #}
+    {% if site.default_ext not in category_name %}
     <h2 id="{{ category_name }}">{{ category_name }}</h2>
     <ul>
         {%- for page_file, page_metadata in pages.iteritems() %}
-        {% if ".md" in page_file %}
+        {% if site.default_ext in page_file %}
         <li class="pagelist"><a href="./{{ category_name }}/{{ page_metadata.name }}.html">{{ page_metadata.title }}</a></li>
         {% endif %}
         {%- endfor %}
