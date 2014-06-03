@@ -1,5 +1,3 @@
-**NOTE** : Simiki is currently under heavy development, stable version `v1.0` will come soon at June.
-
 # Simiki #
 
 [![Latest Version](http://img.shields.io/pypi/v/simiki.svg)](https://pypi.python.org/pypi/simiki)
