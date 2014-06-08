@@ -4,7 +4,8 @@
 """ Convert Markdown file to html, which is embeded in html template.
 """
 
-from __future__ import print_function, with_statement, unicode_literals
+from __future__ import (print_function, with_statement, unicode_literals,
+                        absolute_import)
 
 import os
 import sys
