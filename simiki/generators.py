@@ -218,6 +218,7 @@ class CatalogGenerator(BaseGenerator):
         for path, meta in self.pages.items():
             p = dct
             for x in path.split(os.sep):
+                x = unicode(x, "utf-8")
                 if ".md" in x:
                     meta["name"] = osp.splitext(x)[0]
                     p = p.setdefault(x, meta)
