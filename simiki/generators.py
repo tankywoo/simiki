@@ -217,7 +217,7 @@ class CatalogGenerator(BaseGenerator):
         dct = {}
         for path, meta in self.pages.items():
             p = dct
-            for x in path.split('/'):
+            for x in path.split(os.sep):
                 if ".md" in x:
                     meta["name"] = osp.splitext(x)[0]
                     p = p.setdefault(x, meta)
