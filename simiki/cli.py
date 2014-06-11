@@ -140,7 +140,8 @@ class Generator(object):
         for root, dirs, files in os.walk(content_path):
             files = [f for f in files if not f.decode("utf-8").startswith(".")]
             dirs[:] = [
-                d for d in dirs if not d.decode("utf-8").startswith(".")]
+                d for d in dirs if not d.decode("utf-8").startswith(".")
+            ]
             for filename in files:
                 if not check_extension(filename):
                     continue
@@ -161,7 +162,8 @@ class Generator(object):
             ofname = "{}.html".format(osp.splitext(fname)[0])
             category = osp.relpath(scategory, self.configs["source"])
             ocategory = osp.join(
-                os.getcwd(), self.configs["destination"], category)
+                os.getcwd(), self.configs["destination"], category
+            )
             ofile = osp.join(ocategory, ofname)
             return ofile
 

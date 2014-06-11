@@ -26,7 +26,6 @@ logger = logging.getLogger(__name__)
 
 
 class BaseGenerator(object):
-
     """Base generator class"""
 
     def __init__(self, site_settings, base_path):

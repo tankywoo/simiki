@@ -11,8 +11,8 @@ from pprint import pprint
 
 from simiki.configs import parse_configs
 from simiki.log import logging_init
-from simiki.utils import (
-    check_path_exists, copytree, mkdir_p, listdir_nohidden)
+from simiki.utils import (check_path_exists, copytree, mkdir_p,
+                          listdir_nohidden)
 
 
 class InitSite(object):

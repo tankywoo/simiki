@@ -48,12 +48,12 @@ def check_extension(filename):
     return osp.splitext(filename)[1] in allowed_extensions
 
 # def copytree(src, dst):
-#    try:
-#        shutil.copytree(src, dst)
+#     try:
+#         shutil.copytree(src, dst)
 # except OSError as exc: # python >2.5
-#        if exc.errno == errno.ENOTDIR:
-#            shutil.copy(src, dst)
-#        else: raise
+#         if exc.errno == errno.ENOTDIR:
+#             shutil.copy(src, dst)
+#         else: raise
 
 
 def copytree(src, dst, symlinks=False, ignore=None):

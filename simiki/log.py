@@ -9,7 +9,6 @@ from simiki import utils
 
 
 class ANSIFormatter(Formatter):
-
     """Use ANSI escape sequences to colored log"""
 
     def format(self, record):
