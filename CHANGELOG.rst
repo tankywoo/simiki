@@ -1,3 +1,21 @@
+v1.0.3 (2014-06-10)
+===================
+
+* Fix #14 Chinese filename problem
+
+
+v1.0.2 (2014-06-10)
+===================
+
+* Fix #13 system path separator problem on Windows
+
+
+v1.0.1 (2014-06-10)
+===================
+
+* Fix serious problem using rsync
+
+
 v1.0.0 (2014-05-28)
 ===================
 

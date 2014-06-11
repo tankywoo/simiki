@@ -25,6 +25,7 @@ env.remote_output = ""
 # Other options
 env.rsync_delete = False
 
+
 def update_simiki():
     print(blue("Old Version: "))
     run("simiki -V")
@@ -32,32 +33,36 @@ def update_simiki():
     print(blue("New Version: "))
     run("simiki -V")
 
+
 def deploy():
     if not env.remote_output:
         if env.rsync_delete:
             print(red("You can't enable env.rsync_delete option "
-                "if env.remote_output is not set!!!"))
+                      "if env.remote_output is not set!!!"))
             print(blue("Exit"))
             exit()
 
         print(red("Warning: env.remote_output directory is not set!\n"
-                    "This will cause some problems!!!"))
+                  "This will cause some problems!!!"))
         ans = raw_input(red("Do you want to continue? (y/N) "))
         if ans != "y":
             print(blue("Exit"))
             exit()
 
     project.rsync_project(
-        local_dir = env.local_output,
-        remote_dir = env.remote_output.rstrip("/") + "/",
-        delete = env.rsync_delete
+        local_dir=env.local_output,
+        remote_dir=env.remote_output.rstrip("/") + "/",
+        delete=env.rsync_delete
     )
+
 
 def g():
     local("simiki generate")
 
+
 def p():
     local("simiki preview")
+
 
 def gp():
     g()
