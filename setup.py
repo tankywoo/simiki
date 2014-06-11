@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from __future__ import with_statement
 from setuptools import setup, find_packages
 import simiki
 
@@ -10,7 +10,8 @@ entry_points = {
     ]
 }
 
-requires = open("requirements.txt").readlines()
+with open("requirements.txt") as f:
+    requires = f.readlines()
 
 setup(
     name = "simiki",
