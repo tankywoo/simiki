@@ -51,7 +51,7 @@ def param_of_create_wiki(title, category, filename):
     """Get parameters of creating wiki page"""
     if not filename:
         # `/` can't exists in filename
-        title_ = title.decode("utf-8").replace("/", " slash ")
+        title_ = title.decode("utf-8").replace(os.sep, " slash ")
         filename = "{}.md".format("-".join(title_.split()).lower())
     cur_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     title = title.decode("utf-8")
