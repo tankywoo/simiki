@@ -16,7 +16,7 @@ with open("requirements.txt") as f:
 setup(
     name="simiki",
     version=simiki.__version__,
-    url="https://github.com/tankywoo/simiki",
+    url="http://simiki.org/",
     author="Tanky Woo",
     author_email="me@tankywoo.com",
     description="Simiki is a simple wiki framework, written in Python.",
@@ -34,6 +34,7 @@ setup(
         'Operating System :: POSIX',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
     ],
 )
