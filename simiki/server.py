@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from __future__ import print_function, absolute_import
 
 import os
@@ -13,8 +12,10 @@ from simiki.utils import check_path_exists
 
 logger = logging.getLogger(__name__)
 
+
 class Reuse_TCPServer(SocketServer.TCPServer):
     allow_reuse_address = True
+
 
 def preview(path, port=8000):
     if check_path_exists(path):

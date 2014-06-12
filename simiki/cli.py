@@ -13,12 +13,12 @@ Usage:
   simiki -V | --version
 
 Options:
-  -h, --help             Help information.
-  -V, --version          Show version.
-  -c <category>          Specify the category.
-  -t <title>             Specify the new post title.
-  -f <file>              Specify the new post filename.
-  --delete               Delete the contents of output directory before generate.
+  -h, --help           Help information.
+  -V, --version        Show version.
+  -c <category>        Specify the category.
+  -t <title>           Specify the new post title.
+  -f <file>            Specify the new post filename.
+  --delete             Delete the contents of output directory before generate.
 
 """
 
@@ -36,16 +36,17 @@ from pprint import pprint
 from docopt import docopt
 
 from simiki.generators import (PageGenerator, CatalogGenerator,
-                            CustomCatalogGenerator)
+                               CustomCatalogGenerator)
 from simiki.initsite import InitSite
 from simiki.configs import parse_configs
 from simiki.log import logging_init
 from simiki.server import preview
 from simiki.utils import (check_path_exists, copytree, emptytree,
-                        check_extension, mkdir_p)
+                          check_extension, mkdir_p)
 from simiki import __version__
 
 logger = logging.getLogger(__name__)
+
 
 def param_of_create_wiki(title, category, filename):
     """Get parameters of creating wiki page"""
@@ -58,6 +59,7 @@ def param_of_create_wiki(title, category, filename):
     category = category.decode("utf-8")
     return (category, filename, title, cur_date)
 
+
 def write_file(content, ofile, ftype="page"):
     """Write content to output file.
 
@@ -66,15 +68,16 @@ def write_file(content, ofile, ftype="page"):
     :param ftype: file type, "page" or "index"
     """
     if ftype == "page":
-        output_category,_ = osp.split(ofile)
+        output_category, _ = osp.split(ofile)
         if not check_path_exists(output_category):
             logging.info(
-                "The output category %s not exists, create it" \
+                "The output category %s not exists, create it"
                 % output_category
             )
             mkdir_p(output_category)
     with codecs.open(ofile, "wb", "utf-8") as fd:
         fd.write(content)
+
 
 def create_new_wiki(source, category, filename, title, date):
     try:
@@ -101,6 +104,7 @@ def create_new_wiki(source, category, filename, title, date):
         with codecs.open(fn, "wb", "utf-8") as fd:
             fd.write(meta)
 
+
 def install_theme(current_dir, theme_name):
     """Copy static directory under theme to output directory"""
     src_theme = osp.join(current_dir, "themes/{}/static".format(theme_name))
@@ -110,6 +114,7 @@ def install_theme(current_dir, theme_name):
 
     copytree(src_theme, dst_theme)
     logging.info("Installing theme: {}".format(theme_name))
+
 
 class Generator(object):
 
@@ -134,7 +139,9 @@ class Generator(object):
         pages = {}
         for root, dirs, files in os.walk(content_path):
             files = [f for f in files if not f.decode("utf-8").startswith(".")]
-            dirs[:] = [d for d in dirs if not d.decode("utf-8").startswith(".")]
+            dirs[:] = [
+                d for d in dirs if not d.decode("utf-8").startswith(".")
+            ]
             for filename in files:
                 if not check_extension(filename):
                     continue
@@ -154,7 +161,9 @@ class Generator(object):
             scategory, fname = osp.split(md_file)
             ofname = "{}.html".format(osp.splitext(fname)[0])
             category = osp.relpath(scategory, self.configs["source"])
-            ocategory = osp.join(os.getcwd(), self.configs["destination"], category)
+            ocategory = osp.join(
+                os.getcwd(), self.configs["destination"], category
+            )
             ofile = osp.join(ocategory, ofname)
             return ofile
 
@@ -170,9 +179,9 @@ class Generator(object):
         else:
             cgen = CatalogGenerator(self.configs, os.getcwd(), pages)
         html = cgen.generate_catalog_html()
-        ofile = osp.join(os.getcwd(), self.configs["destination"], "index.html")
+        ofile = osp.join(os.getcwd(),
+                         self.configs["destination"], "index.html")
         write_file(html, ofile, "index")
-
 
 
 def main():
@@ -181,7 +190,7 @@ def main():
     if args["init"]:
         logging_init(logging.DEBUG)
         default_config_file = osp.join(os.path.dirname(__file__),
-                                        "conf_templates/_config.yml.in")
+                                       "conf_templates/_config.yml.in")
         isite = InitSite(default_config_file)
         isite.init_site()
         return
