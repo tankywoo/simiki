@@ -7,7 +7,9 @@ from simiki import utils
 
 
 class TestUtils(unittest.TestCase):
+
     def setUp(self):
+        os.chdir(osp.dirname(__file__))
         self.content = "sample"
         self.output = "output"
         if utils.check_path_exists(self.output):
