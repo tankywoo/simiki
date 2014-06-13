@@ -44,7 +44,7 @@ def check_extension(filename):
         fnmatch.filter(files, pattern)
     """
 
-    allowed_extensions = {".md", ".mkd", ".mdown", ".markdown"}
+    allowed_extensions = (".md", ".mkd", ".mdown", ".markdown")
     return osp.splitext(filename)[1] in allowed_extensions
 
 # def copytree(src, dst):
