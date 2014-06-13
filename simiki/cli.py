@@ -5,10 +5,10 @@
 Simiki CLI
 
 Usage:
-  simiki init
-  simiki new -t <title> -c <category> [-f <file>]
-  simiki generate [--delete]
-  simiki preview
+  simiki init [-p <path>]
+  simiki new -t <title> -c <category> [-f <file>] [-p <path>]
+  simiki generate [--delete] [-p <path>]
+  simiki preview [-p <path>]
   simiki -h | --help
   simiki -V | --version
 
@@ -18,6 +18,7 @@ Options:
   -c <category>          Specify the category.
   -t <title>             Specify the new post title.
   -f <file>              Specify the new post filename.
+  -p <path>              Specify the target path.
   --delete               Delete the contents of output directory before generate.
 
 """
@@ -177,12 +178,15 @@ class Generator(object):
 
 def main():
     args = docopt(__doc__, version="Simiki {}".format(__version__))
+    target_path = os.getcwd()
+    if args["-p"]:
+        target_path = args["-p"]
 
     if args["init"]:
         logging_init(logging.DEBUG)
         default_config_file = osp.join(os.path.dirname(__file__),
                                         "conf_templates/_config.yml.in")
-        isite = InitSite(default_config_file)
+        isite = InitSite(default_config_file, target_path)
         isite.init_site()
         return
 
