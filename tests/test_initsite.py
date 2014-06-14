@@ -13,7 +13,7 @@ from simiki.utils import check_path_exists
 class TestInitSite(unittest.TestCase):
 
     def setUp(self):
-        BASE_DIR = os.path.join(osp.dirname(__file__), '..')
+        BASE_DIR = osp.join(osp.dirname(__file__), '..')
         self.config_file = osp.join(BASE_DIR, "simiki", "conf_templates",
                                     "_config.yml.in")
         self.target_path = osp.join(BASE_DIR, "tests", "_build")
@@ -43,7 +43,7 @@ class TestInitSite(unittest.TestCase):
             self.assertTrue(osp.isfile(osp.join(self.target_path, f)))
 
         for d in self.dirs:
-            self.assertTrue(os.path.isdir(osp.join(self.target_path, d)))
+            self.assertTrue(osp.isdir(osp.join(self.target_path, d)))
 
     def test_target_invalid(self):
         """ test InitSite target path invalid, raise OSError

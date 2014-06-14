@@ -192,7 +192,7 @@ def main():
 
     if args["init"]:
         logging_init(logging.DEBUG)
-        default_config_file = osp.join(os.path.dirname(__file__),
+        default_config_file = osp.join(osp.dirname(__file__),
                                        "conf_templates",
                                        "_config.yml.in")
         isite = InitSite(default_config_file, target_path)
