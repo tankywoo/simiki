@@ -40,9 +40,9 @@ Simiki is short for `Simple Wiki` :)
 
 	simiki preview
 
-### Developer Mode (On GentooLinux & virtualenv)
+### Developer Mode ###
 
-	sudo emerge virtualenv
+	sudo pip install virtualenv
 	mkdir virtual_python2
 	virtualenv -p /usr/bin/python2 ./virtual_python2
 	cd virtual_python2
