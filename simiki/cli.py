@@ -6,14 +6,13 @@ Simiki CLI
 
 Usage:
   simiki init [-p <path>]
-  simiki new -t <title> -c <category> [-f <file>] [-p <path>]
-  simiki generate [--delete] [-p <path>]
-  simiki preview [-p <path>]
+  simiki new -t <title> -c <category> [-f <file>]
+  simiki generate [--delete]
+  simiki preview
   simiki -h | --help
   simiki -V | --version
 
 Options:
-<<<<<<< HEAD
   -h, --help             Help information.
   -V, --version          Show version.
   -c <category>          Specify the category.
@@ -21,15 +20,6 @@ Options:
   -f <file>              Specify the new post filename.
   -p <path>              Specify the target path.
   --delete               Delete the contents of output directory before generate.
-=======
-  -h, --help           Help information.
-  -V, --version        Show version.
-  -c <category>        Specify the category.
-  -t <title>           Specify the new post title.
-  -f <file>            Specify the new post filename.
-  --delete             Delete the contents of output directory before generate.
->>>>>>> upstream/dev
-
 """
 
 from __future__ import print_function, unicode_literals, absolute_import
@@ -203,13 +193,9 @@ def main():
     if args["init"]:
         logging_init(logging.DEBUG)
         default_config_file = osp.join(os.path.dirname(__file__),
-<<<<<<< HEAD
-                                        "conf_templates/_config.yml.in")
+                                       "conf_templates",
+                                       "_config.yml.in")
         isite = InitSite(default_config_file, target_path)
-=======
-                                       "conf_templates/_config.yml.in")
-        isite = InitSite(default_config_file)
->>>>>>> upstream/dev
         isite.init_site()
         return
 
