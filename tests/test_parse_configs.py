@@ -3,7 +3,6 @@
 
 from os import path as osp
 import unittest
-
 from simiki.configs import parse_configs
 
 class TestParseConfigs(unittest.TestCase):
@@ -14,9 +13,8 @@ class TestParseConfigs(unittest.TestCase):
             "default_ext": "md",
             "description": "",
             "destination": "output",
-            "index": None,
-            "keywords": None,
-            "keyworkds": "",
+            "index": False,
+            "keywords": "",
             "pygments": True,
             "root": "/",
             "source": "content",

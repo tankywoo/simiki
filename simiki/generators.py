@@ -24,6 +24,7 @@ from simiki import utils
 
 logger = logging.getLogger(__name__)
 
+
 class BaseGenerator(object):
     """Base generator class"""
 
@@ -37,7 +38,7 @@ class BaseGenerator(object):
         )
         try:
             self.env = Environment(
-                loader = FileSystemLoader(_template_path)
+                loader=FileSystemLoader(_template_path)
             )
         except TemplateError, e:
             logging.error(str(e))
@@ -59,8 +60,8 @@ class PageGenerator(BaseGenerator):
             template = self.env.get_template(template_file)
             html = template.render(template_vars)
         except TemplateError, e:
-            logging.error("Unable to load template {}: {}"\
-                    .format(template_file, str(e)))
+            logging.error("Unable to load template {}: {}"
+                          .format(template_file, str(e)))
             sys.exit(1)
 
         return html
@@ -70,11 +71,11 @@ class PageGenerator(BaseGenerator):
         category, _ = self.get_category_and_file()
         meta_data, markdown_content = self.get_metadata_and_content()
         body_html_content = self.parse_markdown(markdown_content)
-        page = {"category" : category, "content" : body_html_content}
+        page = {"category": category, "content": body_html_content}
         page.update(meta_data)
         template_vars = {
-            "site" : self.site_settings,
-            "page" : page,
+            "site": self.site_settings,
+            "page": page,
         }
 
         # if site.root endswith `/`, remove it.
@@ -131,7 +132,7 @@ class PageGenerator(BaseGenerator):
                 sys.exit(1)
             if textlist[idx] == metadata_notation:
                 metadata_end_flag = True
-        content_textlist = textlist[idx+1:]
+        content_textlist = textlist[idx + 1:]
 
         return (metadata_textlist, content_textlist)
 
@@ -231,7 +232,7 @@ class CatalogGenerator(BaseGenerator):
         self.site_settings["structure"] = \
             self.get_content_structure_and_metadata()
         tpl_vars = {
-            "site" : self.site_settings,
+            "site": self.site_settings,
         }
 
         # if site.root endwith `\`, remote it.
@@ -245,6 +246,7 @@ class CatalogGenerator(BaseGenerator):
         tpl_vars = self.get_template_vars()
         html = self.env.get_template("index.html").render(tpl_vars)
         return html
+
 
 class CustomCatalogGenerator(CatalogGenerator):
 
@@ -260,11 +262,11 @@ class CustomCatalogGenerator(CatalogGenerator):
         pg = PageGenerator(self.site_settings, self.base_path, idx_mfile)
         _, raw_idx_content = pg.get_metadata_and_content()
         idx_content = pg.parse_markdown(raw_idx_content)
-        page = {"content" : idx_content}
+        page = {"content": idx_content}
 
         tpl_vars = {
-            "site" : self.site_settings,
-            "page" : page,
+            "site": self.site_settings,
+            "page": page,
         }
 
         # if site.root endwith `\`, remote it.

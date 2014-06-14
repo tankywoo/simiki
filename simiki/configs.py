@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from __future__ import absolute_import
 
 import os
@@ -12,27 +11,29 @@ from pprint import pprint
 import yaml
 from simiki.utils import check_path_exists
 
+
 def _set_default_configs():
     configs = {
-        "url" : "",
-        "title" : "",
-        "keywords" : "",
-        "description" : "",
-        "author" : "",
-        "root" : "/",
-        "source" : "content",
-        "destination" : "output",
-        "themes_dir" : "themes",
-        "theme" : "simple",
-        "default_ext" : "md",
-        "pygments" : True,
-        "debug" : False,
-        "index" : False
-     }
+        "url": "",
+        "title": "",
+        "keywords": "",
+        "description": "",
+        "author": "",
+        "root": "/",
+        "source": "content",
+        "destination": "output",
+        "themes_dir": "themes",
+        "theme": "simple",
+        "default_ext": "md",
+        "pygments": True,
+        "debug": False,
+        "index": False
+    }
     return configs
 
+
 def _post_process(configs):
-    for k,v in configs.items():
+    for k, v in configs.items():
         if v is None:
             configs[k] = ""
 
@@ -40,6 +41,7 @@ def _post_process(configs):
         configs["url"] = configs["url"][:-1]
 
     return configs
+
 
 def parse_configs(config_file):
     default_configs = _set_default_configs()
@@ -53,9 +55,9 @@ def parse_configs(config_file):
             configs = yaml.load(fd)
     except yaml.YAMLError, e:
         msg = "Yaml format error in {}:\n{}".format(
-                config_file,
-                unicode(str(e), "utf-8")
-            )
+            config_file,
+            unicode(str(e), "utf-8")
+        )
         logging.error(msg)
         sys.exit(1)
 
@@ -79,8 +81,8 @@ if __name__ == "__main__":
         config_file = osp.join(base_dir, sys.argv[1])
     else:
         logging.error("Use the template config file by default, "
-                "you can specify the config file to parse. \n"
-                "Usage: `python -m simiki.configs [_config.yml]'")
+                      "you can specify the config file to parse. \n"
+                      "Usage: `python -m simiki.configs [_config.yml]'")
         sys.exit(1)
 
     pprint(parse_configs(config_file))

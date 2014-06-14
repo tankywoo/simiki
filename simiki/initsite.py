@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from __future__ import print_function, unicode_literals, absolute_import
 
 import os
@@ -12,7 +11,9 @@ from pprint import pprint
 
 from simiki.configs import parse_configs
 from simiki.log import logging_init
-from simiki.utils import (check_path_exists, copytree, mkdir_p, listdir_nohidden)
+from simiki.utils import (check_path_exists, copytree, mkdir_p,
+                          listdir_nohidden)
+
 
 class InitSite(object):
 
