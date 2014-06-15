@@ -5,7 +5,7 @@
 Simiki CLI
 
 Usage:
-  simiki init
+  simiki init [-p <path>]
   simiki new -t <title> -c <category> [-f <file>]
   simiki generate [--delete]
   simiki preview
@@ -13,25 +13,24 @@ Usage:
   simiki -V | --version
 
 Options:
-  -h, --help           Help information.
-  -V, --version        Show version.
-  -c <category>        Specify the category.
-  -t <title>           Specify the new post title.
-  -f <file>            Specify the new post filename.
-  --delete             Delete the contents of output directory before generate.
-
+  -h, --help          Help information.
+  -V, --version       Show version.
+  -c <category>       Specify the category.
+  -t <title>          Specify the new post title.
+  -f <file>           Specify the new post filename.
+  -p <path>           Specify the target path.
+  --delete            Delete the contents of output directory before generate.
 """
 
 from __future__ import print_function, unicode_literals, absolute_import
 
 import os
+import os.path
 import sys
 import codecs
 import datetime
 import shutil
 import logging
-from os import path as osp
-from pprint import pprint
 
 from docopt import docopt
 
@@ -68,7 +67,7 @@ def write_file(content, ofile, ftype="page"):
     :param ftype: file type, "page" or "index"
     """
     if ftype == "page":
-        output_category, _ = osp.split(ofile)
+        output_category, _ = os.path.split(ofile)
         if not check_path_exists(output_category):
             logging.info(
                 "The output category %s not exists, create it"
@@ -91,12 +90,12 @@ def create_new_wiki(source, category, filename, title, date):
         logger.error(str(e))
         sys.exit(1)
 
-    category_path = osp.join(source, category)
+    category_path = os.path.join(source, category)
     if not check_path_exists(category_path):
         os.mkdir(category_path)
         logger.info("Creating category {}.".format(category))
 
-    fn = osp.join(category_path, filename)
+    fn = os.path.join(category_path, filename)
     if check_path_exists(fn):
         logger.warning("wiki file exists: {}".format(fn))
     else:
@@ -107,9 +106,12 @@ def create_new_wiki(source, category, filename, title, date):
 
 def install_theme(current_dir, theme_name):
     """Copy static directory under theme to output directory"""
-    src_theme = osp.join(current_dir, "themes/{}/static".format(theme_name))
-    dst_theme = osp.join(current_dir, "output/static")
-    if osp.exists(dst_theme):
+    src_theme = os.path.join(
+        current_dir,
+        "themes/{}/static".format(theme_name)
+    )
+    dst_theme = os.path.join(current_dir, "output/static")
+    if os.path.exists(dst_theme):
         shutil.rmtree(dst_theme)
 
     copytree(src_theme, dst_theme)
@@ -124,7 +126,7 @@ class Generator(object):
     def generate(self, delete_output_dir=False):
         if delete_output_dir:
             logger.info("Delete all the files and dirs under output directory")
-            output_dir = osp.join(os.getcwd(), self.configs["destination"])
+            output_dir = os.path.join(os.getcwd(), self.configs["destination"])
             emptytree(output_dir)
 
         pages = self.generate_all_pages()
@@ -145,7 +147,7 @@ class Generator(object):
             for filename in files:
                 if not check_extension(filename):
                     continue
-                md_file = osp.join(root, filename)
+                md_file = os.path.join(root, filename)
                 pages[md_file] = self.generate_single_page(md_file)
                 pcnt += 1
         logger.info("{} files generated.".format(pcnt))
@@ -154,17 +156,21 @@ class Generator(object):
     def generate_single_page(self, md_file):
         md_file = md_file.decode('utf8')
         logger.debug("Generate {}".format(md_file))
-        pgen = PageGenerator(self.configs, os.getcwd(), osp.realpath(md_file))
+        pgen = PageGenerator(
+            self.configs,
+            os.getcwd(),
+            os.path.realpath(md_file)
+        )
         html = pgen.markdown2html()
 
         def get_ofile():
-            scategory, fname = osp.split(md_file)
-            ofname = "{}.html".format(osp.splitext(fname)[0])
-            category = osp.relpath(scategory, self.configs["source"])
-            ocategory = osp.join(
+            scategory, fname = os.path.split(md_file)
+            ofname = "{}.html".format(os.path.splitext(fname)[0])
+            category = os.path.relpath(scategory, self.configs["source"])
+            ocategory = os.path.join(
                 os.getcwd(), self.configs["destination"], category
             )
-            ofile = osp.join(ocategory, ofname)
+            ofile = os.path.join(ocategory, ofname)
             return ofile
 
         ofile = get_ofile()
@@ -179,23 +185,30 @@ class Generator(object):
         else:
             cgen = CatalogGenerator(self.configs, os.getcwd(), pages)
         html = cgen.generate_catalog_html()
-        ofile = osp.join(os.getcwd(),
-                         self.configs["destination"], "index.html")
+        ofile = os.path.join(
+            os.getcwd(),
+            self.configs["destination"],
+            "index.html"
+        )
         write_file(html, ofile, "index")
 
 
 def main():
     args = docopt(__doc__, version="Simiki {}".format(__version__))
+    target_path = os.getcwd()
+    if args["-p"]:
+        target_path = args["-p"]
 
     if args["init"]:
         logging_init(logging.DEBUG)
-        default_config_file = osp.join(os.path.dirname(__file__),
-                                       "conf_templates/_config.yml.in")
-        isite = InitSite(default_config_file)
+        default_config_file = os.path.join(os.path.dirname(__file__),
+                                           "conf_templates",
+                                           "_config.yml.in")
+        isite = InitSite(default_config_file, target_path)
         isite.init_site()
         return
 
-    config_file = osp.join(os.getcwd(), "_config.yml")
+    config_file = os.path.join(os.getcwd(), "_config.yml")
     configs = parse_configs(config_file)
     level = logging.DEBUG if configs["debug"] else logging.INFO
     logging_init(level)

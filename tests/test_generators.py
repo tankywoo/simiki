@@ -4,7 +4,7 @@ from __future__ import print_function, with_statement, unicode_literals
 
 import sys
 import os
-import os.path as osp
+import os.path
 import unittest
 
 TESTS_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -19,8 +19,8 @@ EXPECTED_OUTPUT = "./expected_output.html"
 
 class TestPageGenerator(unittest.TestCase):
     def setUp(self):
-        self.config_file = osp.join(
-            osp.dirname(osp.dirname(osp.abspath(__file__))),
+        self.config_file = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             "simiki/conf_templates/_config.yml.in"
         )
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from os import path as osp
+import os.path
 import unittest
 from simiki.configs import parse_configs
+
 
 class TestParseConfigs(unittest.TestCase):
     def setUp(self):
@@ -23,8 +23,8 @@ class TestParseConfigs(unittest.TestCase):
             "title": "",
             "url": ""
         }
-        self.config_file = osp.join(
-            osp.dirname(osp.dirname(osp.abspath(__file__))),
+        self.config_file = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             "simiki/conf_templates/_config.yml.in"
         )
 

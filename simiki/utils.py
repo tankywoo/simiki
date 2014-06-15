@@ -3,10 +3,10 @@
 from __future__ import print_function, unicode_literals, absolute_import
 
 import os
+import os.path
 import shutil
 import errno
 import logging
-from os import path as osp
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ def color_msg(color, msg):
 
 def check_path_exists(path):
     """Check if the path(include file and directory) exists"""
-    if osp.exists(path):
+    if os.path.exists(path):
         return True
     return False
 
@@ -44,8 +44,8 @@ def check_extension(filename):
         fnmatch.filter(files, pattern)
     """
 
-    allowed_extensions = {".md", ".mkd", ".mdown", ".markdown"}
-    return osp.splitext(filename)[1] in allowed_extensions
+    allowed_extensions = (".md", ".mkd", ".mdown", ".markdown")
+    return os.path.splitext(filename)[1] in allowed_extensions
 
 # def copytree(src, dst):
 #     try:
@@ -60,12 +60,12 @@ def copytree(src, dst, symlinks=False, ignore=None):
     """Copy from source directory to destination"""
 
     # TODO: OSError: [Errno 17] File exists: '/home/tankywoo/simiki/html/css'
-    if not osp.exists(dst):
+    if not os.path.exists(dst):
         os.makedirs(dst)
     for item in os.listdir(src):
-        s = osp.join(src, item)
-        d = osp.join(dst, item)
-        if osp.isdir(s):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
             shutil.copytree(s, d, symlinks, ignore)
         else:
             shutil.copy2(s, d)
@@ -75,15 +75,15 @@ def emptytree(directory):
     """Delete all the files and dirs under specified directory"""
 
     for p in os.listdir(directory):
-        fp = osp.join(directory, p)
-        if osp.isdir(fp):
+        fp = os.path.join(directory, p)
+        if os.path.isdir(fp):
             try:
                 shutil.rmtree(fp)
                 logger.info("Delete directory %s" % fp)
             except Exception, e:
                 logger.error("Unable to delete directory %s: %s" %
                              (fp, str(e)))
-        elif osp.isfile(fp):
+        elif os.path.isfile(fp):
             try:
                 logging.info("Delete file %s" % fp)
                 os.remove(fp)
