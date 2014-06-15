@@ -2,6 +2,8 @@
 
 [![Latest Version](http://img.shields.io/pypi/v/simiki.svg)](https://pypi.python.org/pypi/simiki)
 [![The MIT License](http://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/tankywoo/simiki/blob/master/LICENSE)
+[![Build Status](https://travis-ci.org/tankywoo/simiki.svg)](https://travis-ci.org/tankywoo/simiki)
+[![Coverage Status](https://img.shields.io/coveralls/tankywoo/simiki.svg)](https://coveralls.io/r/tankywoo/simiki)
 
 Simiki is a simple wiki framework, written in [Python](https://www.python.org/).
 
@@ -47,7 +49,6 @@ For more information, `simiki -h` or have a look at [Simiki.org](http://simiki.o
 * [simiki.org](http://simiki.org)
 * <https://github.com/tankywoo/simiki>
 * Email: <me@tankywoo.com>
-
 
 ## License ##
 
