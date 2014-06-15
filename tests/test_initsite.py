@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import os
+import os.path
 import unittest
 import shutil
-from os import path as osp
 
 from simiki.initsite import InitSite
 from simiki.utils import check_path_exists
@@ -13,11 +13,11 @@ from simiki.utils import check_path_exists
 class TestInitSite(unittest.TestCase):
 
     def setUp(self):
-        BASE_DIR = osp.join(osp.dirname(__file__), '..')
-        self.config_file = osp.join(BASE_DIR, "simiki", "conf_templates",
-                                    "_config.yml.in")
-        self.target_path = osp.join(BASE_DIR, "tests", "_build")
-        if osp.exists(self.target_path):
+        BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
+        self.config_file = os.path.join(BASE_DIR, "simiki", "conf_templates",
+                                        "_config.yml.in")
+        self.target_path = os.path.join(BASE_DIR, "tests", "_build")
+        if os.path.exists(self.target_path):
             shutil.rmtree(self.target_path)
         os.mkdir(self.target_path)
         self.files = [
@@ -40,10 +40,10 @@ class TestInitSite(unittest.TestCase):
         i.init_site()
 
         for f in self.files:
-            self.assertTrue(osp.isfile(osp.join(self.target_path, f)))
+            self.assertTrue(os.path.isfile(os.path.join(self.target_path, f)))
 
         for d in self.dirs:
-            self.assertTrue(osp.isdir(osp.join(self.target_path, d)))
+            self.assertTrue(os.path.isdir(os.path.join(self.target_path, d)))
 
     def test_target_invalid(self):
         """ test InitSite target path invalid, raise OSError

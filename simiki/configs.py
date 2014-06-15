@@ -3,9 +3,9 @@
 from __future__ import absolute_import
 
 import os
+import os.path
 import sys
 import logging
-from os import path as osp
 from copy import deepcopy
 from pprint import pprint
 import yaml
@@ -75,10 +75,10 @@ if __name__ == "__main__":
     """
     if len(sys.argv) == 1:
         base_dir = os.path.dirname(__file__)
-        config_file = osp.join(base_dir, "conf_templates/_config.yml.in")
+        config_file = os.path.join(base_dir, "conf_templates/_config.yml.in")
     elif len(sys.argv) == 2:
         base_dir = os.getcwd()
-        config_file = osp.join(base_dir, sys.argv[1])
+        config_file = os.path.join(base_dir, sys.argv[1])
     else:
         logging.error("Use the template config file by default, "
                       "you can specify the config file to parse. \n"

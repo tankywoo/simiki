@@ -8,13 +8,12 @@ from __future__ import (print_function, with_statement, unicode_literals,
                         absolute_import)
 
 import os
+import os.path
 import sys
 import codecs
 import datetime
 import logging
 import copy
-from os import path as osp
-from pprint import pprint
 
 import markdown
 import yaml
@@ -31,7 +30,7 @@ class BaseGenerator(object):
     def __init__(self, site_settings, base_path):
         self.site_settings = copy.deepcopy(site_settings)
         self.base_path = base_path
-        _template_path = osp.join(
+        _template_path = os.path.join(
             self.base_path,
             site_settings["themes_dir"],
             site_settings["theme"]
@@ -87,9 +86,9 @@ class PageGenerator(BaseGenerator):
 
     def get_category_and_file(self):
         """Get the name of category and file(with extension)"""
-        source_dir = osp.join(self.base_path, self.site_settings["source"])
-        relpath = osp.relpath(self.sfile_path, source_dir)
-        category, filename = osp.split(relpath)
+        source_dir = os.path.join(self.base_path, self.site_settings["source"])
+        relpath = os.path.relpath(self.sfile_path, source_dir)
+        category, filename = os.path.split(relpath)
 
         return (category, filename)
 
@@ -127,7 +126,8 @@ class PageGenerator(BaseGenerator):
             idx += 1
             if idx >= max_idx:
                 logging.error(
-                    "{} doesn't have end triple-dashed!".format(self.sfile_path)
+                    "{} doesn't have end triple-dashed!"
+                    .format(self.sfile_path)
                 )
                 sys.exit(1)
             if textlist[idx] == metadata_notation:
@@ -221,7 +221,7 @@ class CatalogGenerator(BaseGenerator):
             for x in path.split(os.sep):
                 x = unicode(x, "utf-8")
                 if ".md" in x:
-                    meta["name"] = osp.splitext(x)[0]
+                    meta["name"] = os.path.splitext(x)[0]
                     p = p.setdefault(x, meta)
                 else:
                     p = p.setdefault(x, {})
@@ -258,7 +258,10 @@ class CustomCatalogGenerator(CatalogGenerator):
             fn = "index.md"
         else:
             fn = self.site_settings["index"]
-        idx_mfile = osp.join(os.path.abspath(self.site_settings["source"]), fn)
+        idx_mfile = os.path.join(
+            os.path.abspath(self.site_settings["source"]),
+            fn
+        )
         pg = PageGenerator(self.site_settings, self.base_path, idx_mfile)
         _, raw_idx_content = pg.get_metadata_and_content()
         idx_content = pg.parse_markdown(raw_idx_content)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
-from os import path as osp
+import os.path
 import unittest
 from simiki import utils
 
@@ -9,7 +9,7 @@ from simiki import utils
 class TestUtils(unittest.TestCase):
 
     def setUp(self):
-        os.chdir(osp.dirname(__file__))
+        os.chdir(os.path.dirname(__file__))
         self.content = "sample"
         self.output = "output"
         if utils.check_path_exists(self.output):
@@ -22,8 +22,8 @@ class TestUtils(unittest.TestCase):
                  "simiki.md"]
         assert(utils.check_path_exists(self.output))
         for f in files:
-            assert(utils.check_path_exists(osp.join(self.output, f)))
-        assert(not osp.islink(osp.join(self.output, "simiki.md")))
+            assert(utils.check_path_exists(os.path.join(self.output, f)))
+        assert(not os.path.islink(os.path.join(self.output, "simiki.md")))
 
     def test_copytree_symlink(self):
         pass
@@ -34,15 +34,15 @@ class TestUtils(unittest.TestCase):
     def test_emptytree(self):
         utils.copytree(self.content, self.output)
         utils.emptytree(self.output)
-        assert osp.isdir(self.output) and not os.listdir(self.output)
+        assert os.path.isdir(self.output) and not os.listdir(self.output)
 
     def test_mkdir_p(self):
-        path = osp.join(self.output, "dir1/dir2/dir3")
+        path = os.path.join(self.output, "dir1/dir2/dir3")
         utils.mkdir_p(path)
         assert (utils.check_path_exists(path))
 
     def test_listdir_nohidden(self):
-        hidden_file = osp.join(self.content, ".hidden.txt")
+        hidden_file = os.path.join(self.content, ".hidden.txt")
         assert (utils.check_path_exists(hidden_file))
 
     def tearDown(self):
