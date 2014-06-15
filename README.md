@@ -40,21 +40,6 @@ Simiki is short for `Simple Wiki` :)
 
 	simiki preview
 
-### Developer Mode ###
-
-	sudo pip install virtualenv
-	mkdir virtual_python2
-	virtualenv -p /usr/bin/python2 ./virtual_python2
-	cd virtual_python2
-	source ./bin/activate
-	mkdir opt
-	cd opt
-	git clone git@github.com:foobar/simiki.git
-	cd simiki
-	pip install -r requirements.txt
-	export PYTHONPATH=$(pwd)
-	python simiki/cli.py -h
-
 For more information, `simiki -h` or have a look at [Simiki.org](http://simiki.org)
 
 ## Others ##
