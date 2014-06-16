@@ -58,8 +58,10 @@ class TestUtils(unittest.TestCase):
         assert (os.path.exists(path))
 
     def test_listdir_nohidden(self):
-        hidden_file = os.path.join(self.content, ".hidden.txt")
-        assert (os.path.exists(hidden_file))
+        fs = utils.listdir_nohidden(self.content)
+        assert sorted(list(fs)) == sorted([u"Simiki介绍.md", u"hellosimiki.md",
+                                           u"simiki.md", u"zen_of_python.txt",
+                                           u"介绍.md"])
 
     def tearDown(self):
         if os.path.exists(self.output):

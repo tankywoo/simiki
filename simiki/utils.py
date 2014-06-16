@@ -68,7 +68,7 @@ def emptytree(directory):
     """Delete all the files and dirs under specified directory"""
 
     for p in os.listdir(directory):
-        fp = os.path.join(directory, p)
+        fp = unicode(os.path.join(directory, p), "utf-8")
         if os.path.isdir(fp):
             try:
                 shutil.rmtree(fp)
