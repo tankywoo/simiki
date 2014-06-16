@@ -29,13 +29,6 @@ def color_msg(color, msg):
     return COLOR_CODES[color] + msg + COLOR_CODES["reset"]
 
 
-def check_path_exists(path):
-    """Check if the path(include file and directory) exists"""
-    if os.path.exists(path):
-        return True
-    return False
-
-
 def check_extension(filename):
     """Check if the file extension is in the allowed extensions
 

@@ -9,7 +9,6 @@ import logging
 from copy import deepcopy
 from pprint import pprint
 import yaml
-from simiki.utils import check_path_exists
 
 
 def _set_default_configs():
@@ -46,7 +45,7 @@ def _post_process(configs):
 def parse_configs(config_file):
     default_configs = _set_default_configs()
 
-    if not check_path_exists(config_file):
+    if not os.path.exists(config_file):
         logging.error("{} not exists".format(config_file))
         sys.exit(1)
 

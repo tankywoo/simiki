@@ -40,8 +40,7 @@ from simiki.initsite import InitSite
 from simiki.configs import parse_configs
 from simiki.log import logging_init
 from simiki.server import preview
-from simiki.utils import (check_path_exists, copytree, emptytree,
-                          check_extension, mkdir_p)
+from simiki.utils import (copytree, emptytree, check_extension, mkdir_p)
 from simiki import __version__
 
 logger = logging.getLogger(__name__)
@@ -68,7 +67,7 @@ def write_file(content, ofile, ftype="page"):
     """
     if ftype == "page":
         output_category, _ = os.path.split(ofile)
-        if not check_path_exists(output_category):
+        if not os.path.exists(output_category):
             logging.info(
                 "The output category %s not exists, create it"
                 % output_category
@@ -91,12 +90,12 @@ def create_new_wiki(source, category, filename, title, date):
         sys.exit(1)
 
     category_path = os.path.join(source, category)
-    if not check_path_exists(category_path):
+    if not os.path.exists(category_path):
         os.mkdir(category_path)
         logger.info("Creating category {}.".format(category))
 
     fn = os.path.join(category_path, filename)
-    if check_path_exists(fn):
+    if os.path.exists(fn):
         logger.warning("wiki file exists: {}".format(fn))
     else:
         logger.info("Creating wiki: {}".format(fn))
