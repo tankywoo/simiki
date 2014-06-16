@@ -16,6 +16,22 @@ class TestUtils(unittest.TestCase):
             utils.emptytree(self.output)
             os.rmdir(self.output)
 
+    def test_check_extension(self):
+        file1 = "/tmp/file1.md"
+        file2 = "/tmp/file2.mkd"
+        file3 = "/tmp/test/文件3.mdown"
+        file4 = "/var/lib/file4.markdown"
+        file5 = "/tmp/testfile"
+        file6 = "/tmp/wrong.mkdown"
+        file7 = "/tmp/文件7.mkdown"
+        assert utils.check_extension(file1)
+        assert utils.check_extension(file2)
+        assert utils.check_extension(file3)
+        assert utils.check_extension(file4)
+        assert not utils.check_extension(file5)
+        assert not utils.check_extension(file6)
+        assert not utils.check_extension(file7)
+
     def test_copytree_common(self):
         utils.copytree(self.content, self.output)
         files = [".hidden.txt", "hellosimiki.md", "zen_of_python.txt",
