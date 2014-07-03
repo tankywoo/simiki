@@ -162,7 +162,11 @@ class Generator(object):
             os.getcwd(),
             os.path.realpath(md_file)
         )
-        html = pgen.markdown2html()
+        try:
+            html = pgen.markdown2html()
+        except Exception, e:
+            logger.exception("{}\n{}".format(str(e), traceback.format_exc()))
+            sys.exit(1)
 
         def get_ofile():
             scategory, fname = os.path.split(md_file)

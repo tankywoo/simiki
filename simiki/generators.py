@@ -9,7 +9,6 @@ from __future__ import (print_function, with_statement, unicode_literals,
 
 import os
 import os.path
-import sys
 import codecs
 import datetime
 import logging
@@ -19,7 +18,6 @@ import markdown
 import yaml
 from jinja2 import (Environment, FileSystemLoader, TemplateError)
 
-from simiki import utils
 
 logger = logging.getLogger(__name__)
 
@@ -35,13 +33,9 @@ class BaseGenerator(object):
             site_settings["themes_dir"],
             site_settings["theme"]
         )
-        try:
-            self.env = Environment(
-                loader=FileSystemLoader(_template_path)
-            )
-        except TemplateError, e:
-            logging.error(str(e))
-            sys.exit(1)
+        self.env = Environment(
+            loader=FileSystemLoader(_template_path)
+        )
 
 
 class PageGenerator(BaseGenerator):
@@ -59,9 +53,8 @@ class PageGenerator(BaseGenerator):
             template = self.env.get_template(template_file)
             html = template.render(template_vars)
         except TemplateError, e:
-            logging.error("Unable to load template {}: {}"
-                          .format(template_file, str(e)))
-            sys.exit(1)
+            raise Exception("Unable to load template {}: {}"
+                            .format(template_file, str(e)))
 
         return html
 
@@ -112,10 +105,8 @@ class PageGenerator(BaseGenerator):
 
         metadata_notation = "---\n"
         if textlist[0] != metadata_notation:
-            logging.error(
-                "{} first line must be triple-dashed!".format(self.sfile_path)
-            )
-            sys.exit(1)
+            raise Exception("{} first line must be triple-dashed!"
+                            .format(self.sfile_path))
 
         metadata_textlist = []
         metadata_end_flag = False
@@ -125,11 +116,8 @@ class PageGenerator(BaseGenerator):
             metadata_textlist.append(textlist[idx])
             idx += 1
             if idx >= max_idx:
-                logging.error(
-                    "{} doesn't have end triple-dashed!"
-                    .format(self.sfile_path)
-                )
-                sys.exit(1)
+                raise Exception("{} doesn't have end triple-dashed!"
+                                .format(self.sfile_path))
             if textlist[idx] == metadata_notation:
                 metadata_end_flag = True
         content_textlist = textlist[idx + 1:]
@@ -140,7 +128,7 @@ class PageGenerator(BaseGenerator):
         """Check if metadata is right"""
         is_metadata_right = True
         if "title" not in metadata:
-            logging.error("No `title' in metadata")
+            logger.error("No `title' in metadata")
             is_metadata_right = False
         return is_metadata_right
 
@@ -152,15 +140,13 @@ class PageGenerator(BaseGenerator):
         try:
             metadata = yaml.load(metadata_yaml)
         except yaml.YAMLError, e:
-            msg = "Yaml format error in {}:\n{}".format(
+            raise Exception("Yaml format error in {}:\n{}".format(
                 self.sfile_path,
                 unicode(str(e), "utf-8")
-            )
-            logging.error(msg)
-            sys.exit(1)
+            ))
 
         if not self.check_metadata(metadata):
-            sys.exit(1)
+            raise Exception
 
         return metadata
 
