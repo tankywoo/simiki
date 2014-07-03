@@ -13,6 +13,7 @@ import codecs
 import datetime
 import logging
 import copy
+from collections import OrderedDict
 
 import markdown
 import yaml
@@ -214,9 +215,33 @@ class CatalogGenerator(BaseGenerator):
 
         return dct["content"]
 
+    def sort_structure(self, structure):
+        """Sort index structure in lower-case, alphabetical order
+
+        Compare argument is a key/value structure, if the compare argument is a
+        leaf node, which has `title` key in its value, use the title value,
+        else use the key to compare.
+        """
+
+        def _cmp(arg1, arg2):
+            arg1 = arg1[1]["title"] if "title" in arg1[1] else arg1[0]
+            arg2 = arg2[1]["title"] if "title" in arg2[1] else arg2[0]
+            return cmp(arg1.lower(), arg2.lower())
+
+        sorted_structure = copy.deepcopy(structure)
+        for k, v in sorted_structure.items():
+            sorted_structure = OrderedDict(sorted(
+                sorted_structure.items(),
+                _cmp
+            ))
+            if k.endswith(".{}".format(self.site_settings["default_ext"])):
+                continue
+            sorted_structure[k] = self.sort_structure(sorted_structure[k])
+        return sorted_structure
+
     def get_template_vars(self):
         self.site_settings["structure"] = \
-            self.get_content_structure_and_metadata()
+            self.sort_structure(self.get_content_structure_and_metadata())
         tpl_vars = {
             "site": self.site_settings,
         }
