@@ -31,8 +31,10 @@ import codecs
 import datetime
 import shutil
 import logging
+import traceback
 
 from docopt import docopt
+from yaml import YAMLError
 
 from simiki.generators import (PageGenerator, CatalogGenerator,
                                CustomCatalogGenerator)
@@ -193,13 +195,14 @@ class Generator(object):
 
 
 def main():
+    logging_init(logging.DEBUG)
+
     args = docopt(__doc__, version="Simiki {}".format(__version__))
     target_path = os.getcwd()
     if args["-p"]:
         target_path = args["-p"]
 
     if args["init"]:
-        logging_init(logging.DEBUG)
         default_config_file = os.path.join(os.path.dirname(__file__),
                                            "conf_templates",
                                            "_config.yml.in")
@@ -208,7 +211,11 @@ def main():
         return
 
     config_file = os.path.join(os.getcwd(), "_config.yml")
-    configs = parse_configs(config_file)
+    try:
+        configs = parse_configs(config_file)
+    except (Exception, YAMLError) as e:
+        logging.exception("{}\n{}".format(str(e), traceback.format_exc()))
+        return
     level = logging.DEBUG if configs["debug"] else logging.INFO
     logging_init(level)
 

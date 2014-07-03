@@ -43,22 +43,13 @@ def _post_process(configs):
 
 
 def parse_configs(config_file):
+    if not os.path.exists(config_file):
+        raise Exception("{} not exists".format(config_file))
+
     default_configs = _set_default_configs()
 
-    if not os.path.exists(config_file):
-        logging.error("{} not exists".format(config_file))
-        sys.exit(1)
-
-    try:
-        with open(config_file, "rb") as fd:
-            configs = yaml.load(fd)
-    except yaml.YAMLError, e:
-        msg = "Yaml format error in {}:\n{}".format(
-            config_file,
-            unicode(str(e), "utf-8")
-        )
-        logging.error(msg)
-        sys.exit(1)
+    with open(config_file, "rb") as fd:
+        configs = yaml.load(fd)
 
     default_configs.update(configs)
     configs = _post_process(deepcopy(default_configs))
