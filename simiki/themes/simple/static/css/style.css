@@ -170,6 +170,8 @@ li.pagelist:before {
     content: "\0BB \020";
 }
 
+#index ul { margin: 0; }
+
 /* Table of Contents */
 .toc {
     margin: 0 0.5em;

@@ -7,7 +7,6 @@ import unittest
 import shutil
 
 from simiki.initsite import InitSite
-from simiki.utils import check_path_exists
 
 
 class TestInitSite(unittest.TestCase):

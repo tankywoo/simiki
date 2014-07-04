@@ -31,8 +31,10 @@ import codecs
 import datetime
 import shutil
 import logging
+import traceback
 
 from docopt import docopt
+from yaml import YAMLError
 
 from simiki.generators import (PageGenerator, CatalogGenerator,
                                CustomCatalogGenerator)
@@ -40,8 +42,7 @@ from simiki.initsite import InitSite
 from simiki.configs import parse_configs
 from simiki.log import logging_init
 from simiki.server import preview
-from simiki.utils import (check_path_exists, copytree, emptytree,
-                          check_extension, mkdir_p)
+from simiki.utils import (copytree, emptytree, check_extension, mkdir_p)
 from simiki import __version__
 
 logger = logging.getLogger(__name__)
@@ -68,7 +69,7 @@ def write_file(content, ofile, ftype="page"):
     """
     if ftype == "page":
         output_category, _ = os.path.split(ofile)
-        if not check_path_exists(output_category):
+        if not os.path.exists(output_category):
             logging.info(
                 "The output category %s not exists, create it"
                 % output_category
@@ -91,12 +92,12 @@ def create_new_wiki(source, category, filename, title, date):
         sys.exit(1)
 
     category_path = os.path.join(source, category)
-    if not check_path_exists(category_path):
+    if not os.path.exists(category_path):
         os.mkdir(category_path)
         logger.info("Creating category {}.".format(category))
 
     fn = os.path.join(category_path, filename)
-    if check_path_exists(fn):
+    if os.path.exists(fn):
         logger.warning("wiki file exists: {}".format(fn))
     else:
         logger.info("Creating wiki: {}".format(fn))
@@ -161,7 +162,11 @@ class Generator(object):
             os.getcwd(),
             os.path.realpath(md_file)
         )
-        html = pgen.markdown2html()
+        try:
+            html = pgen.markdown2html()
+        except Exception, e:
+            logger.exception("{}\n{}".format(str(e), traceback.format_exc()))
+            sys.exit(1)
 
         def get_ofile():
             scategory, fname = os.path.split(md_file)
@@ -194,13 +199,14 @@ class Generator(object):
 
 
 def main():
+    logging_init(logging.DEBUG)
+
     args = docopt(__doc__, version="Simiki {}".format(__version__))
     target_path = os.getcwd()
     if args["-p"]:
         target_path = args["-p"]
 
     if args["init"]:
-        logging_init(logging.DEBUG)
         default_config_file = os.path.join(os.path.dirname(__file__),
                                            "conf_templates",
                                            "_config.yml.in")
@@ -209,7 +215,11 @@ def main():
         return
 
     config_file = os.path.join(os.getcwd(), "_config.yml")
-    configs = parse_configs(config_file)
+    try:
+        configs = parse_configs(config_file)
+    except (Exception, YAMLError) as e:
+        logging.exception("{}\n{}".format(str(e), traceback.format_exc()))
+        return
     level = logging.DEBUG if configs["debug"] else logging.INFO
     logging_init(level)
 

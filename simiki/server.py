@@ -3,12 +3,12 @@
 from __future__ import print_function, absolute_import
 
 import os
+import os.path
 import sys
 import logging
 import SimpleHTTPServer
 import SocketServer
 
-from simiki.utils import check_path_exists
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ class Reuse_TCPServer(SocketServer.TCPServer):
 
 
 def preview(path, port=8000):
-    if check_path_exists(path):
+    if os.path.exists(path):
         os.chdir(path)
     else:
         logger.error("Path {} not exists".format(path))

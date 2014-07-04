@@ -10,15 +10,14 @@ import logging
 
 from simiki.configs import parse_configs
 from simiki.log import logging_init
-from simiki.utils import (check_path_exists, copytree, mkdir_p,
-                          listdir_nohidden)
+from simiki.utils import (copytree, mkdir_p, listdir_nohidden)
 
 
 class InitSite(object):
 
     def __init__(self, config_file, target_path):
         self.config_file = config_file
-        if not check_path_exists(self.config_file):
+        if not os.path.exists(self.config_file):
             logging.error("{} not exists".format(self.config_file))
             sys.exit(1)
         try:
@@ -29,13 +28,13 @@ class InitSite(object):
         self.target_path = target_path
 
     def get_file(self, src, dst):
-        if check_path_exists(dst):
+        if os.path.exists(dst):
             logging.warning("{} exists".format(dst))
             return
 
         # Create parent directory
         dst_directory = os.path.dirname(dst)
-        if not check_path_exists(dst_directory):
+        if not os.path.exists(dst_directory):
             mkdir_p(dst_directory)
             logging.info("Creating directory: {}".format(dst_directory))
 

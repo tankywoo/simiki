@@ -35,5 +35,23 @@ class TestParseConfigs(unittest.TestCase):
             self.expect_configs
         )
 
+    def test_parse_configs_not_exist(self):
+        not_exist_config_file = os.path.join(self.config_file, "not_exist")
+        with self.assertRaises(Exception):
+            parse_configs(not_exist_config_file)
+
+    def test_configs_url(self):
+        config_file = os.path.join(
+            os.path.dirname(__file__),
+            "configs",
+            "test_url.yml"
+        )
+        self.expect_configs["url"] = "http://wiki.tankywoo.com"
+        configs = parse_configs(config_file)
+        self.assertEqual(
+            configs,
+            self.expect_configs
+        )
+
 if __name__ == "__main__":
     unittest.main()

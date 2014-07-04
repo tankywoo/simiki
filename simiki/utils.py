@@ -29,13 +29,6 @@ def color_msg(color, msg):
     return COLOR_CODES[color] + msg + COLOR_CODES["reset"]
 
 
-def check_path_exists(path):
-    """Check if the path(include file and directory) exists"""
-    if os.path.exists(path):
-        return True
-    return False
-
-
 def check_extension(filename):
     """Check if the file extension is in the allowed extensions
 
@@ -75,7 +68,7 @@ def emptytree(directory):
     """Delete all the files and dirs under specified directory"""
 
     for p in os.listdir(directory):
-        fp = os.path.join(directory, p)
+        fp = unicode(os.path.join(directory, p), "utf-8")
         if os.path.isdir(fp):
             try:
                 shutil.rmtree(fp)

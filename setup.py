@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import with_statement
+import os
 from setuptools import setup, find_packages
 import simiki
 
@@ -13,6 +14,13 @@ entry_points = {
 with open("requirements.txt") as f:
     requires = [l for l in f.read().splitlines() if l]
 
+readme = "README.md"
+if os.path.exists("README.rst"):
+    readme = "README.rst"
+with open(readme) as f:
+    long_description = f.read()
+
+
 setup(
     name="simiki",
     version=simiki.__version__,
@@ -20,6 +28,7 @@ setup(
     author="Tanky Woo",
     author_email="me@tankywoo.com",
     description="Simiki is a simple wiki framework, written in Python.",
+    long_description=long_description,
     keywords="simiki, wiki, generator",
     license="MIT License",
     packages=find_packages(),

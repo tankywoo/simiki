@@ -12,17 +12,33 @@ class TestUtils(unittest.TestCase):
         os.chdir(os.path.dirname(__file__))
         self.content = "sample"
         self.output = "output"
-        if utils.check_path_exists(self.output):
+        if os.path.exists(self.output):
             utils.emptytree(self.output)
             os.rmdir(self.output)
+
+    def test_check_extension(self):
+        file1 = "/tmp/file1.md"
+        file2 = "/tmp/file2.mkd"
+        file3 = "/tmp/test/文件3.mdown"
+        file4 = "/var/lib/file4.markdown"
+        file5 = "/tmp/testfile"
+        file6 = "/tmp/wrong.mkdown"
+        file7 = "/tmp/文件7.mkdown"
+        assert utils.check_extension(file1)
+        assert utils.check_extension(file2)
+        assert utils.check_extension(file3)
+        assert utils.check_extension(file4)
+        assert not utils.check_extension(file5)
+        assert not utils.check_extension(file6)
+        assert not utils.check_extension(file7)
 
     def test_copytree_common(self):
         utils.copytree(self.content, self.output)
         files = [".hidden.txt", "hellosimiki.md", "zen_of_python.txt",
                  "simiki.md"]
-        assert(utils.check_path_exists(self.output))
+        assert(os.path.exists(self.output))
         for f in files:
-            assert(utils.check_path_exists(os.path.join(self.output, f)))
+            assert(os.path.exists(os.path.join(self.output, f)))
         assert(not os.path.islink(os.path.join(self.output, "simiki.md")))
 
     def test_copytree_symlink(self):
@@ -39,14 +55,23 @@ class TestUtils(unittest.TestCase):
     def test_mkdir_p(self):
         path = os.path.join(self.output, "dir1/dir2/dir3")
         utils.mkdir_p(path)
-        assert (utils.check_path_exists(path))
+        assert os.path.exists(path)
+        path = os.path.join(self.content)
+        utils.mkdir_p(path)
+        assert os.path.exists(path)
+        with self.assertRaises(OSError):
+            path = os.path.join(self.content, u"Simiki介绍.md")
+            utils.mkdir_p(path)
+
 
     def test_listdir_nohidden(self):
-        hidden_file = os.path.join(self.content, ".hidden.txt")
-        assert (utils.check_path_exists(hidden_file))
+        fs = utils.listdir_nohidden(self.content)
+        assert sorted(list(fs)) == sorted([u"Simiki介绍.md", u"hellosimiki.md",
+                                           u"simiki.md", u"zen_of_python.txt",
+                                           u"介绍.md"])
 
     def tearDown(self):
-        if utils.check_path_exists(self.output):
+        if os.path.exists(self.output):
             utils.emptytree(self.output)
             os.rmdir(self.output)
 
