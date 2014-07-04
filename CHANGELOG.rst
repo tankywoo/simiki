@@ -1,3 +1,13 @@
+v1.1 (2014-07-04)
+===================
+
+* Template support multiple level catalog in Index
+* Sort index structure in lower-case, alphabetical order
+* Fix error on nav in wiki page
+* Fix unicode in emptytree
+* Fix #16 set literals not support in Python < 2.7
+
+
 v1.0.3 (2014-06-10)
 ===================
 
