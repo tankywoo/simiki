@@ -27,10 +27,13 @@
     {{ page.content }}
   {% else %}
     {% for category_name, pages in site.structure.iteritems() %}
+      {# Top-level wiki pages not display in index #}
+      {% if site.default_ext not in category_name %}
       <h2 id="{{ category_name }}">{{ category_name }}</h2>
-      {% set url = "./" ~ category_name %}
-      {{ list_page(pages, url, category_name) }}
+        {% set url = "./" ~ category_name %}
+        {{ list_page(pages, url, category_name) }}
       <div class="clearfix"></div>
+      {% endif %}
     {% endfor %}
   {% endif %}
     </div>
