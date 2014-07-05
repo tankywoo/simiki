@@ -49,8 +49,7 @@ class TestInitSite(unittest.TestCase):
 
         target_error = "/foo/bar/why/not"
         i = InitSite(self.config_file, target_error)
-        with self.assertRaises(OSError):
-            i.init_site()
+        self.assertRaises(OSError, lambda: i.init_site())
 
     def tearDown(self):
         if os.path.exists(self.target_path):

@@ -21,17 +21,17 @@ class InitSite(object):
 
     def get_file(self, src, dst):
         if os.path.exists(dst):
-            logging.warning("{} exists".format(dst))
+            logging.warning("{0} exists".format(dst))
             return
 
         # Create parent directory
         dst_directory = os.path.dirname(dst)
         if not os.path.exists(dst_directory):
             mkdir_p(dst_directory)
-            logging.info("Creating directory: {}".format(dst_directory))
+            logging.info("Creating directory: {0}".format(dst_directory))
 
         shutil.copyfile(src, dst)
-        logging.info("Creating config file: {}".format(dst))
+        logging.info("Creating config file: {0}".format(dst))
 
     def get_config_file(self):
         dst_config_file = os.path.join(self.target_path, "_config.yml")
@@ -73,7 +73,7 @@ class InitSite(object):
             shutil.rmtree(theme_path)
 
         copytree(src_theme, theme_path)
-        logging.info("Copying default theme to: {}".format(theme_path))
+        logging.info("Copying default theme to: {0}".format(theme_path))
 
     def init_site(self):
         content_path = os.path.join(self.target_path, self.configs["source"])
@@ -82,10 +82,10 @@ class InitSite(object):
         theme_path = os.path.join(self.target_path, "themes")
         for path in (content_path, output_path, theme_path):
             if os.path.exists(path):
-                logging.warning("{} exists".format(path))
+                logging.warning("{0} exists".format(path))
             else:
                 mkdir_p(path)
-                logging.info("Creating directory: {}".format(path))
+                logging.info("Creating directory: {0}".format(path))
 
         self.get_config_file()
         self.get_fabfile()

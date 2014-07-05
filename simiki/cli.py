@@ -53,7 +53,7 @@ def param_of_create_wiki(title, category, filename):
     if not filename:
         # `/` can't exists in filename
         title_ = title.decode("utf-8").replace(os.sep, " slash ")
-        filename = "{}.md".format("-".join(title_.split()).lower())
+        filename = "{0}.md".format("-".join(title_.split()).lower())
     cur_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     title = title.decode("utf-8")
     category = category.decode("utf-8")
@@ -83,8 +83,8 @@ def create_new_wiki(source, category, filename, title, date):
     try:
         meta = "\n".join([
             "---",
-            "title: \"{}\"".format(title),
-            "date: {}".format(date),
+            "title: \"{0}\"".format(title),
+            "date: {0}".format(date),
             "---",
         ]) + "\n\n"
     except Exception, e:
@@ -94,13 +94,13 @@ def create_new_wiki(source, category, filename, title, date):
     category_path = os.path.join(source, category)
     if not os.path.exists(category_path):
         os.mkdir(category_path)
-        logger.info("Creating category {}.".format(category))
+        logger.info("Creating category {0}.".format(category))
 
     fn = os.path.join(category_path, filename)
     if os.path.exists(fn):
-        logger.warning("wiki file exists: {}".format(fn))
+        logger.warning("wiki file exists: {0}".format(fn))
     else:
-        logger.info("Creating wiki: {}".format(fn))
+        logger.info("Creating wiki: {0}".format(fn))
         with codecs.open(fn, "wb", "utf-8") as fd:
             fd.write(meta)
 
@@ -109,14 +109,14 @@ def install_theme(current_dir, theme_name):
     """Copy static directory under theme to output directory"""
     src_theme = os.path.join(
         current_dir,
-        "themes/{}/static".format(theme_name)
+        "themes/{0}/static".format(theme_name)
     )
     dst_theme = os.path.join(current_dir, "output/static")
     if os.path.exists(dst_theme):
         shutil.rmtree(dst_theme)
 
     copytree(src_theme, dst_theme)
-    logging.info("Installing theme: {}".format(theme_name))
+    logging.info("Installing theme: {0}".format(theme_name))
 
 
 class Generator(object):
@@ -151,12 +151,12 @@ class Generator(object):
                 md_file = os.path.join(root, filename)
                 pages[md_file] = self.generate_single_page(md_file)
                 pcnt += 1
-        logger.info("{} files generated.".format(pcnt))
+        logger.info("{0} files generated.".format(pcnt))
         return pages
 
     def generate_single_page(self, md_file):
         md_file = md_file.decode('utf8')
-        logger.debug("Generate {}".format(md_file))
+        logger.debug("Generate {0}".format(md_file))
         pgen = PageGenerator(
             self.configs,
             os.getcwd(),
@@ -165,12 +165,12 @@ class Generator(object):
         try:
             html = pgen.markdown2html()
         except Exception, e:
-            logger.exception("{}\n{}".format(str(e), traceback.format_exc()))
+            logger.exception("{0}\n{1}".format(str(e), traceback.format_exc()))
             sys.exit(1)
 
         def get_ofile():
             scategory, fname = os.path.split(md_file)
-            ofname = "{}.html".format(os.path.splitext(fname)[0])
+            ofname = "{0}.html".format(os.path.splitext(fname)[0])
             category = os.path.relpath(scategory, self.configs["source"])
             ocategory = os.path.join(
                 os.getcwd(), self.configs["destination"], category
@@ -201,7 +201,7 @@ class Generator(object):
 def main():
     logging_init(logging.DEBUG)
 
-    args = docopt(__doc__, version="Simiki {}".format(__version__))
+    args = docopt(__doc__, version="Simiki {0}".format(__version__))
     target_path = os.getcwd()
     if args["-p"]:
         target_path = args["-p"]
@@ -214,14 +214,15 @@ def main():
             isite = InitSite(default_config_file, target_path)
             isite.init_site()
         except Exception as e:
-            logging.exception("{}\n{}".format(str(e), traceback.format_exc()))
+            logging.exception("{0}\n{1}"
+                              .format(str(e), traceback.format_exc()))
         return
 
     config_file = os.path.join(os.getcwd(), "_config.yml")
     try:
         configs = parse_configs(config_file)
     except (Exception, YAMLError) as e:
-        logging.exception("{}\n{}".format(str(e), traceback.format_exc()))
+        logging.exception("{0}\n{1}".format(str(e), traceback.format_exc()))
         return
     level = logging.DEBUG if configs["debug"] else logging.INFO
     logging_init(level)

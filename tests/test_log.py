@@ -19,29 +19,29 @@ class TestLogInit(unittest.TestCase):
     def test_logging_init(self):
         self.logger.debug("debug")
         self.assertEqual(self.stream.getvalue().strip(),
-                         "[{}]: debug".format(color_msg("blue", "DEBUG")))
+                         "[{0}]: debug".format(color_msg("blue", "DEBUG")))
         self.stream.truncate(0)
 
         self.logger.info("info")
         self.assertEqual(self.stream.getvalue().strip(),
-                         "[{}]: info".format(color_msg("green", "INFO")))
+                         "[{0}]: info".format(color_msg("green", "INFO")))
         self.stream.truncate(0)
 
         self.logger.warning("warning")
         self.assertEqual(
             self.stream.getvalue().strip(),
-            "[{}]: warning".format(color_msg("yellow", "WARNING")))
+            "[{0}]: warning".format(color_msg("yellow", "WARNING")))
         self.stream.truncate(0)
 
         self.logger.error("error")
         self.assertEqual(self.stream.getvalue().strip(),
-                         "[{}]: error".format(color_msg("red", "ERROR")))
+                         "[{0}]: error".format(color_msg("red", "ERROR")))
         self.stream.truncate(0)
 
         self.logger.critical("critical")
         self.assertEqual(
             self.stream.getvalue().strip(),
-            "[{}]: critical".format(color_msg("bgred", "CRITICAL")))
+            "[{0}]: critical".format(color_msg("bgred", "CRITICAL")))
         self.stream.truncate(0)
 
     def tearDown(self):
