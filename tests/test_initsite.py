@@ -18,7 +18,6 @@ class TestInitSite(unittest.TestCase):
         self.target_path = os.path.join(BASE_DIR, "tests", "_build")
         if os.path.exists(self.target_path):
             shutil.rmtree(self.target_path)
-        os.mkdir(self.target_path)
         self.files = [
             "_config.yml",
             "fabfile.py",
@@ -48,15 +47,14 @@ class TestInitSite(unittest.TestCase):
         """ test InitSite target path invalid, raise OSError
         """
 
-        self.files = ["_config.yml", "fabfile.py"]
-        self.dirs = ["content", "output", "themes"]
         target_error = "/foo/bar/why/not"
         i = InitSite(self.config_file, target_error)
         with self.assertRaises(OSError):
             i.init_site()
 
     def tearDown(self):
-        shutil.rmtree(self.target_path)
+        if os.path.exists(self.target_path):
+            shutil.rmtree(self.target_path)
 
 if __name__ == "__main__":
     unittest.main()

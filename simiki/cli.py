@@ -210,8 +210,11 @@ def main():
         default_config_file = os.path.join(os.path.dirname(__file__),
                                            "conf_templates",
                                            "_config.yml.in")
-        isite = InitSite(default_config_file, target_path)
-        isite.init_site()
+        try:
+            isite = InitSite(default_config_file, target_path)
+            isite.init_site()
+        except Exception as e:
+            logging.exception("{}\n{}".format(str(e), traceback.format_exc()))
         return
 
     config_file = os.path.join(os.getcwd(), "_config.yml")
