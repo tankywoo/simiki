@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% macro list_page(pages, parent_url, parent_id) -%}
+      <ul>
+        {%- for page_k, page_v in pages.iteritems() %}
+          {% if site.default_ext in page_k %}
+        <li class="pagelist">
+          <a href="{{ parent_url }}/{{ page_v.name }}.html">{{ page_v.title }}</a>
+        </li>
+          {% else %}
+        {% set id = parent_id ~ "-" ~ page_k %}
+        <li class="pagelist" id="{{ id }}">{{ page_k }}</li>
+            {% set url = parent_url ~ "/" ~ page_k %}
+            {{ list_page(page_v, url, id) }}
+          {% endif %}
+        {%- endfor %}
+      </ul>
+{%- endmacro %}
+
+{% block title %}{{ site.title }}{% endblock %}
+
+{% block container %}
+    <div id="wiki_title">{{ site.title }}</div>
+
+    <div id="index">
+  {% if site.index %}
+    {{ page.content }}
+  {% else %}
+    {% for category_name, pages in site.structure.iteritems() %}
+      {# Top-level wiki pages not display in index #}
+      {% if site.default_ext not in category_name %}
+      <h2 id="{{ category_name }}">{{ category_name }}</h2>
+        {% set url = "./" ~ category_name %}
+        {{ list_page(pages, url, category_name) }}
+      <div class="clearfix"></div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+    </div>
+{% endblock %}
