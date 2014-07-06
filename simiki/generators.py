@@ -22,6 +22,7 @@ import markdown
 import yaml
 from jinja2 import (Environment, FileSystemLoader, TemplateError)
 
+from simiki.extensions import PageUrlExtension
 
 logger = logging.getLogger(__name__)
 
@@ -159,6 +160,10 @@ class PageGenerator(BaseGenerator):
 
         :param markdown_content: Markdown text lists #TODO#
         """
+        pre_env = Environment(extensions=[PageUrlExtension])
+        t = pre_env.from_string(markdown_content)
+        markdown_content = t.render({"site": self.site_settings})
+        print(markdown_content)
         markdown_extensions = self.set_markdown_extensions()
 
         html_content = markdown.markdown(
