@@ -37,8 +37,8 @@ class TestParseConfigs(unittest.TestCase):
 
     def test_parse_configs_not_exist(self):
         not_exist_config_file = os.path.join(self.config_file, "not_exist")
-        with self.assertRaises(Exception):
-            parse_configs(not_exist_config_file)
+        self.assertRaises(Exception,
+                          lambda: parse_configs(not_exist_config_file))
 
     def test_configs_url(self):
         config_file = os.path.join(

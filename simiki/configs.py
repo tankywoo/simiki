@@ -44,7 +44,7 @@ def _post_process(configs):
 
 def parse_configs(config_file):
     if not os.path.exists(config_file):
-        raise Exception("{} not exists".format(config_file))
+        raise Exception("{0} not exists".format(config_file))
 
     default_configs = _set_default_configs()
 

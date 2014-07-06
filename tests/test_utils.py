@@ -59,9 +59,8 @@ class TestUtils(unittest.TestCase):
         path = os.path.join(self.content)
         utils.mkdir_p(path)
         assert os.path.exists(path)
-        with self.assertRaises(OSError):
-            path = os.path.join(self.content, u"Simiki介绍.md")
-            utils.mkdir_p(path)
+        path = os.path.join(self.content, u"Simiki介绍.md")
+        self.assertRaises(OSError, lambda: utils.mkdir_p(path))
 
 
     def test_listdir_nohidden(self):

@@ -13,7 +13,10 @@ import codecs
 import datetime
 import logging
 import copy
-from collections import OrderedDict
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
 
 import markdown
 import yaml
@@ -48,13 +51,13 @@ class PageGenerator(BaseGenerator):
     def markdown2html(self):
         """Load template, and generate html"""
         layout = self.get_layout()
-        template_file = "{}.html".format(layout)
+        template_file = "{0}.html".format(layout)
         template_vars = self.get_template_vars()
         try:
             template = self.env.get_template(template_file)
             html = template.render(template_vars)
         except TemplateError, e:
-            raise Exception("Unable to load template {}: {}"
+            raise Exception("Unable to load template {0}: {1}"
                             .format(template_file, str(e)))
 
         return html
@@ -106,7 +109,7 @@ class PageGenerator(BaseGenerator):
 
         metadata_notation = "---\n"
         if textlist[0] != metadata_notation:
-            raise Exception("{} first line must be triple-dashed!"
+            raise Exception("{0} first line must be triple-dashed!"
                             .format(self.sfile_path))
 
         metadata_textlist = []
@@ -117,7 +120,7 @@ class PageGenerator(BaseGenerator):
             metadata_textlist.append(textlist[idx])
             idx += 1
             if idx >= max_idx:
-                raise Exception("{} doesn't have end triple-dashed!"
+                raise Exception("{0} doesn't have end triple-dashed!"
                                 .format(self.sfile_path))
             if textlist[idx] == metadata_notation:
                 metadata_end_flag = True
@@ -141,7 +144,7 @@ class PageGenerator(BaseGenerator):
         try:
             metadata = yaml.load(metadata_yaml)
         except yaml.YAMLError, e:
-            raise Exception("Yaml format error in {}:\n{}".format(
+            raise Exception("Yaml format error in {0}:\n{1}".format(
                 self.sfile_path,
                 unicode(str(e), "utf-8")
             ))
@@ -234,7 +237,7 @@ class CatalogGenerator(BaseGenerator):
                 sorted_structure.items(),
                 _cmp
             ))
-            if k.endswith(".{}".format(self.site_settings["default_ext"])):
+            if k.endswith(".{0}".format(self.site_settings["default_ext"])):
                 continue
             sorted_structure[k] = self.sort_structure(sorted_structure[k])
         return sorted_structure

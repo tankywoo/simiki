@@ -26,10 +26,10 @@ def preview(path, port=8000):
         Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
         httpd = Reuse_TCPServer(("", port), Handler)
     except OSError as e:
-        logger.error("Could not listen on port {}".format(port))
+        logger.error("Could not listen on port {0}".format(port))
         sys.exit(getattr(e, 'exitcode', 1))
 
-    logger.info("Serving at port {}".format(port))
+    logger.info("Serving at port {0}".format(port))
     try:
         httpd.serve_forever()
     except KeyboardInterrupt as e:
