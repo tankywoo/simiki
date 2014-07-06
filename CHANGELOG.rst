@@ -1,3 +1,10 @@
+v1.2 (2014-07-06)
+===================
+
+* Support Python2.6
+* Fix: init site with specific path
+
+
 v1.1 (2014-07-04)
 ===================
 
