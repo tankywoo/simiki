@@ -1,3 +1,9 @@
+v1.2.1 (2014-07-13)
+===================
+
+* Fix #25 unicode problem when path contains Chinese
+
+
 v1.2 (2014-07-06)
 ===================
 
