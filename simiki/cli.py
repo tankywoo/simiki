@@ -123,16 +123,18 @@ class Generator(object):
 
     def __init__(self, configs):
         self.configs = configs
+        self.target_path = unicode(os.getcwd(), "utf-8")
 
     def generate(self, delete_output_dir=False):
         if delete_output_dir:
             logger.info("Delete all the files and dirs under output directory")
-            output_dir = os.path.join(os.getcwd(), self.configs["destination"])
+            output_dir = os.path.join(self.target_path,
+                                      self.configs["destination"])
             emptytree(output_dir)
 
         pages = self.generate_all_pages()
         self.generate_catalog(pages)
-        install_theme(os.getcwd(), self.configs["theme"])
+        install_theme(self.target_path, self.configs["theme"])
 
     def generate_all_pages(self):
         logger.info("Start generating markdown files.")
@@ -159,7 +161,7 @@ class Generator(object):
         logger.debug("Generate {0}".format(md_file))
         pgen = PageGenerator(
             self.configs,
-            os.getcwd(),
+            self.target_path,
             os.path.realpath(md_file)
         )
         try:
@@ -173,7 +175,7 @@ class Generator(object):
             ofname = "{0}.html".format(os.path.splitext(fname)[0])
             category = os.path.relpath(scategory, self.configs["source"])
             ocategory = os.path.join(
-                os.getcwd(), self.configs["destination"], category
+                self.target_path, self.configs["destination"], category
             )
             ofile = os.path.join(ocategory, ofname)
             return ofile
@@ -186,12 +188,12 @@ class Generator(object):
     def generate_catalog(self, pages):
         logger.info("Generate catalog page.")
         if self.configs["index"]:
-            cgen = CustomCatalogGenerator(self.configs, os.getcwd(), None)
+            cgen = CustomCatalogGenerator(self.configs, self.target_path, None)
         else:
-            cgen = CatalogGenerator(self.configs, os.getcwd(), pages)
+            cgen = CatalogGenerator(self.configs, self.target_path, pages)
         html = cgen.generate_catalog_html()
         ofile = os.path.join(
-            os.getcwd(),
+            self.target_path,
             self.configs["destination"],
             "index.html"
         )
@@ -202,9 +204,9 @@ def main():
     logging_init(logging.DEBUG)
 
     args = docopt(__doc__, version="Simiki {0}".format(__version__))
-    target_path = os.getcwd()
+    target_path = unicode(os.getcwd(), "utf-8")
     if args["-p"]:
-        target_path = args["-p"]
+        target_path = unicode(args["-p"], "utf-8")
 
     if args["init"]:
         default_config_file = os.path.join(os.path.dirname(__file__),
@@ -218,7 +220,7 @@ def main():
                               .format(str(e), traceback.format_exc()))
         return
 
-    config_file = os.path.join(os.getcwd(), "_config.yml")
+    config_file = os.path.join(target_path, "_config.yml")
     try:
         configs = parse_configs(config_file)
     except (Exception, YAMLError) as e:
