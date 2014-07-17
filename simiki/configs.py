@@ -5,6 +5,7 @@ from __future__ import absolute_import, unicode_literals
 import os
 import os.path
 import sys
+import io
 import logging
 from copy import deepcopy
 from pprint import pprint
@@ -48,7 +49,7 @@ def parse_configs(config_file):
 
     default_configs = _set_default_configs()
 
-    with open(config_file, "rb") as fd:
+    with io.open(config_file, "rt", encoding="utf-8") as fd:
         configs = yaml.load(fd)
 
     default_configs.update(configs)

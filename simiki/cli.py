@@ -27,7 +27,7 @@ from __future__ import print_function, unicode_literals, absolute_import
 import os
 import os.path
 import sys
-import codecs
+import io
 import datetime
 import shutil
 import logging
@@ -75,7 +75,7 @@ def write_file(content, ofile, ftype="page"):
                 % output_category
             )
             mkdir_p(output_category)
-    with codecs.open(ofile, "wb", "utf-8") as fd:
+    with io.open(ofile, "wt", encoding="utf-8") as fd:
         fd.write(content)
 
 
@@ -101,7 +101,7 @@ def create_new_wiki(source, category, filename, title, date):
         logger.warning("wiki file exists: {0}".format(fn))
     else:
         logger.info("Creating wiki: {0}".format(fn))
-        with codecs.open(fn, "wb", "utf-8") as fd:
+        with io.open(fn, "wt", encoding="utf-8") as fd:
             fd.write(meta)
 
 

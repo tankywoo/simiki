@@ -9,7 +9,7 @@ from __future__ import (print_function, with_statement, unicode_literals,
 
 import os
 import os.path
-import codecs
+import io
 import datetime
 import logging
 import copy
@@ -104,7 +104,7 @@ class PageGenerator(BaseGenerator):
         The metadata is yaml format text in the middle of triple-dashed lines
         The content is the other source texts
         """
-        with codecs.open(self.sfile_path, "rb", "utf-8") as fd:
+        with io.open(self.sfile_path, "rt", encoding="utf-8") as fd:
             textlist = fd.readlines()
 
         metadata_notation = "---\n"
