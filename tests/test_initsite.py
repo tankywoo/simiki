@@ -21,13 +21,13 @@ class TestInitSite(unittest.TestCase):
         self.files = [
             "_config.yml",
             "fabfile.py",
-            "content/intro/gettingstarted.md",
+            os.path.join("content", "intro", "gettingstarted.md"),
         ]
         self.dirs = [
             "content",
             "output",
             "themes",
-            "themes/simple"
+            os.path.join("themes", "simple"),
         ]
 
     def test_target_exist(self):
