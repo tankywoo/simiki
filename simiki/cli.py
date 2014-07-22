@@ -50,12 +50,13 @@ logger = logging.getLogger(__name__)
 
 def param_of_create_wiki(title, category, filename):
     """Get parameters of creating wiki page"""
+    if not isinstance(title, unicode):
+        title = unicode(title, "utf-8")
     if not filename:
         # `/` can't exists in filename
-        title_ = title.decode("utf-8").replace(os.sep, " slash ")
+        title_ = title.replace(os.sep, " slash ")
         filename = "{0}.md".format("-".join(title_.split()).lower())
     cur_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    title = title.decode("utf-8")
     category = category.decode("utf-8")
     return (category, filename, title, cur_date)
 
@@ -203,10 +204,11 @@ class Generator(object):
 def main():
     logging_init(logging.DEBUG)
 
-    args = docopt(__doc__, version="Simiki {0}".format(__version__))
-    target_path = unicode(os.getcwd(), "utf-8")
+    target_path = os.getcwd()
     if args["-p"]:
-        target_path = unicode(args["-p"], "utf-8")
+        target_path = args["-p"]
+    if not isinstance(target_path, unicode):
+        target_path = unicode(target_path, "utf-8")
 
     if args["init"]:
         default_config_file = os.path.join(os.path.dirname(__file__),
