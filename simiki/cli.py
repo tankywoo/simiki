@@ -201,7 +201,7 @@ class Generator(object):
         write_file(html, ofile, "index")
 
 
-def main():
+def execute(args):
     logging_init(logging.DEBUG)
 
     target_path = os.getcwd()
@@ -245,6 +245,9 @@ def main():
 
     logger.info("Done.")
 
+def main():
+    args = docopt(__doc__, version="Simiki {0}".format(__version__))
+    execute(args)
 
 if __name__ == "__main__":
     main()
