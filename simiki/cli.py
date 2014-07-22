@@ -81,16 +81,12 @@ def write_file(content, ofile, ftype="page"):
 
 
 def create_new_wiki(source, category, filename, title, date):
-    try:
-        meta = "\n".join([
-            "---",
-            "title: \"{0}\"".format(title),
-            "date: {0}".format(date),
-            "---",
-        ]) + "\n\n"
-    except Exception, e:
-        logger.error(str(e))
-        sys.exit(1)
+    meta = "\n".join([
+        "---",
+        "title: \"{0}\"".format(title),
+        "date: {0}".format(date),
+        "---",
+    ]) + "\n\n"
 
     category_path = os.path.join(source, category)
     if not os.path.exists(category_path):
