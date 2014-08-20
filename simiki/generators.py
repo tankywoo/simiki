@@ -56,7 +56,7 @@ class PageGenerator(BaseGenerator):
         try:
             template = self.env.get_template(template_file)
             html = template.render(template_vars)
-        except TemplateError, e:
+        except TemplateError as e:
             raise Exception("Unable to load template {0}: {1}"
                             .format(template_file, str(e)))
 
@@ -143,7 +143,7 @@ class PageGenerator(BaseGenerator):
         """
         try:
             metadata = yaml.load(metadata_yaml)
-        except yaml.YAMLError, e:
+        except yaml.YAMLError as e:
             raise Exception("Yaml format error in {0}:\n{1}".format(
                 self.sfile_path,
                 unicode(str(e), "utf-8")
