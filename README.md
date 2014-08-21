@@ -32,7 +32,7 @@ Simiki is short for `Simple Wiki` :)
 
 ### Create a new wiki ###
 
-	simiki new -t "Hello Simiki" -c first-catetory
+	simiki new -t "Hello Simiki" -c first-category
 
 ### Generate ###
 
