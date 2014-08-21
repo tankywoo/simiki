@@ -206,10 +206,14 @@ class CatalogGenerator(BaseGenerator):
     def get_content_structure_and_metadata(self):
         """Ref: http://stackoverflow.com/a/9619101/1276501"""
         dct = {}
+        ext = self.site_settings["default_ext"]
         for path, meta in self.pages.items():
+            # Ignore other files
+            if not path.endswith(ext):
+                continue
             p = dct
             for x in path.split(os.sep):
-                if ".md" in x:
+                if ext in x:
                     meta["name"] = os.path.splitext(x)[0]
                     p = p.setdefault(x, meta)
                 else:

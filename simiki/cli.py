@@ -48,14 +48,14 @@ from simiki import __version__
 logger = logging.getLogger(__name__)
 
 
-def param_of_create_wiki(title, category, filename):
+def param_of_create_wiki(title, category, filename, ext):
     """Get parameters of creating wiki page"""
     if not isinstance(title, unicode):
         title = unicode(title, "utf-8")
     if not filename:
         # `/` can't exists in filename
         title_ = title.replace(os.sep, " slash ")
-        filename = "{0}.md".format("-".join(title_.split()).lower())
+        filename = "{0}.{1}".format("-".join(title_.split()).lower(), ext)
     cur_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     category = category.decode("utf-8")
     return (category, filename, title, cur_date)
@@ -145,7 +145,7 @@ class Generator(object):
                 d for d in dirs if not d.decode("utf-8").startswith(".")
             ]
             for filename in files:
-                if not check_extension(filename):
+                if not filename.endswith(self.configs["default_ext"]):
                     continue
                 md_file = os.path.join(root, filename)
                 pages[md_file] = self.generate_single_page(md_file)
@@ -231,7 +231,8 @@ def execute(args):
         gen = Generator(configs)
         gen.generate(args["--delete"])
     elif args["new"] and args["-t"]:
-        pocw = param_of_create_wiki(args["-t"], args["-c"], args["-f"])
+        pocw = param_of_create_wiki(args["-t"], args["-c"], args["-f"],
+                                    configs["default_ext"])
         create_new_wiki(configs["source"], *pocw)
     elif args["preview"]:
         preview(configs["destination"])
