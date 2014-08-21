@@ -1,3 +1,9 @@
+v1.2.2 (2014-08-22)
+===================
+
+* Fix #26 Universal newline in open file
+* Fix #27 Fix extension is not md
+
 v1.2.1 (2014-07-13)
 ===================
 
