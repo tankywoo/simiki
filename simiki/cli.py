@@ -72,9 +72,7 @@ def write_file(content, ofile, ftype="page"):
         output_category, _ = os.path.split(ofile)
         if not os.path.exists(output_category):
             logging.info(
-                "The output category %s not exists, create it"
-                % output_category
-            )
+                "The output category %s not exists, create it", output_category)
             mkdir_p(output_category)
     with io.open(ofile, "wt", encoding="utf-8") as fd:
         fd.write(content)
