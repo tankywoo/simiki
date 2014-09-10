@@ -268,7 +268,9 @@ class CatalogGenerator(BaseGenerator):
 class CustomCatalogGenerator(CatalogGenerator):
 
     def __init__(self, site_settings, base_path):
-        super(CustomCatalogGenerator, self).__init__(site_settings, base_path)
+        super(CustomCatalogGenerator, self).__init__(site_settings,
+                                                     base_path,
+                                                     None)
 
     def get_template_vars(self):
         if self.site_settings["index"] is True:

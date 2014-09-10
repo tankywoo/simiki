@@ -184,7 +184,7 @@ class Generator(object):
     def generate_catalog(self, pages):
         logger.info("Generate catalog page.")
         if self.configs["index"]:
-            cgen = CustomCatalogGenerator(self.configs, self.target_path, None)
+            cgen = CustomCatalogGenerator(self.configs, self.target_path)
         else:
             cgen = CatalogGenerator(self.configs, self.target_path, pages)
         html = cgen.generate_catalog_html()
