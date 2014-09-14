@@ -16,6 +16,7 @@ TESTS_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 INIT_ARGS = {
     u'--delete': False,
+    u'--ignore-root': False,
     u'--help': False,
     u'--version': False,
     u'-c': None,

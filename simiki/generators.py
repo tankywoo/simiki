@@ -183,7 +183,7 @@ class PageGenerator(BaseGenerator):
 
     def get_layout(self):
         """Get layout setting in metadata, default is 'page'"""
-        metadata, markdown_content = self.get_metadata_and_content()
+        metadata, _ = self.get_metadata_and_content()
         if "layout" in metadata:
             # Compatible with previous version, which default layout is "post"
             # XXX Will remove this checker in v2.0
@@ -235,7 +235,7 @@ class CatalogGenerator(BaseGenerator):
             return cmp(arg1.lower(), arg2.lower())
 
         sorted_structure = copy.deepcopy(structure)
-        for k, v in sorted_structure.items():
+        for k, _ in sorted_structure.items():
             sorted_structure = OrderedDict(sorted(
                 sorted_structure.items(),
                 _cmp
@@ -268,7 +268,9 @@ class CatalogGenerator(BaseGenerator):
 class CustomCatalogGenerator(CatalogGenerator):
 
     def __init__(self, site_settings, base_path):
-        super(CustomCatalogGenerator, self).__init__(site_settings, base_path)
+        super(CustomCatalogGenerator, self).__init__(site_settings,
+                                                     base_path,
+                                                     None)
 
     def get_template_vars(self):
         if self.site_settings["index"] is True:

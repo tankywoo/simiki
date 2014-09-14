@@ -7,7 +7,7 @@ Simiki CLI
 Usage:
   simiki init [-p <path>]
   simiki new -t <title> -c <category> [-f <file>]
-  simiki generate [--delete]
+  simiki generate [--ignore-root] [--delete]
   simiki preview
   simiki -h | --help
   simiki -V | --version
@@ -19,6 +19,7 @@ Options:
   -t <title>          Specify the new post title.
   -f <file>           Specify the new post filename.
   -p <path>           Specify the target path.
+  --ignore-root       Ignore root setting and replace with `/` as root.
   --delete            Delete the contents of output directory before generate.
 """
 
@@ -72,9 +73,7 @@ def write_file(content, ofile, ftype="page"):
         output_category, _ = os.path.split(ofile)
         if not os.path.exists(output_category):
             logging.info(
-                "The output category %s not exists, create it"
-                % output_category
-            )
+                "The output category %s not exists, create it", output_category)
             mkdir_p(output_category)
     with io.open(ofile, "wt", encoding="utf-8") as fd:
         fd.write(content)
@@ -185,7 +184,7 @@ class Generator(object):
     def generate_catalog(self, pages):
         logger.info("Generate catalog page.")
         if self.configs["index"]:
-            cgen = CustomCatalogGenerator(self.configs, self.target_path, None)
+            cgen = CustomCatalogGenerator(self.configs, self.target_path)
         else:
             cgen = CatalogGenerator(self.configs, self.target_path, pages)
         html = cgen.generate_catalog_html()
@@ -228,6 +227,8 @@ def execute(args):
     logging_init(level)
 
     if args["generate"]:
+        if args["--ignore-root"]:
+            configs.update({u"root": u"/"})
         gen = Generator(configs)
         gen.generate(args["--delete"])
     elif args["new"] and args["-t"]:
