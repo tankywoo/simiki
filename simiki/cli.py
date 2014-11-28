@@ -139,10 +139,8 @@ class Generator(object):
         pcnt = 0
         pages = {}
         for root, dirs, files in os.walk(content_path):
-            files = [f for f in files if not f.decode("utf-8").startswith(".")]
-            dirs[:] = [
-                d for d in dirs if not d.decode("utf-8").startswith(".")
-            ]
+            files = [f for f in files if not f.startswith(".")]
+            dirs[:] = [d for d in dirs if not d.startswith(".")]
             for filename in files:
                 if not filename.endswith(self.configs["default_ext"]):
                     continue
@@ -153,7 +151,6 @@ class Generator(object):
         return pages
 
     def generate_single_page(self, md_file):
-        md_file = md_file.decode('utf8')
         logger.debug("Generate {0}".format(md_file))
         pgen = PageGenerator(
             self.configs,
