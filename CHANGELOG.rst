@@ -1,3 +1,10 @@
+v1.2.4 (2014-12-23)
+===================
+
+* Fix #31 encode/decode problems
+* Fix image overflow in simple themes
+
+
 v1.2.3 (2014-09-15)
 ===================
 
