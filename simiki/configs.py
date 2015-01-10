@@ -12,6 +12,9 @@ from pprint import pprint
 import yaml
 
 
+class ConfigFileNotFound(Exception):
+    pass
+
 def _set_default_configs():
     configs = {
         "url": "",
@@ -45,7 +48,7 @@ def _post_process(configs):
 
 def parse_configs(config_file):
     if not os.path.exists(config_file):
-        raise Exception("{0} not exists".format(config_file))
+        raise ConfigFileNotFound("{0} not exists".format(config_file))
 
     default_configs = _set_default_configs()
 
@@ -66,7 +69,7 @@ if __name__ == "__main__":
     """
     if len(sys.argv) == 1:
         base_dir = os.path.dirname(__file__)
-        config_file = os.path.join(base_dir, "conf_templates/_config.yml.in")
+        config_file = os.path.join(base_dir, "conf_templates", "_config.yml.in")
     elif len(sys.argv) == 2:
         base_dir = os.getcwd()
         config_file = os.path.join(base_dir, sys.argv[1])
