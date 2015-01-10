@@ -91,40 +91,33 @@ class PageGenerator(BaseGenerator):
 
     def get_metadata_and_content(self):
         metadata_textlist, content_textlist = \
-            self.get_metadata_and_content_textlist()
-        metadata_yaml = "".join(metadata_textlist)
+            self._get_metadata_and_content_textlist()
+        metadata_yaml = "\n".join(metadata_textlist)
         metadata = self.get_metadata(metadata_yaml)
-        content = "".join(content_textlist)
+        content = "\n".join(content_textlist)
 
         return (metadata, content)
 
-    def get_metadata_and_content_textlist(self):
+    def _get_metadata_and_content_textlist(self):
         """Split the source file texts by triple-dashed lines
-        #TODO#
+
         The metadata is yaml format text in the middle of triple-dashed lines
         The content is the other source texts
         """
+        metadata_notation = "---"
         with io.open(self.sfile_path, "rt", encoding="utf-8") as fd:
-            textlist = fd.readlines()
+            textlist = fd.read().lstrip().splitlines()
+            if textlist[0] != metadata_notation:
+                raise Exception("Disallow anything except newline "
+                                "before begin metadata notation: '---'")
+            textlist = textlist[1:]
 
-        metadata_notation = "---\n"
-        if textlist[0] != metadata_notation:
-            raise Exception("{0} first line must be triple-dashed!"
-                            .format(self.sfile_path))
-
-        metadata_textlist = []
-        metadata_end_flag = False
-        idx = 1
-        max_idx = len(textlist)
-        while not metadata_end_flag:
-            metadata_textlist.append(textlist[idx])
-            idx += 1
-            if idx >= max_idx:
-                raise Exception("{0} doesn't have end triple-dashed!"
-                                .format(self.sfile_path))
-            if textlist[idx] == metadata_notation:
-                metadata_end_flag = True
-        content_textlist = textlist[idx + 1:]
+        try:
+            second_metadata_notation_index = textlist.index(metadata_notation)
+        except ValueError:
+            raise Exception("Can't find end metadata notation: '---'")
+        metadata_textlist = textlist[:second_metadata_notation_index]
+        content_textlist = textlist[second_metadata_notation_index+1:]
 
         return (metadata_textlist, content_textlist)
 
