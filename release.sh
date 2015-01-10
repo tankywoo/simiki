@@ -5,7 +5,7 @@ README_RST="README.rst"
 
 # Convert README.md to README.rst using pandoc
 if [ `which pandoc` ]; then
-    pandoc -f markdown -t rst -o ${README_RST} ${README_MD}
+    pandoc -f markdown -t rst -o ${README_RST} ${README_MD} && echo "Convert md to rst ok."
 else
     echo "pandoc not installed."
 fi
