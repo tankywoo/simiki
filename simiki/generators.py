@@ -23,9 +23,6 @@ import yaml
 from jinja2 import (Environment, FileSystemLoader, TemplateError)
 
 
-logger = logging.getLogger(__name__)
-
-
 class BaseGenerator(object):
     """Base generator class"""
 
@@ -47,12 +44,16 @@ class PageGenerator(BaseGenerator):
     def __init__(self, site_settings, base_path, sfile_path):
         super(PageGenerator, self).__init__(site_settings, base_path)
         self.sfile_path = sfile_path
+        source_dir = os.path.join(self.base_path, self.site_settings["source"])
+        # file path relative to source dir
+        self.sfile_relpath = os.path.relpath(sfile_path, source_dir)
 
     def markdown2html(self):
         """Load template, and generate html"""
-        layout = self.get_layout()
+        metadata, content = self.get_metadata_and_content()
+        layout = self.get_layout(metadata)
         template_file = "{0}.html".format(layout)
-        template_vars = self.get_template_vars()
+        template_vars = self.get_template_vars(metadata, content)
         try:
             template = self.env.get_template(template_file)
             html = template.render(template_vars)
@@ -62,38 +63,7 @@ class PageGenerator(BaseGenerator):
 
         return html
 
-    def get_template_vars(self):
-        """Get template variables, include site settings and page settings"""
-        category, _ = self.get_category_and_file()
-        meta_data, markdown_content = self.get_metadata_and_content()
-        body_html_content = self.parse_markdown(markdown_content)
-        page = {"category": category, "content": body_html_content}
-        page.update(meta_data)
-        template_vars = {
-            "site": self.site_settings,
-            "page": page,
-        }
-
-        return template_vars
-
-    def get_category_and_file(self):
-        """Get the name of category and file(with extension)"""
-        source_dir = os.path.join(self.base_path, self.site_settings["source"])
-        relpath = os.path.relpath(self.sfile_path, source_dir)
-        category, filename = os.path.split(relpath)
-
-        return (category, filename)
-
     def get_metadata_and_content(self):
-        metadata_textlist, content_textlist = \
-            self._get_metadata_and_content_textlist()
-        metadata_yaml = "\n".join(metadata_textlist)
-        metadata = self.get_metadata(metadata_yaml)
-        content = "\n".join(content_textlist)
-
-        return (metadata, content)
-
-    def _get_metadata_and_content_textlist(self):
         """Split the source file texts by triple-dashed lines
 
         The metadata is yaml format text in the middle of triple-dashed lines
@@ -114,17 +84,46 @@ class PageGenerator(BaseGenerator):
         metadata_textlist = textlist[:second_metadata_notation_index]
         content_textlist = textlist[second_metadata_notation_index+1:]
 
-        return (metadata_textlist, content_textlist)
+        # @todo, 是用U打开，还是维护不同的换行?
+        metadata = self._get_metadata(os.linesep.join(metadata_textlist))
+        content = os.linesep.join(content_textlist)
 
-    def check_metadata(self, metadata):
-        """Check if metadata is right"""
-        is_metadata_right = True
-        if "title" not in metadata:
-            logger.error("No `title' in metadata")
-            is_metadata_right = False
-        return is_metadata_right
+        return (metadata, content)
 
-    def get_metadata(self, metadata_yaml):
+    @staticmethod
+    def get_layout(metadata):
+        """Get layout setting in metadata, default is 'page'"""
+        if "layout" in metadata:
+            # Compatible with previous version, which default layout is "post"
+            # XXX Will remove this checker in v2.0
+            if metadata["layout"] == "post":
+                layout = "page"
+            else:
+                layout = metadata["layout"]
+        else:
+            layout = "page"
+
+        return layout
+
+    def get_template_vars(self, metadata, markdown_content):
+        """Get template variables, include site settings and page settings"""
+        category, _ = self.get_category_and_file()
+        body_html_content = self._parse_markdown(markdown_content)
+        page = {"category": category, "content": body_html_content}
+        page.update(metadata)
+        template_vars = {
+            "site": self.site_settings,
+            "page": page,
+        }
+
+        return template_vars
+
+    def get_category_and_file(self):
+        """Get the name of category and file(with extension)"""
+        category, filename = os.path.split(self.sfile_relpath)
+        return (category, filename)
+
+    def _get_metadata(self, metadata_yaml):
         """Get metadata and validate them
 
         :param metadata_yaml: metadata in yaml format
@@ -137,17 +136,25 @@ class PageGenerator(BaseGenerator):
                 unicode(str(e), "utf-8")
             ))
 
-        if not self.check_metadata(metadata):
-            raise Exception
+        if not self._check_metadata(metadata):
+            raise Exception("{0}: no 'title' in metadata"
+                            .format(self.sfile_relpath))
 
         return metadata
 
-    def parse_markdown(self, markdown_content):
+    def _check_metadata(self, metadata):
+        """Check if metadata is right"""
+        is_metadata_right = True
+        if "title" not in metadata:
+            is_metadata_right = False
+        return is_metadata_right
+
+    def _parse_markdown(self, markdown_content):
         """Parse markdown text to html.
 
         :param markdown_content: Markdown text lists #TODO#
         """
-        markdown_extensions = self.set_markdown_extensions()
+        markdown_extensions = self._set_markdown_extensions()
 
         html_content = markdown.markdown(
             markdown_content,
@@ -156,7 +163,7 @@ class PageGenerator(BaseGenerator):
 
         return html_content
 
-    def set_markdown_extensions(self):
+    def _set_markdown_extensions(self):
         """Set the extensions for markdown parser"""
         # Base markdown extensions support "fenced_code".
         markdown_extensions = ["fenced_code"]
@@ -168,21 +175,6 @@ class PageGenerator(BaseGenerator):
             ])
 
         return markdown_extensions
-
-    def get_layout(self):
-        """Get layout setting in metadata, default is 'page'"""
-        metadata, _ = self.get_metadata_and_content()
-        if "layout" in metadata:
-            # Compatible with previous version, which default layout is "post"
-            # XXX Will remove this checker in v2.0
-            if metadata["layout"] == "post":
-                layout = "page"
-            else:
-                layout = metadata["layout"]
-        else:
-            layout = "page"
-
-        return layout
 
 
 class CatalogGenerator(BaseGenerator):
