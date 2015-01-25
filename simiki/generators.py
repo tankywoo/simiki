@@ -44,9 +44,8 @@ class PageGenerator(BaseGenerator):
     def __init__(self, site_settings, base_path, sfile_path):
         super(PageGenerator, self).__init__(site_settings, base_path)
         self.sfile_path = sfile_path
-        source_dir = os.path.join(self.base_path, self.site_settings["source"])
-        # file path relative to source dir
-        self.sfile_relpath = os.path.relpath(sfile_path, source_dir)
+        # file path relative to base_path
+        self.sfile_relpath = os.path.relpath(sfile_path, self.base_path)
 
     def markdown2html(self):
         """Load template, and generate html"""
@@ -120,7 +119,9 @@ class PageGenerator(BaseGenerator):
 
     def get_category_and_file(self):
         """Get the name of category and file(with extension)"""
-        category, filename = os.path.split(self.sfile_relpath)
+        sfile_relpath_to_source = os.path.relpath(self.sfile_relpath,
+                                                  self.site_settings['source'])
+        category, filename = os.path.split(sfile_relpath_to_source)
         return (category, filename)
 
     def _get_metadata(self, metadata_yaml):
