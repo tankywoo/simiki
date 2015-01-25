@@ -63,11 +63,8 @@ class PageGenerator(BaseGenerator):
         return html
 
     def get_metadata_and_content(self):
-        """Split the source file texts by triple-dashed lines
-
-        The metadata is yaml format text in the middle of triple-dashed lines
-        The content is the other source texts
-        """
+        """Split the source file texts by triple-dashed lines, get the mata
+        data and parsed html content"""
         metadata_notation = "---"
         with io.open(self.sfile_path, "rt", encoding="utf-8") as fd:
             textlist = fd.read().lstrip().splitlines()
@@ -81,11 +78,12 @@ class PageGenerator(BaseGenerator):
         except ValueError:
             raise Exception("Can't find end metadata notation: '---'")
         metadata_textlist = textlist[:second_metadata_notation_index]
-        content_textlist = textlist[second_metadata_notation_index+1:]
+        markup_content_textlist = textlist[second_metadata_notation_index+1:]
 
         # @todo, 是用U打开，还是维护不同的换行?
         metadata = self._get_metadata(os.linesep.join(metadata_textlist))
-        content = os.linesep.join(content_textlist)
+        markup_content = os.linesep.join(markup_content_textlist)
+        content = self._parse_markdown(markup_content)
 
         return (metadata, content)
 
@@ -104,11 +102,10 @@ class PageGenerator(BaseGenerator):
 
         return layout
 
-    def get_template_vars(self, metadata, markdown_content):
+    def get_template_vars(self, metadata, content):
         """Get template variables, include site settings and page settings"""
         category, _ = self.get_category_and_file()
-        body_html_content = self._parse_markdown(markdown_content)
-        page = {"category": category, "content": body_html_content}
+        page = {"category": category, "content": content}
         page.update(metadata)
         template_vars = {
             "site": self.site_settings,
@@ -151,10 +148,7 @@ class PageGenerator(BaseGenerator):
         return is_metadata_right
 
     def _parse_markdown(self, markdown_content):
-        """Parse markdown text to html.
-
-        :param markdown_content: Markdown text lists #TODO#
-        """
+        """Parse markdown text to html"""
         markdown_extensions = self._set_markdown_extensions()
 
         html_content = markdown.markdown(
@@ -166,6 +160,7 @@ class PageGenerator(BaseGenerator):
 
     def _set_markdown_extensions(self):
         """Set the extensions for markdown parser"""
+        # TODO: custom markdown extension in _config.yml
         # Base markdown extensions support "fenced_code".
         markdown_extensions = ["fenced_code"]
         if self.site_settings["pygments"]:
