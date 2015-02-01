@@ -58,7 +58,8 @@ def param_of_create_wiki(title, category, filename, ext):
         title_ = title.replace(os.sep, " slash ")
         filename = "{0}.{1}".format("-".join(title_.split()).lower(), ext)
     cur_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    category = category.decode("utf-8")
+    if not isinstance(category, unicode):
+        category = unicode(category, 'utf-8')
     return (category, filename, title, cur_date)
 
 
@@ -119,7 +120,7 @@ class Generator(object):
 
     def __init__(self, configs):
         self.configs = configs
-        self.target_path = unicode(os.getcwd(), "utf-8")
+        self.target_path = os.getcwdu()
 
     def generate(self, delete_output_dir=False):
         if delete_output_dir:
@@ -196,11 +197,7 @@ class Generator(object):
 def execute(args):
     logging_init(logging.DEBUG)
 
-    target_path = os.getcwd()
-    if args["-p"]:
-        target_path = args["-p"]
-    if not isinstance(target_path, unicode):
-        target_path = unicode(target_path, "utf-8")
+    target_path = unicode(args['-p'], 'utf-8') if args['-p'] else os.getcwdu()
 
     if args["init"]:
         default_config_file = os.path.join(os.path.dirname(__file__),
@@ -210,33 +207,34 @@ def execute(args):
             isite = InitSite(default_config_file, target_path)
             isite.init_site()
         except Exception as e:
-            logging.exception("{0}\n{1}"
-                              .format(str(e), traceback.format_exc()))
-        return
-
-    config_file = os.path.join(target_path, "_config.yml")
-    try:
-        configs = parse_configs(config_file)
-    except (Exception, YAMLError) as e:
-        logging.exception("{0}\n{1}".format(str(e), traceback.format_exc()))
-        return
-    level = logging.DEBUG if configs["debug"] else logging.INFO
-    logging_init(level)
-
-    if args["generate"]:
-        if args["--ignore-root"]:
-            configs.update({u"root": u"/"})
-        gen = Generator(configs)
-        gen.generate(args["--delete"])
-    elif args["new"] and args["-t"]:
-        pocw = param_of_create_wiki(args["-t"], args["-c"], args["-f"],
-                                    configs["default_ext"])
-        create_new_wiki(configs["source"], *pocw)
-    elif args["preview"]:
-        preview(configs["destination"])
+            logging.exception("Init site: {0}\n{1}"
+                              .format(unicode(e), traceback.format_exc()))
+            sys.exit(1)
     else:
-        # docopt itself will display the help info.
-        pass
+        config_file = os.path.join(target_path, "_config.yml")
+        try:
+            configs = parse_configs(config_file)
+        except (Exception, YAMLError) as e:
+            logging.exception("Parse config: {0}\n{1}"
+                              .format(unicode(e), traceback.format_exc()))
+            sys.exit(1)
+        level = logging.DEBUG if configs["debug"] else logging.INFO
+        logging_init(level)   # reload logger
+
+        if args["generate"]:
+            if args["--ignore-root"]:
+                configs.update({u"root": u"/"})
+            gen = Generator(configs)
+            gen.generate(args["--delete"])
+        elif args["new"]:
+            pocw = param_of_create_wiki(args["-t"], args["-c"], args["-f"],
+                                        configs["default_ext"])
+            create_new_wiki(configs["source"], *pocw)
+        elif args["preview"]:
+            preview(configs["destination"])
+        else:
+            # docopt itself will display the help info.
+            pass
 
     logger.info("Done.")
 
