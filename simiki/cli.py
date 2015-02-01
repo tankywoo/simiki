@@ -131,7 +131,9 @@ class Generator(object):
 
         pages = self.generate_all_pages()
         self.generate_catalog(pages)
-        install_theme(self.target_path, self.configs["theme"])
+
+        if delete_output_dir:
+            install_theme(self.target_path, self.configs["theme"])
 
     def generate_all_pages(self):
         logger.info("Start generating markdown files.")
