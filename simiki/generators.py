@@ -46,10 +46,14 @@ class PageGenerator(BaseGenerator):
         self.sfile_path = sfile_path
         # file path relative to base_path
         self.sfile_relpath = os.path.relpath(sfile_path, self.base_path)
+        self.meta = None
+        self.content = None
 
     def markdown2html(self):
         """Load template, and generate html"""
         metadata, content = self.get_metadata_and_content()
+        self.meta = metadata
+        self.content = content
         layout = self.get_layout(metadata)
         template_file = "{0}.html".format(layout)
         template_vars = self.get_template_vars(metadata, content)

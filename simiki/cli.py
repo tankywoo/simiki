@@ -178,7 +178,7 @@ class Generator(object):
 
         ofile = get_ofile()
         write_file(html, ofile)
-        meta_data, _ = pgen.get_metadata_and_content()
+        meta_data = pgen.meta
         return meta_data
 
     def generate_catalog(self, pages):
