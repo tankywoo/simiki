@@ -23,6 +23,8 @@ import yaml
 from jinja2 import (Environment, FileSystemLoader, TemplateError)
 
 
+PLAT_LINE_SEP = '\n'
+
 class BaseGenerator(object):
     """Base generator class"""
 
@@ -92,8 +94,8 @@ class PageGenerator(BaseGenerator):
         meta_textlist = textlist[:second_meta_notation_index]
         markup_textlist = textlist[second_meta_notation_index+1:]
 
-        meta = self._get_metadata(os.linesep.join(meta_textlist))
-        markup_text = os.linesep.join(markup_textlist)
+        meta = self._get_meta(PLAT_LINE_SEP.join(meta_textlist))
+        markup_text = PLAT_LINE_SEP.join(markup_textlist)
         content = self._parse_markdown(markup_text)
 
         return (meta, content)
