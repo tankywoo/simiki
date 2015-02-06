@@ -102,13 +102,10 @@ def create_new_wiki(source, category, filename, title, date):
             fd.write(meta)
 
 
-def install_theme(current_dir, theme_name):
+def install_theme(current_dir, theme_dir, theme_name, dest_path):
     """Copy static directory under theme to destination directory"""
-    src_theme = os.path.join(
-        current_dir,
-        "themes/{0}/static".format(theme_name)
-    )
-    dest_theme = os.path.join(current_dir, "output/static")
+    src_theme = os.path.join(current_dir, theme_dir, theme_name, "static")
+    dest_theme = os.path.join(current_dir, dest_path, "static")
     if os.path.exists(dest_theme):
         shutil.rmtree(dest_theme)
 
