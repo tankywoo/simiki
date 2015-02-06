@@ -15,8 +15,8 @@ import yaml
 class ConfigFileNotFound(Exception):
     pass
 
-def _set_default_configs():
-    configs = {
+def _set_default_config():
+    config = {
         "url": "",
         "title": "",
         "keywords": "",
@@ -32,39 +32,39 @@ def _set_default_configs():
         "debug": False,
         "index": False
     }
-    return configs
+    return config
 
 
-def _post_process(configs):
-    for k, v in configs.items():
+def _post_process(config):
+    for k, v in config.items():
         if v is None:
-            configs[k] = ""
+            config[k] = ""
 
-    if configs["url"].endswith("/"):
-        configs["url"] = configs["url"][:-1]
+    if config["url"].endswith("/"):
+        config["url"] = config["url"][:-1]
 
-    return configs
+    return config
 
 
-def parse_configs(config_file):
+def parse_config(config_file):
     if not os.path.exists(config_file):
         raise ConfigFileNotFound("{0} not exists".format(config_file))
 
-    default_configs = _set_default_configs()
+    default_config = _set_default_config()
 
     with io.open(config_file, "rt", encoding="utf-8") as fd:
-        configs = yaml.load(fd)
+        config = yaml.load(fd)
 
-    default_configs.update(configs)
-    configs = _post_process(deepcopy(default_configs))
+    default_config.update(config)
+    config = _post_process(deepcopy(default_config))
 
-    return configs
+    return config
 
 if __name__ == "__main__":
     """
     Usage:
-        python -m simiki.configs : to test config template
-        python -m simiki.configs _config.yml : to test _config.yml file in \
+        python -m simiki.config : to test config template
+        python -m simiki.config _config.yml : to test _config.yml file in \
                                                 curren dir
     """
     if len(sys.argv) == 1:
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     else:
         logging.error("Use the template config file by default, "
                       "you can specify the config file to parse. \n"
-                      "Usage: `python -m simiki.configs [_config.yml]'")
+                      "Usage: `python -m simiki.config [_config.yml]'")
         sys.exit(1)
 
-    pprint(parse_configs(config_file))
+    pprint(parse_config(config_file))

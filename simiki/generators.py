@@ -26,13 +26,17 @@ from jinja2 import (Environment, FileSystemLoader, TemplateError)
 class BaseGenerator(object):
     """Base generator class"""
 
-    def __init__(self, site_settings, base_path):
-        self.site_settings = copy.deepcopy(site_settings)
+    def __init__(self, site_config, base_path):
+        '''
+        :site_config: site global configuration parsed from _config.yml
+        :base_path: root path of wiki directory
+        '''
+        self.site_config = copy.deepcopy(site_config)
         self.base_path = base_path
         _template_path = os.path.join(
             self.base_path,
-            site_settings["themes_dir"],
-            site_settings["theme"]
+            site_config["themes_dir"],
+            site_config["theme"]
         )
         self.env = Environment(
             loader=FileSystemLoader(_template_path)
@@ -41,22 +45,23 @@ class BaseGenerator(object):
 
 class PageGenerator(BaseGenerator):
 
-    def __init__(self, site_settings, base_path, sfile_path):
-        super(PageGenerator, self).__init__(site_settings, base_path)
-        self.sfile_path = sfile_path
-        # file path relative to base_path
-        self.sfile_relpath = os.path.relpath(sfile_path, self.base_path)
+    def __init__(self, site_config, base_path, src_file_path):
+        '''
+        :src_file_path: path of a source file
+        '''
+        super(PageGenerator, self).__init__(site_config, base_path)
+        self.src_file_path = src_file_path
+        # source file path relative to base_path
+        self.src_file_relpath = os.path.relpath(src_file_path, self.base_path)
         self.meta = None
         self.content = None
 
-    def markdown2html(self):
+    def to_html(self):
         """Load template, and generate html"""
-        metadata, content = self.get_metadata_and_content()
-        self.meta = metadata
-        self.content = content
-        layout = self.get_layout(metadata)
+        self.meta, self.content = self.get_meta_and_content()
+        layout = self.get_layout(self.meta)
         template_file = "{0}.html".format(layout)
-        template_vars = self.get_template_vars(metadata, content)
+        template_vars = self.get_template_vars(self.meta, self.content)
         try:
             template = self.env.get_template(template_file)
             html = template.render(template_vars)
@@ -66,53 +71,55 @@ class PageGenerator(BaseGenerator):
 
         return html
 
-    def get_metadata_and_content(self):
-        """Split the source file texts by triple-dashed lines, get the mata
-        data and parsed html content"""
-        metadata_notation = "---"
-        with io.open(self.sfile_path, "rt", encoding="utf-8") as fd:
+    def get_meta_and_content(self):
+        """Split the source file texts by triple-dashed lines, return the mata
+        and content.
+        meta is page's meta data, dict type.
+        content is html parsed from markdown or other markup text.
+        """
+        meta_notation = "---"
+        with io.open(self.src_file_path, "rt", encoding="utf-8") as fd:
             textlist = fd.read().lstrip().splitlines()
-            if textlist[0] != metadata_notation:
+            if textlist[0] != meta_notation:
                 raise Exception("Disallow anything except newline "
-                                "before begin metadata notation: '---'")
+                                "before begin meta notation: '---'")
             textlist = textlist[1:]
 
         try:
-            second_metadata_notation_index = textlist.index(metadata_notation)
+            second_meta_notation_index = textlist.index(meta_notation)
         except ValueError:
-            raise Exception("Can't find end metadata notation: '---'")
-        metadata_textlist = textlist[:second_metadata_notation_index]
-        markup_content_textlist = textlist[second_metadata_notation_index+1:]
+            raise Exception("Can't find end meta notation: '---'")
+        meta_textlist = textlist[:second_meta_notation_index]
+        markup_textlist = textlist[second_meta_notation_index+1:]
 
-        # @todo, 是用U打开，还是维护不同的换行?
-        metadata = self._get_metadata(os.linesep.join(metadata_textlist))
-        markup_content = os.linesep.join(markup_content_textlist)
-        content = self._parse_markdown(markup_content)
+        meta = self._get_metadata(os.linesep.join(meta_textlist))
+        markup_text = os.linesep.join(markup_textlist)
+        content = self._parse_markdown(markup_text)
 
-        return (metadata, content)
+        return (meta, content)
 
     @staticmethod
-    def get_layout(metadata):
-        """Get layout setting in metadata, default is 'page'"""
-        if "layout" in metadata:
+    def get_layout(meta):
+        """Get layout config in meta, default is 'page'"""
+        if "layout" in meta:
             # Compatible with previous version, which default layout is "post"
             # XXX Will remove this checker in v2.0
-            if metadata["layout"] == "post":
+            if meta["layout"] == "post":
                 layout = "page"
             else:
-                layout = metadata["layout"]
+                layout = meta["layout"]
         else:
             layout = "page"
 
         return layout
 
-    def get_template_vars(self, metadata, content):
-        """Get template variables, include site settings and page settings"""
+    def get_template_vars(self, meta, content):
+        """Get template variables, include site config and page config"""
         category, _ = self.get_category_and_file()
         page = {"category": category, "content": content}
-        page.update(metadata)
+        page.update(meta)
         template_vars = {
-            "site": self.site_settings,
+            "site": self.site_config,
             "page": page,
         }
 
@@ -120,36 +127,36 @@ class PageGenerator(BaseGenerator):
 
     def get_category_and_file(self):
         """Get the name of category and file(with extension)"""
-        sfile_relpath_to_source = os.path.relpath(self.sfile_relpath,
-                                                  self.site_settings['source'])
-        category, filename = os.path.split(sfile_relpath_to_source)
+        src_file_relpath_to_source = os.path.relpath(self.src_file_relpath,
+                                                     self.site_config['source'])
+        category, filename = os.path.split(src_file_relpath_to_source)
         return (category, filename)
 
-    def _get_metadata(self, metadata_yaml):
-        """Get metadata and validate them
+    def _get_meta(self, meta_yaml):
+        """Get meta and validate them
 
-        :param metadata_yaml: metadata in yaml format
+        :param meta_yaml: meta in yaml format
         """
         try:
-            metadata = yaml.load(metadata_yaml)
+            meta = yaml.load(meta_yaml)
         except yaml.YAMLError as e:
             raise Exception("Yaml format error in {0}:\n{1}".format(
-                self.sfile_path,
+                self.src_file_path,
                 unicode(e)
             ))
 
-        if not self._check_metadata(metadata):
-            raise Exception("{0}: no 'title' in metadata"
-                            .format(self.sfile_relpath))
+        if not self._check_meta(meta):
+            raise Exception("{0}: no 'title' in meta"
+                            .format(self.src_file_relpath))
 
-        return metadata
+        return meta
 
-    def _check_metadata(self, metadata):
-        """Check if metadata is right"""
-        is_metadata_right = True
-        if "title" not in metadata:
-            is_metadata_right = False
-        return is_metadata_right
+    def _check_meta(self, meta):
+        """Check if meta is right"""
+        is_meta_right = True
+        if "title" not in meta:
+            is_meta_right = False
+        return is_meta_right
 
     def _parse_markdown(self, markdown_content):
         """Parse markdown text to html"""
@@ -167,7 +174,7 @@ class PageGenerator(BaseGenerator):
         # TODO: custom markdown extension in _config.yml
         # Base markdown extensions support "fenced_code".
         markdown_extensions = ["fenced_code"]
-        if self.site_settings["pygments"]:
+        if self.site_config["pygments"]:
             markdown_extensions.extend([
                 "extra",
                 "codehilite(css_class=hlcode)",
@@ -179,14 +186,17 @@ class PageGenerator(BaseGenerator):
 
 class CatalogGenerator(BaseGenerator):
 
-    def __init__(self, site_settings, base_path, pages):
-        super(CatalogGenerator, self).__init__(site_settings, base_path)
+    def __init__(self, site_config, base_path, pages):
+        '''
+        :pages: all pages' meta variables, dict type
+        '''
+        super(CatalogGenerator, self).__init__(site_config, base_path)
         self.pages = pages
 
-    def get_content_structure_and_metadata(self):
+    def get_content_structure_and_meta(self):
         """Ref: http://stackoverflow.com/a/9619101/1276501"""
         dct = {}
-        ext = self.site_settings["default_ext"]
+        ext = self.site_config["default_ext"]
         for path, meta in self.pages.items():
             # Ignore other files
             if not path.endswith(ext):
@@ -220,16 +230,16 @@ class CatalogGenerator(BaseGenerator):
                 sorted_structure.items(),
                 _cmp
             ))
-            if k.endswith(".{0}".format(self.site_settings["default_ext"])):
+            if k.endswith(".{0}".format(self.site_config["default_ext"])):
                 continue
             sorted_structure[k] = self.sort_structure(sorted_structure[k])
         return sorted_structure
 
     def get_template_vars(self):
-        self.site_settings["structure"] = \
-            self.sort_structure(self.get_content_structure_and_metadata())
+        self.site_config["structure"] = \
+            self.sort_structure(self.get_content_structure_and_meta())
         tpl_vars = {
-            "site": self.site_settings,
+            "site": self.site_config,
         }
 
         # if site.root endwith `\`, remote it.
@@ -247,27 +257,28 @@ class CatalogGenerator(BaseGenerator):
 
 class CustomCatalogGenerator(CatalogGenerator):
 
-    def __init__(self, site_settings, base_path):
-        super(CustomCatalogGenerator, self).__init__(site_settings,
+    def __init__(self, site_config, base_path):
+        super(CustomCatalogGenerator, self).__init__(site_config,
                                                      base_path,
                                                      None)
 
     def get_template_vars(self):
-        if self.site_settings["index"] is True:
+        if self.site_config["index"] is True:
             fn = "index.md"
         else:
-            fn = self.site_settings["index"]
+            fn = self.site_config["index"]
         idx_mfile = os.path.join(
-            os.path.abspath(self.site_settings["source"]),
+            os.path.abspath(self.site_config["source"]),
             fn
         )
-        pg = PageGenerator(self.site_settings, self.base_path, idx_mfile)
-        _, raw_idx_content = pg.get_metadata_and_content()
-        idx_content = pg.parse_markdown(raw_idx_content)
+        page_generator = PageGenerator(self.site_config, self.base_path,
+                                       idx_mfile)
+        _, raw_idx_content = page_generator.get_meta_and_content()
+        idx_content = page_generator.parse_markdown(raw_idx_content)
         page = {"content": idx_content}
 
         tpl_vars = {
-            "site": self.site_settings,
+            "site": self.site_config,
             "page": page,
         }
 
