@@ -76,13 +76,13 @@ def emptytree(directory):
                 shutil.rmtree(fp)
                 logger.info("Delete directory %s", fp)
             except OSError as e:
-                logger.error("Unable to delete directory %s: %s", fp, str(e))
+                logger.error("Unable to delete directory %s: %s", fp, unicode(e))
         elif os.path.isfile(fp):
             try:
                 logging.info("Delete file %s", fp)
                 os.remove(fp)
             except OSError as e:
-                logger.error("Unable to delete file %s: %s", fp, str(e))
+                logger.error("Unable to delete file %s: %s", fp, unicode(e))
         else:
             logger.error("Unable to delete %s, unknown filetype", fp)
 

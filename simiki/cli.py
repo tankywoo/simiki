@@ -163,7 +163,7 @@ class Generator(object):
         try:
             html = pgen.markdown2html()
         except Exception as e:
-            logger.exception("{0}\n{1}".format(str(e), traceback.format_exc()))
+            logger.exception('{0}: {1}'.format(md_file, unicode(e)))
             sys.exit(1)
 
         def get_ofile():
