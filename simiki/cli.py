@@ -20,7 +20,7 @@ Options:
   -f <file>           Specify the new post filename.
   -p <path>           Specify the target path.
   --ignore-root       Ignore root setting and replace with `/` as root.
-  --delete            Delete the contents of output directory before generate.
+  --delete            Empty the destination directory before generate.
 """
 
 from __future__ import print_function, unicode_literals, absolute_import
@@ -40,7 +40,7 @@ from yaml import YAMLError
 from simiki.generators import (PageGenerator, CatalogGenerator,
                                CustomCatalogGenerator)
 from simiki.initsite import InitSite
-from simiki.configs import parse_configs
+from simiki.config import parse_config
 from simiki.log import logging_init
 from simiki.server import preview
 from simiki.utils import (copytree, emptytree, check_extension, mkdir_p)
@@ -58,7 +58,8 @@ def param_of_create_wiki(title, category, filename, ext):
         title_ = title.replace(os.sep, " slash ")
         filename = "{0}.{1}".format("-".join(title_.split()).lower(), ext)
     cur_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    category = category.decode("utf-8")
+    if not isinstance(category, unicode):
+        category = unicode(category, 'utf-8')
     return (category, filename, title, cur_date)
 
 
@@ -101,40 +102,40 @@ def create_new_wiki(source, category, filename, title, date):
             fd.write(meta)
 
 
-def install_theme(current_dir, theme_name):
-    """Copy static directory under theme to output directory"""
-    src_theme = os.path.join(
-        current_dir,
-        "themes/{0}/static".format(theme_name)
-    )
-    dst_theme = os.path.join(current_dir, "output/static")
-    if os.path.exists(dst_theme):
-        shutil.rmtree(dst_theme)
+def install_theme(current_dir, theme_dir, theme_name, dest_path):
+    """Copy static directory under theme to destination directory"""
+    src_theme = os.path.join(current_dir, theme_dir, theme_name, "static")
+    dest_theme = os.path.join(current_dir, dest_path, "static")
+    if os.path.exists(dest_theme):
+        shutil.rmtree(dest_theme)
 
-    copytree(src_theme, dst_theme)
+    copytree(src_theme, dest_theme)
     logging.info("Installing theme: {0}".format(theme_name))
 
 
 class Generator(object):
 
-    def __init__(self, configs):
-        self.configs = configs
-        self.target_path = unicode(os.getcwd(), "utf-8")
+    def __init__(self, config):
+        self.config = config
+        self.target_path = os.getcwdu()
 
-    def generate(self, delete_output_dir=False):
-        if delete_output_dir:
-            logger.info("Delete all the files and dirs under output directory")
-            output_dir = os.path.join(self.target_path,
-                                      self.configs["destination"])
-            emptytree(output_dir)
+    def generate(self, empty_dest_dir=False):
+        if empty_dest_dir:
+            logger.info("Empty the destination directory")
+            dest_dir = os.path.join(self.target_path,
+                                    self.config["destination"])
+            emptytree(dest_dir)
 
         pages = self.generate_all_pages()
         self.generate_catalog(pages)
-        install_theme(self.target_path, self.configs["theme"])
+
+        if empty_dest_dir:
+            install_theme(self.target_path, self.config["themes_dir"],
+                          self.config["theme"], self.config["destination"])
 
     def generate_all_pages(self):
         logger.info("Start generating markdown files.")
-        content_path = self.configs["source"]
+        content_path = self.config["source"]
 
         pcnt = 0
         pages = {}
@@ -142,7 +143,7 @@ class Generator(object):
             files = [f for f in files if not f.startswith(".")]
             dirs[:] = [d for d in dirs if not d.startswith(".")]
             for filename in files:
-                if not filename.endswith(self.configs["default_ext"]):
+                if not filename.endswith(self.config["default_ext"]):
                     continue
                 md_file = os.path.join(root, filename)
                 pages[md_file] = self.generate_single_page(md_file)
@@ -152,42 +153,45 @@ class Generator(object):
 
     def generate_single_page(self, md_file):
         logger.debug("Generate {0}".format(md_file))
-        pgen = PageGenerator(
-            self.configs,
+        page_generator = PageGenerator(
+            self.config,
             self.target_path,
             os.path.realpath(md_file)
         )
         try:
-            html = pgen.markdown2html()
+            html = page_generator.to_html()
         except Exception as e:
-            logger.exception("{0}\n{1}".format(str(e), traceback.format_exc()))
+            logger.exception('{0}: {1}'.format(md_file, unicode(e)))
             sys.exit(1)
 
         def get_ofile():
             scategory, fname = os.path.split(md_file)
             ofname = "{0}.html".format(os.path.splitext(fname)[0])
-            category = os.path.relpath(scategory, self.configs["source"])
+            category = os.path.relpath(scategory, self.config["source"])
             ocategory = os.path.join(
-                self.target_path, self.configs["destination"], category
+                self.target_path, self.config["destination"], category
             )
             ofile = os.path.join(ocategory, ofname)
             return ofile
 
         ofile = get_ofile()
         write_file(html, ofile)
-        meta_data, _ = pgen.get_metadata_and_content()
-        return meta_data
+        meta = page_generator.meta
+        return meta
 
     def generate_catalog(self, pages):
         logger.info("Generate catalog page.")
-        if self.configs["index"]:
-            cgen = CustomCatalogGenerator(self.configs, self.target_path)
+        if self.config["index"]:
+            catalog_generator = CustomCatalogGenerator(self.config,
+                                                       self.target_path)
         else:
-            cgen = CatalogGenerator(self.configs, self.target_path, pages)
-        html = cgen.generate_catalog_html()
+            catalog_generator = CatalogGenerator(self.config,
+                                                 self.target_path,
+                                                 pages)
+        html = catalog_generator.generate_catalog_html()
         ofile = os.path.join(
             self.target_path,
-            self.configs["destination"],
+            self.config["destination"],
             "index.html"
         )
         write_file(html, ofile, "index")
@@ -196,47 +200,44 @@ class Generator(object):
 def execute(args):
     logging_init(logging.DEBUG)
 
-    target_path = os.getcwd()
-    if args["-p"]:
-        target_path = args["-p"]
-    if not isinstance(target_path, unicode):
-        target_path = unicode(target_path, "utf-8")
+    target_path = unicode(args['-p'], 'utf-8') if args['-p'] else os.getcwdu()
 
     if args["init"]:
         default_config_file = os.path.join(os.path.dirname(__file__),
                                            "conf_templates",
                                            "_config.yml.in")
         try:
-            isite = InitSite(default_config_file, target_path)
-            isite.init_site()
+            init_site = InitSite(default_config_file, target_path)
+            init_site.init_site()
         except Exception as e:
-            logging.exception("{0}\n{1}"
-                              .format(str(e), traceback.format_exc()))
-        return
-
-    config_file = os.path.join(target_path, "_config.yml")
-    try:
-        configs = parse_configs(config_file)
-    except (Exception, YAMLError) as e:
-        logging.exception("{0}\n{1}".format(str(e), traceback.format_exc()))
-        return
-    level = logging.DEBUG if configs["debug"] else logging.INFO
-    logging_init(level)
-
-    if args["generate"]:
-        if args["--ignore-root"]:
-            configs.update({u"root": u"/"})
-        gen = Generator(configs)
-        gen.generate(args["--delete"])
-    elif args["new"] and args["-t"]:
-        pocw = param_of_create_wiki(args["-t"], args["-c"], args["-f"],
-                                    configs["default_ext"])
-        create_new_wiki(configs["source"], *pocw)
-    elif args["preview"]:
-        preview(configs["destination"])
+            logging.exception("Init site: {0}\n{1}"
+                              .format(unicode(e), traceback.format_exc()))
+            sys.exit(1)
     else:
-        # docopt itself will display the help info.
-        pass
+        config_file = os.path.join(target_path, "_config.yml")
+        try:
+            config = parse_config(config_file)
+        except (Exception, YAMLError) as e:
+            logging.exception("Parse config: {0}\n{1}"
+                              .format(unicode(e), traceback.format_exc()))
+            sys.exit(1)
+        level = logging.DEBUG if config["debug"] else logging.INFO
+        logging_init(level)   # reload logger
+
+        if args["generate"]:
+            if args["--ignore-root"]:
+                config.update({u"root": u"/"})
+            generator = Generator(config)
+            generator.generate(args["--delete"])
+        elif args["new"]:
+            pocw = param_of_create_wiki(args["-t"], args["-c"], args["-f"],
+                                        config["default_ext"])
+            create_new_wiki(config["source"], *pocw)
+        elif args["preview"]:
+            preview(config["destination"])
+        else:
+            # docopt itself will display the help info.
+            pass
 
     logger.info("Done.")
 

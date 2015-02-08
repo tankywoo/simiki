@@ -7,7 +7,7 @@ import os.path
 import shutil
 import logging
 
-from simiki.configs import parse_configs
+from simiki.config import parse_config
 from simiki.utils import (copytree, mkdir_p, listdir_nohidden)
 
 
@@ -15,7 +15,7 @@ class InitSite(object):
 
     def __init__(self, config_file, target_path):
         self.config_file = config_file
-        self.configs = parse_configs(self.config_file)
+        self.config = parse_config(self.config_file)
         self.source_path = os.path.dirname(__file__)
         self.target_path = target_path
 
@@ -76,9 +76,9 @@ class InitSite(object):
         logging.info("Copying default theme to: {0}".format(theme_path))
 
     def init_site(self):
-        content_path = os.path.join(self.target_path, self.configs["source"])
+        content_path = os.path.join(self.target_path, self.config["source"])
         output_path = os.path.join(self.target_path,
-                                   self.configs["destination"])
+                                   self.config["destination"])
         theme_path = os.path.join(self.target_path, "themes")
         for path in (content_path, output_path, theme_path):
             if os.path.exists(path):
