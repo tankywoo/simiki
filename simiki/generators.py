@@ -125,6 +125,11 @@ class PageGenerator(BaseGenerator):
             "page": page,
         }
 
+        # if site.root endswith `/`, remove it.
+        site_root = template_vars["site"]["root"]
+        if site_root.endswith("/"):
+            template_vars["site"]["root"] = site_root[:-1]
+
         return template_vars
 
     def get_category_and_file(self):
