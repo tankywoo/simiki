@@ -7,6 +7,7 @@ import os.path
 import sys
 import io
 import logging
+import datetime
 from copy import deepcopy
 from pprint import pprint
 import yaml
@@ -30,7 +31,8 @@ def _set_default_config():
         "default_ext": "md",
         "pygments": True,
         "debug": False,
-        "index": False
+        "index": False,
+        "time": datetime.datetime.now(),
     }
     return config
 
