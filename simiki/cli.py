@@ -200,7 +200,7 @@ class Generator(object):
 def execute(args):
     logging_init(logging.DEBUG)
 
-    target_path = unicode(args['-p'], 'utf-8') if args['-p'] else os.getcwdu()
+    target_path = args['-p'].decode('utf-8') if args['-p'] else os.getcwdu()
 
     if args["init"]:
         default_config_file = os.path.join(os.path.dirname(__file__),

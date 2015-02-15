@@ -33,13 +33,16 @@ INIT_ARGS = {
 class TestCliInit(unittest.TestCase):
     def setUp(self):
         self.args = deepcopy(INIT_ARGS)
-        self.target_path = os.path.join("tests", "_build")
+        self.target_path = "_build"
+
         if os.path.exists(self.target_path):
             shutil.rmtree(self.target_path)
         self.files = [
             "_config.yml",
             "fabfile.py",
-            os.path.join("content", "intro", "gettingstarted.md")
+            os.path.join("content", "intro", "gettingstarted.md"),
+            os.path.join("themes", "simple", "page.html"),
+            os.path.join("themes", "simple", "static", "css", "style.css")
         ]
         self.dirs = [
             "content",
@@ -47,9 +50,9 @@ class TestCliInit(unittest.TestCase):
             "themes",
             os.path.join("themes", "simple"),
         ]
-        os.chdir(TESTS_ROOT)
 
     def test_init(self):
+        os.chdir(TESTS_ROOT)
         self.args.update({u'init': True, u'-p': self.target_path})
         cli.execute(self.args)
         for f in self.files:
