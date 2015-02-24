@@ -74,14 +74,14 @@ class TestCliGenerate(unittest.TestCase):
         if os.path.exists(self.output_path):
             emptytree(self.output_path)
         self.files = [
-            os.path.join("output", "index.html"),
-            os.path.join("output", "intro", "gettingstarted.html")
+            os.path.join(self.output_path, "index.html"),
+            os.path.join(self.output_path, "intro", "gettingstarted.html")
         ]
         self.dirs = [
-            "output",
-            os.path.join("output", "intro"),
-            os.path.join("output", "static"),
-            os.path.join("output", "static", "css")
+            self.output_path,
+            os.path.join(self.output_path, "intro"),
+            #os.path.join(self.output_path, "static"),
+            #os.path.join(self.output_path, "static", "css")
         ]
         os.chdir(self.target_path)
 
