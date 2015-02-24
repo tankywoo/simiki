@@ -90,7 +90,7 @@ def create_new_wiki(source, category, filename, title, date):
 
     category_path = os.path.join(source, category)
     if not os.path.exists(category_path):
-        os.mkdir(category_path)
+        mkdir_p(category_path)
         logger.info("Creating category {0}.".format(category))
 
     fn = os.path.join(category_path, filename)
