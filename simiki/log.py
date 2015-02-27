@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import sys
 import logging
 from logging import getLogger, Formatter, StreamHandler
 
@@ -31,11 +32,22 @@ class ANSIFormatter(Formatter):
             return msg
 
 
+def _is_platform_allowed_ansi():
+    '''ansi be used on linux/macos'''
+    platform = sys.platform
+    if platform.startswith('linux') or \
+       platform == 'darwin':
+        return True
+    else:
+        return False
+
+
 def logging_init(level=None, logger=getLogger(),
                  handler=StreamHandler(), use_color=True):
-    if use_color:
+    if use_color and _is_platform_allowed_ansi():
         fmt = ANSIFormatter()
     else:
+        # TODO common formatter use [] without color
         fmt = Formatter()
     handler.setFormatter(fmt)
     logger.addHandler(handler)
