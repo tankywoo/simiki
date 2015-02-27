@@ -7,7 +7,7 @@ Simiki CLI
 Usage:
   simiki init [-p <path>]
   simiki new -t <title> -c <category> [-f <file>]
-  simiki generate [--ignore-root] [--delete]
+  simiki generate [--ignore-root] [--delete] [--update-theme]
   simiki preview
   simiki -h | --help
   simiki -V | --version
@@ -21,6 +21,7 @@ Options:
   -p <path>           Specify the target path.
   --ignore-root       Ignore root setting and replace with `/` as root.
   --delete            Empty the destination directory before generate.
+  --update-theme      Update theme static files.
 """
 
 from __future__ import print_function, unicode_literals, absolute_import
@@ -119,7 +120,7 @@ class Generator(object):
         self.config = config
         self.target_path = os.getcwdu()
 
-    def generate(self, empty_dest_dir=False):
+    def generate(self, empty_dest_dir=False, update_theme=False):
         if empty_dest_dir:
             logger.info("Empty the destination directory")
             dest_dir = os.path.join(self.target_path,
@@ -129,7 +130,7 @@ class Generator(object):
         pages = self.generate_all_pages()
         self.generate_catalog(pages)
 
-        if empty_dest_dir:
+        if empty_dest_dir or update_theme:
             install_theme(self.target_path, self.config["themes_dir"],
                           self.config["theme"], self.config["destination"])
 
@@ -232,7 +233,7 @@ def execute(args):
             if args["--ignore-root"]:
                 config.update({u"root": u"/"})
             generator = Generator(config)
-            generator.generate(args["--delete"])
+            generator.generate(args["--delete"], args["--update-theme"])
         elif args["new"]:
             pocw = param_of_create_wiki(args["-t"], args["-c"], args["-f"],
                                         config["default_ext"])
