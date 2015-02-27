@@ -209,6 +209,10 @@ def execute(args):
         try:
             init_site = InitSite(default_config_file, target_path)
             init_site.init_site()
+            default_config = parse_config(default_config_file)
+            install_theme(target_path, default_config["themes_dir"],
+                          default_config["theme"],
+                          default_config["destination"])
         except Exception as e:
             logging.exception("Init site: {0}\n{1}"
                               .format(unicode(e), traceback.format_exc()))

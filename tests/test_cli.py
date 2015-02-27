@@ -41,6 +41,7 @@ class TestCliInit(unittest.TestCase):
             "_config.yml",
             "fabfile.py",
             os.path.join("content", "intro", "gettingstarted.md"),
+            os.path.join("output", "static", "css", "style.css"),
             os.path.join("themes", "simple", "page.html"),
             os.path.join("themes", "simple", "static", "css", "style.css")
         ]
@@ -49,6 +50,8 @@ class TestCliInit(unittest.TestCase):
             "output",
             "themes",
             os.path.join("themes", "simple"),
+            os.path.join("output", "static"),
+            os.path.join("output", "static", "css")
         ]
 
     def test_init(self):
