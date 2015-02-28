@@ -17,6 +17,7 @@ TESTS_ROOT = os.path.abspath(os.path.dirname(__file__))
 INIT_ARGS = {
     u'--delete': False,
     u'--ignore-root': False,
+    u'--update-theme': False,
     u'--help': False,
     u'--version': False,
     u'-c': None,
@@ -41,6 +42,7 @@ class TestCliInit(unittest.TestCase):
             "_config.yml",
             "fabfile.py",
             os.path.join("content", "intro", "gettingstarted.md"),
+            os.path.join("output", "static", "css", "style.css"),
             os.path.join("themes", "simple", "page.html"),
             os.path.join("themes", "simple", "static", "css", "style.css")
         ]
@@ -49,6 +51,8 @@ class TestCliInit(unittest.TestCase):
             "output",
             "themes",
             os.path.join("themes", "simple"),
+            os.path.join("output", "static"),
+            os.path.join("output", "static", "css")
         ]
 
     def test_init(self):
@@ -80,14 +84,25 @@ class TestCliGenerate(unittest.TestCase):
         self.dirs = [
             self.output_path,
             os.path.join(self.output_path, "intro"),
-            #os.path.join(self.output_path, "static"),
-            #os.path.join(self.output_path, "static", "css")
         ]
         os.chdir(self.target_path)
 
     def test_generate(self):
         self.args.update({u'generate': True})
         cli.execute(self.args)
+        for f in self.files:
+            self.assertTrue(os.path.isfile(os.path.join(self.target_path, f)))
+
+        for d in self.dirs:
+            self.assertTrue(os.path.isdir(os.path.join(self.target_path, d)))
+
+    def test_generate_with_update_theme(self):
+        self.args.update({u'generate': True, u'--update-theme': True})
+        cli.execute(self.args)
+        self.files.extend([os.path.join(self.output_path, "static", "css",
+                                        "style.css")])
+        self.dirs.extend([os.path.join(self.output_path, "static"),
+                          os.path.join(self.output_path, "static", "css")])
         for f in self.files:
             self.assertTrue(os.path.isfile(os.path.join(self.target_path, f)))
 
