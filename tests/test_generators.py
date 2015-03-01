@@ -7,7 +7,7 @@ import os.path
 import unittest
 import datetime
 
-from simiki.config import parse_config
+from simiki.config import parse_config, get_default_config
 from simiki.generators import PageGenerator
 
 TESTS_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -73,26 +73,10 @@ class TestPageGenerator(unittest.TestCase):
                 'layout': 'page',
                 'title': 'Foo Page 2'
             },
-            u'site': {
-                u'author': u'',
-                u'debug': False,
-                u'default_ext': u'md',
-                u'description': u'',
-                u'destination': u'output',
-                u'index': False,
-                u'keywords': u'',
-                u'pygments': True,
-                u'root': u'',
-                u'source': u'content',
-                u'attach': u'attach',
-                u'theme': u'simple',
-                u'themes_dir': u'themes',
-                u'time': datetime.datetime.now(),
-                u'title': u'',
-                u'url': u''
-            }
+            u'site': get_default_config()
         }
 
+        expected_template_vars['site'].update({'root': ''})
         template_vars['site'].pop('time')
         expected_template_vars['site'].pop('time')
         assert template_vars == expected_template_vars

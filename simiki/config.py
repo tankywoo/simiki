@@ -49,6 +49,10 @@ def _post_process(config):
     return config
 
 
+def get_default_config():
+    return _post_process(_set_default_config())
+
+
 def parse_config(config_file):
     if not os.path.exists(config_file):
         raise ConfigFileNotFound("{0} not exists".format(config_file))
