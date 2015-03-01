@@ -84,6 +84,7 @@ class TestPageGenerator(unittest.TestCase):
                 u'pygments': True,
                 u'root': u'',
                 u'source': u'content',
+                u'attach': u'attach',
                 u'theme': u'simple',
                 u'themes_dir': u'themes',
                 u'time': datetime.datetime.now(),

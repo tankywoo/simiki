@@ -26,6 +26,7 @@ def _set_default_config():
         "root": "/",
         "source": "content",
         "destination": "output",
+        "attach": "attach",
         "themes_dir": "themes",
         "theme": "simple",
         "default_ext": "md",

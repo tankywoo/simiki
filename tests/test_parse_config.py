@@ -20,6 +20,7 @@ class TestParseConfig(unittest.TestCase):
             "pygments": True,
             "root": "/wiki/",
             "source": "source",
+            "attach": "attach",
             "theme": "mytheme",
             "themes_dir": "simiki_themes",
             'time': datetime.datetime.now(),
