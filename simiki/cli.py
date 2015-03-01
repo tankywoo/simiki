@@ -114,6 +114,14 @@ def install_theme(current_dir, theme_dir, theme_name, dest_path):
     logging.info("Installing theme: {0}".format(theme_name))
 
 
+def copy_attach(current_dir, attach_dir, dest_dir):
+    """Copy attach directory under root path to destination directory"""
+    src_p = os.path.join(current_dir, attach_dir)
+    dest_p = os.path.join(current_dir, dest_dir, attach_dir)
+    if os.path.exists(src_p):
+        copytree(src_p, dest_p)
+
+
 class Generator(object):
 
     def __init__(self, config):
@@ -133,6 +141,9 @@ class Generator(object):
         if empty_dest_dir or update_theme:
             install_theme(self.target_path, self.config["themes_dir"],
                           self.config["theme"], self.config["destination"])
+
+        copy_attach(self.target_path, self.config['attach'],
+                    self.config['destination'])
 
     def generate_all_pages(self):
         logger.info("Start generating markdown files.")

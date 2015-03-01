@@ -26,6 +26,7 @@ def _set_default_config():
         "root": "/",
         "source": "content",
         "destination": "output",
+        "attach": "attach",
         "themes_dir": "themes",
         "theme": "simple",
         "default_ext": "md",
@@ -46,6 +47,10 @@ def _post_process(config):
         config["url"] = config["url"][:-1]
 
     return config
+
+
+def get_default_config():
+    return _post_process(_set_default_config())
 
 
 def parse_config(config_file):

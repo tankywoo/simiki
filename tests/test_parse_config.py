@@ -4,28 +4,27 @@ from __future__ import unicode_literals
 import os.path
 import unittest
 import datetime
-from simiki.config import parse_config
+from simiki.config import parse_config, get_default_config
 
 
 class TestParseConfig(unittest.TestCase):
     def setUp(self):
-        self.expected_config = {
+        self.expected_config = get_default_config()
+        self.expected_config.update({
             "author": "Tanky Woo",
             "debug": True,
             "default_ext": "markdown",
             "description": "This is a simiki's config sample, \u6d4b\u8bd5\u6837\u4f8b",
             "destination": "destination",
-            "index": False,
             "keywords": "wiki, simiki, python, \u7ef4\u57fa",
-            "pygments": True,
             "root": "/wiki/",
             "source": "source",
+            "attach": "attach",
             "theme": "mytheme",
             "themes_dir": "simiki_themes",
-            'time': datetime.datetime.now(),
             "title": "\u6211\u7684Wiki",
             "url": "http://wiki.tankywoo.com"
-        }
+        })
         self.config_file = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             "tests", "configs", "config_sample.yml")
