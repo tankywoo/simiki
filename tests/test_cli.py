@@ -147,5 +147,25 @@ class TestCliNewWiki(unittest.TestCase):
             shutil.rmtree(self.odir_root)
 
 
+class TestCopyAttach(unittest.TestCase):
+    def setUp(self):
+        self.current_dir = TESTS_ROOT
+        self.attach_dir = 'attach'
+        self.dest_dir = '_build'
+        self.dest_path = os.path.join(self.current_dir, self.dest_dir)
+        if os.path.exists(self.dest_path):
+            shutil.rmtree(self.dest_path)
+
+    def test_copy_attach(self):
+        cli.copy_attach(self.current_dir, self.attach_dir, self.dest_dir)
+        ofile = os.path.join(self.dest_dir, self.attach_dir,
+                             'images', 'linux', 'opstools.png')
+        self.assertTrue(os.path.isfile(ofile))
+
+    def tearDown(self):
+        if os.path.exists(self.dest_path):
+            shutil.rmtree(self.dest_path)
+
+
 if __name__ == "__main__":
     unittest.main()
