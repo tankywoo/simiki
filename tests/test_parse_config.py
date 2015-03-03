@@ -33,7 +33,12 @@ class TestParseConfig(unittest.TestCase):
         config = parse_config(self.config_file)
         self.expected_config.pop('time')
         _date = config.pop('time')
-        self.assertIsInstance(_date, datetime.datetime)
+        if hasattr(unittest.TestCase, 'assertIsInstance'):
+            self.assertIsInstance(_date, datetime.datetime)
+        else:
+            assert isinstance(_date, datetime.datetime), \
+                   '%s is not an instance of %r' % \
+                   (repr(_date), datetime.datetime)
         self.assertEqual(
             config,
             self.expected_config
