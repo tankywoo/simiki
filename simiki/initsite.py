@@ -19,7 +19,8 @@ class InitSite(object):
         self.source_path = os.path.dirname(__file__)
         self.target_path = target_path
 
-    def get_file(self, src, dst):
+    @staticmethod
+    def get_file(src, dst):
         if os.path.exists(dst):
             logging.warning("{0} exists".format(dst))
             return
@@ -31,7 +32,7 @@ class InitSite(object):
             logging.info("Creating directory: {0}".format(dst_directory))
 
         shutil.copyfile(src, dst)
-        logging.info("Creating config file: {0}".format(dst))
+        logging.info("Creating file: {0}".format(dst))
 
     def get_config_file(self):
         dst_config_file = os.path.join(self.target_path, "_config.yml")
