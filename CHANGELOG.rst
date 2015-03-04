@@ -1,3 +1,13 @@
+v1.3 (2015-03-04)
+===================
+
+1. Add `site.time` variable, the generated time.
+2. Improve encoding
+3. Add `--update-them` when generate to improve generation speed
+4. Fix #36, add attach directory to put attachments.
+5. Fix #33, only show color logging message on Linux/MacOS
+
+
 v1.2.4 (2014-12-23)
 ===================
 
