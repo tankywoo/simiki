@@ -22,3 +22,7 @@ fi
 # Post process
 rm ${README_RST}
 rm -rf build dist simiki.egg-info
+
+# Add tag to HEAD
+version=`python -m simiki.cli --version | awk {'printf $2'}`
+git tag v${version}
