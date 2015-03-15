@@ -77,6 +77,9 @@ class TestCliGenerate(unittest.TestCase):
         self.output_path = os.path.join(self.target_path, "output")
         if os.path.exists(self.output_path):
             emptytree(self.output_path)
+        self.drafts = [
+            os.path.join(self.output_path, "intro", "my_draft.html")
+        ]
         self.files = [
             os.path.join(self.output_path, "index.html"),
             os.path.join(self.output_path, "intro", "gettingstarted.html")
@@ -90,6 +93,9 @@ class TestCliGenerate(unittest.TestCase):
     def test_generate(self):
         self.args.update({u'generate': True})
         cli.execute(self.args)
+        for f in self.drafts:
+            self.assertFalse(os.path.isfile(os.path.join(self.target_path, f)))
+
         for f in self.files:
             self.assertTrue(os.path.isfile(os.path.join(self.target_path, f)))
 
