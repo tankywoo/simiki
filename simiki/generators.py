@@ -61,6 +61,8 @@ class PageGenerator(BaseGenerator):
     def to_html(self):
         """Load template, and generate html"""
         self.meta, self.content = self.get_meta_and_content()
+        if self.meta.get('draft', False):
+            return None
         layout = self.get_layout(self.meta)
         template_file = "{0}.html".format(layout)
         template_vars = self.get_template_vars(self.meta, self.content)

@@ -158,8 +158,10 @@ class Generator(object):
                 if not filename.endswith(self.config["default_ext"]):
                     continue
                 md_file = os.path.join(root, filename)
-                pages[md_file] = self.generate_single_page(md_file)
-                pcnt += 1
+                page_meta = self.generate_single_page(md_file)
+                if page_meta:
+                    pages[md_file] = page_meta
+                    pcnt += 1
         logger.info("{0} files generated.".format(pcnt))
         return pages
 
@@ -185,6 +187,9 @@ class Generator(object):
             )
             ofile = os.path.join(ocategory, ofname)
             return ofile
+
+        if not html:
+            return None
 
         ofile = get_ofile()
         write_file(html, ofile)
