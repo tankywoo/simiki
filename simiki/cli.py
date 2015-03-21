@@ -50,6 +50,22 @@ from simiki import __version__
 logger = logging.getLogger(__name__)
 
 
+def init_site(target_path):
+    default_config_file = os.path.join(os.path.dirname(__file__),
+                                       "conf_templates",
+                                       "_config.yml.in")
+    try:
+        initiator = Initiator(default_config_file, target_path)
+        initiator.init()
+        default_config = parse_config(default_config_file)
+        install_theme(target_path, default_config["themes_dir"],
+                      default_config["theme"], default_config["destination"])
+    except Exception as e:
+        logging.exception("Initialize site: {0}\n{1}"
+                          .format(unicode(e), traceback.format_exc()))
+        sys.exit(1)
+
+
 def param_of_create_wiki(title, category, filename, ext):
     """Get parameters of creating wiki page"""
     if not isinstance(title, unicode):
@@ -220,20 +236,7 @@ def execute(args):
     target_path = args['-p'].decode('utf-8') if args['-p'] else os.getcwdu()
 
     if args["init"]:
-        default_config_file = os.path.join(os.path.dirname(__file__),
-                                           "conf_templates",
-                                           "_config.yml.in")
-        try:
-            initiator = Initiator(default_config_file, target_path)
-            initiator.init()
-            default_config = parse_config(default_config_file)
-            install_theme(target_path, default_config["themes_dir"],
-                          default_config["theme"],
-                          default_config["destination"])
-        except Exception as e:
-            logging.exception("Init site: {0}\n{1}"
-                              .format(unicode(e), traceback.format_exc()))
-            sys.exit(1)
+        init_site(target_path)
     else:
         config_file = os.path.join(target_path, "_config.yml")
         try:
@@ -261,6 +264,7 @@ def execute(args):
             pass
 
     logger.info("Done.")
+
 
 def main():
     args = docopt(__doc__, version="Simiki {0}".format(__version__))
