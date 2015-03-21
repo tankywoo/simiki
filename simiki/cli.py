@@ -40,7 +40,7 @@ from yaml import YAMLError
 
 from simiki.generators import (PageGenerator, CatalogGenerator,
                                CustomCatalogGenerator)
-from simiki.initsite import InitSite
+from simiki.initiator import InitSite
 from simiki.config import parse_config
 from simiki.log import logging_init
 from simiki.server import preview

@@ -6,7 +6,7 @@ import os.path
 import unittest
 import shutil
 
-from simiki.initsite import InitSite
+from simiki.initiator import InitSite
 
 
 class TestInitSite(unittest.TestCase):
