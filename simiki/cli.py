@@ -40,7 +40,7 @@ from yaml import YAMLError
 
 from simiki.generators import (PageGenerator, CatalogGenerator,
                                CustomCatalogGenerator)
-from simiki.initiator import InitSite
+from simiki.initiator import Initiator
 from simiki.config import parse_config
 from simiki.log import logging_init
 from simiki.server import preview
@@ -224,8 +224,8 @@ def execute(args):
                                            "conf_templates",
                                            "_config.yml.in")
         try:
-            init_site = InitSite(default_config_file, target_path)
-            init_site.init_site()
+            initiator = Initiator(default_config_file, target_path)
+            initiator.init()
             default_config = parse_config(default_config_file)
             install_theme(target_path, default_config["themes_dir"],
                           default_config["theme"],

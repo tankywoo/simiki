@@ -6,10 +6,10 @@ import os.path
 import unittest
 import shutil
 
-from simiki.initiator import InitSite
+from simiki.initiator import Initiator
 
 
-class TestInitSite(unittest.TestCase):
+class TestInitiator(unittest.TestCase):
 
     def setUp(self):
         BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
@@ -31,11 +31,11 @@ class TestInitSite(unittest.TestCase):
         ]
 
     def test_target_exist(self):
-        """ test InitSite target path exist
+        """ test Initiator target path exist
         """
 
-        i = InitSite(self.config_file, self.target_path)
-        i.init_site()
+        i = Initiator(self.config_file, self.target_path)
+        i.init()
 
         for f in self.files:
             self.assertTrue(os.path.isfile(os.path.join(self.target_path, f)))
@@ -44,12 +44,12 @@ class TestInitSite(unittest.TestCase):
             self.assertTrue(os.path.isdir(os.path.join(self.target_path, d)))
 
     def test_target_invalid(self):
-        """ test InitSite target path invalid, raise OSError
+        """ test Initiator target path invalid, raise OSError
         """
 
         target_error = "/foo/bar/why/not"
-        i = InitSite(self.config_file, target_error)
-        self.assertRaises(OSError, lambda: i.init_site())
+        i = Initiator(self.config_file, target_error)
+        self.assertRaises(OSError, lambda: i.init())
 
     def tearDown(self):
         if os.path.exists(self.target_path):

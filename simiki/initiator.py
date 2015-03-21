@@ -11,7 +11,11 @@ from simiki.config import parse_config
 from simiki.utils import (copytree, mkdir_p, listdir_nohidden)
 
 
-class InitSite(object):
+class Initiator(object):
+    conf_template_dn = "conf_templates"
+    config_fn = "_config.yml"
+    fabfile_fn = "fabfile.py"
+    demo_fn = "gettingstarted.md"
 
     def __init__(self, config_file, target_path):
         self.config_file = config_file
@@ -35,52 +39,48 @@ class InitSite(object):
         logging.info("Creating file: {0}".format(dst))
 
     def get_config_file(self):
-        dst_config_file = os.path.join(self.target_path, "_config.yml")
+        dst_config_file = os.path.join(self.target_path, self.config_fn)
         self.get_file(self.config_file, dst_config_file)
 
     def get_fabfile(self):
         src_fabfile = os.path.join(
             self.source_path,
-            "conf_templates",
-            "fabfile.py"
+            self.conf_template_dn,
+            self.fabfile_fn
         )
-        dst_fabfile = os.path.join(self.target_path, "fabfile.py")
+        dst_fabfile = os.path.join(self.target_path, self.fabfile_fn)
         self.get_file(src_fabfile, dst_fabfile)
 
-    def get_first_page(self):
+    def get_demo_page(self):
         nohidden_dir = listdir_nohidden(
-            os.path.join(self.target_path, "content")
-        )
+            os.path.join(self.target_path, self.config['source']))
         # If there is file/directory under content, do not create first page
         if next(nohidden_dir, False):
             return
 
-        src_fabfile = os.path.join(
-            self.source_path,
-            "conf_templates",
-            "gettingstarted.md"
-        )
-        dst_fabfile = os.path.join(
-            self.target_path,
-            "content",
-            "intro",
-            "gettingstarted.md"
-        )
-        self.get_file(src_fabfile, dst_fabfile)
+        src_demo = os.path.join(self.source_path, self.conf_template_dn,
+                                self.demo_fn)
+        dst_demo = os.path.join(self.target_path, "content", "intro",
+                                self.demo_fn)
+        self.get_file(src_demo, dst_demo)
 
     def get_default_theme(self, theme_path):
-        src_theme = os.path.join(self.source_path, "themes")
-        if os.path.exists(theme_path):
-            shutil.rmtree(theme_path)
+        default_theme_name = self.config['theme']
+        src_theme = os.path.join(self.source_path, self.config['themes_dir'],
+                                 default_theme_name)
+        dst_theme = os.path.join(theme_path, default_theme_name)
+        if os.path.exists(dst_theme):
+            return
 
-        copytree(src_theme, theme_path)
-        logging.info("Copying default theme to: {0}".format(theme_path))
+        copytree(src_theme, dst_theme)
+        logging.info("Copying default theme '{0}' to: {1}"
+                     .format(default_theme_name, theme_path))
 
-    def init_site(self):
+    def init(self):
         content_path = os.path.join(self.target_path, self.config["source"])
         output_path = os.path.join(self.target_path,
                                    self.config["destination"])
-        theme_path = os.path.join(self.target_path, "themes")
+        theme_path = os.path.join(self.target_path, self.config['themes_dir'])
         for path in (content_path, output_path, theme_path):
             if os.path.exists(path):
                 logging.warning("{0} exists".format(path))
@@ -90,5 +90,5 @@ class InitSite(object):
 
         self.get_config_file()
         self.get_fabfile()
-        self.get_first_page()
+        self.get_demo_page()
         self.get_default_theme(theme_path)
