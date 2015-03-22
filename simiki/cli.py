@@ -48,6 +48,7 @@ from simiki.utils import (copytree, emptytree, check_extension, mkdir_p)
 from simiki import __version__
 
 logger = logging.getLogger(__name__)
+config = None
 
 
 def init_site(target_path):
@@ -64,20 +65,6 @@ def init_site(target_path):
         logging.exception("Initialize site: {0}\n{1}"
                           .format(unicode(e), traceback.format_exc()))
         sys.exit(1)
-
-
-def param_of_create_wiki(title, category, filename, ext):
-    """Get parameters of creating wiki page"""
-    if not isinstance(title, unicode):
-        title = unicode(title, "utf-8")
-    if not filename:
-        # `/` can't exists in filename
-        title_ = title.replace(os.sep, " slash ")
-        filename = "{0}.{1}".format("-".join(title_.split()).lower(), ext)
-    cur_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    if not isinstance(category, unicode):
-        category = unicode(category, 'utf-8')
-    return (category, filename, title, cur_date)
 
 
 def write_file(content, ofile, ftype="page"):
@@ -97,22 +84,29 @@ def write_file(content, ofile, ftype="page"):
         fd.write(content)
 
 
-def create_new_wiki(source, category, filename, title, date):
+def create_new_wiki(category, title, filename):
+    if not filename:
+        # `/` can't exists in filename
+        _title = title.replace(os.sep, " slash ").lower()
+        filename = "{0}.{1}".format(_title.replace(' ', '-'),
+                                    config["default_ext"])
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+
     meta = "\n".join([
         "---",
         "title: \"{0}\"".format(title),
-        "date: {0}".format(date),
+        "date: {0}".format(now),
         "---",
     ]) + "\n\n"
 
-    category_path = os.path.join(source, category)
+    category_path = os.path.join(config["source"], category)
     if not os.path.exists(category_path):
         mkdir_p(category_path)
-        logger.info("Creating category {0}.".format(category))
+        logger.info("Creating category: {0}.".format(category))
 
     fn = os.path.join(category_path, filename)
     if os.path.exists(fn):
-        logger.warning("wiki file exists: {0}".format(fn))
+        logger.warning("File exists: {0}".format(fn))
     else:
         logger.info("Creating wiki: {0}".format(fn))
         with io.open(fn, "wt", encoding="utf-8") as fd:
@@ -230,8 +224,18 @@ class Generator(object):
         write_file(html, ofile, "index")
 
 
+def unicode_docopt(args):
+    for k in args:
+        if isinstance(args[k], basestring) and \
+           not isinstance(args[k], unicode):
+            args[k] = args[k].decode('utf-8')
+
+
 def execute(args):
+    global config
     logging_init(logging.DEBUG)
+
+    unicode_docopt(args)
 
     target_path = args['-p'].decode('utf-8') if args['-p'] else os.getcwdu()
 
@@ -254,9 +258,7 @@ def execute(args):
             generator = Generator(config)
             generator.generate(args["--delete"], args["--update-theme"])
         elif args["new"]:
-            pocw = param_of_create_wiki(args["-t"], args["-c"], args["-f"],
-                                        config["default_ext"])
-            create_new_wiki(config["source"], *pocw)
+            create_new_wiki(args["-c"], args["-t"], args["-f"])
         elif args["preview"]:
             preview(config["destination"])
         else:
