@@ -44,7 +44,7 @@ from simiki.initiator import Initiator
 from simiki.config import parse_config
 from simiki.log import logging_init
 from simiki.server import preview
-from simiki.utils import (copytree, emptytree, check_extension, mkdir_p)
+from simiki.utils import (copytree, emptytree, mkdir_p)
 from simiki import __version__
 
 logger = logging.getLogger(__name__)
@@ -65,23 +65,6 @@ def init_site(target_path):
         logging.exception("Initialize site: {0}\n{1}"
                           .format(unicode(e), traceback.format_exc()))
         sys.exit(1)
-
-
-def write_file(content, ofile, ftype="page"):
-    """Write content to output file.
-
-    :param content: content to write to ofile
-    :param ofile: output file
-    :param ftype: file type, "page" or "index"
-    """
-    if ftype == "page":
-        output_category, _ = os.path.split(ofile)
-        if not os.path.exists(output_category):
-            logging.info(
-                "The output category %s not exists, create it", output_category)
-            mkdir_p(output_category)
-    with io.open(ofile, "wt", encoding="utf-8") as fd:
-        fd.write(content)
 
 
 def create_new_wiki(category, title, filename):
@@ -134,9 +117,9 @@ def copy_attach(current_dir, attach_dir, dest_dir):
 
 class Generator(object):
 
-    def __init__(self, config):
+    def __init__(self, target_path):
         self.config = config
-        self.target_path = os.getcwdu()
+        self.target_path = target_path
 
     def generate(self, empty_dest_dir=False, update_theme=False):
         if empty_dest_dir:
@@ -145,7 +128,7 @@ class Generator(object):
                                     self.config["destination"])
             emptytree(dest_dir)
 
-        pages = self.generate_all_pages()
+        pages = self.generate_pages()
         self.generate_catalog(pages)
 
         if empty_dest_dir or update_theme:
@@ -154,57 +137,6 @@ class Generator(object):
 
         copy_attach(self.target_path, self.config['attach'],
                     self.config['destination'])
-
-    def generate_all_pages(self):
-        logger.info("Start generating markdown files.")
-        content_path = self.config["source"]
-
-        pcnt = 0
-        pages = {}
-        for root, dirs, files in os.walk(content_path):
-            files = [f for f in files if not f.startswith(".")]
-            dirs[:] = [d for d in dirs if not d.startswith(".")]
-            for filename in files:
-                if not filename.endswith(self.config["default_ext"]):
-                    continue
-                md_file = os.path.join(root, filename)
-                page_meta = self.generate_single_page(md_file)
-                if page_meta:
-                    pages[md_file] = page_meta
-                    pcnt += 1
-        logger.info("{0} files generated.".format(pcnt))
-        return pages
-
-    def generate_single_page(self, md_file):
-        logger.debug("Generate {0}".format(md_file))
-        page_generator = PageGenerator(
-            self.config,
-            self.target_path,
-            os.path.realpath(md_file)
-        )
-        try:
-            html = page_generator.to_html()
-        except Exception as e:
-            logger.exception('{0}: {1}'.format(md_file, unicode(e)))
-            sys.exit(1)
-
-        def get_ofile():
-            scategory, fname = os.path.split(md_file)
-            ofname = "{0}.html".format(os.path.splitext(fname)[0])
-            category = os.path.relpath(scategory, self.config["source"])
-            ocategory = os.path.join(
-                self.target_path, self.config["destination"], category
-            )
-            ofile = os.path.join(ocategory, ofname)
-            return ofile
-
-        if not html:
-            return None
-
-        ofile = get_ofile()
-        write_file(html, ofile)
-        meta = page_generator.meta
-        return meta
 
     def generate_catalog(self, pages):
         logger.info("Generate catalog page.")
@@ -221,7 +153,65 @@ class Generator(object):
             self.config["destination"],
             "index.html"
         )
-        write_file(html, ofile, "index")
+        self.write_file(html, ofile)
+
+    def generate_pages(self):
+        logger.info("Start generating markdown files.")
+        content_path = self.config["source"]
+
+        page_count = 0
+        pages = {}
+        for root, dirs, files in os.walk(content_path):
+            files = [f for f in files if not f.startswith(".")]
+            dirs[:] = [d for d in dirs if not d.startswith(".")]
+            for filename in files:
+                if not filename.endswith(self.config["default_ext"]):
+                    continue
+                md_file = os.path.join(root, filename)
+                page_meta = self.generate_single_page(md_file)
+                if page_meta:
+                    pages[md_file] = page_meta
+                    page_count += 1
+        logger.info("{0} files generated.".format(page_count))
+        return pages
+
+    def generate_single_page(self, md_file):
+        logger.debug("Generate: {0}".format(md_file))
+        page_generator = PageGenerator(self.config, self.target_path,
+                                       os.path.realpath(md_file))
+        try:
+            html = page_generator.to_html()
+        except Exception as e:
+            logger.exception('{0}: {1}'.format(md_file, unicode(e)))
+            sys.exit(1)
+
+        # ignore draft
+        if not html:
+            return None
+
+        category, filename = os.path.split(md_file)
+        category = os.path.relpath(category, self.config['source'])
+        output_file = os.path.join(
+            self.target_path,
+            self.config['destination'],
+            category,
+            '{0}.html'.format(os.path.splitext(filename)[0])
+        )
+
+        self.write_file(html, output_file)
+        meta = page_generator.meta
+        return meta
+
+    @staticmethod
+    def write_file(content, output_fname):
+        """Write content to output file."""
+        output_dir, _ = os.path.split(output_fname)
+        if not os.path.exists(output_dir):
+            logging.info("The output directory %s not exists, create it",
+                         output_dir)
+            mkdir_p(output_dir)
+        with io.open(output_fname, "wt", encoding="utf-8") as fd:
+            fd.write(content)
 
 
 def unicode_docopt(args):
@@ -233,44 +223,47 @@ def unicode_docopt(args):
 
 def execute(args):
     global config
-    logging_init(logging.DEBUG)
 
-    unicode_docopt(args)
+    logging_init(logging.DEBUG)
 
     target_path = args['-p'].decode('utf-8') if args['-p'] else os.getcwdu()
 
     if args["init"]:
         init_site(target_path)
+        return
+
+    config_file = os.path.join(target_path, "_config.yml")
+    try:
+        config = parse_config(config_file)
+    except (Exception, YAMLError) as e:
+        logging.exception("Parse config: {0}\n{1}"
+                          .format(unicode(e), traceback.format_exc()))
+        sys.exit(1)
+    level = logging.DEBUG if config["debug"] else logging.INFO
+    logging_init(level)   # reload logger
+
+    if args["generate"]:
+        if args["--ignore-root"]:
+            config.update({u"root": u"/"})
+        generator = Generator(target_path)
+        generator.generate(args["--delete"], args["--update-theme"])
+    elif args["new"]:
+        create_new_wiki(args["-c"], args["-t"], args["-f"])
+    elif args["preview"]:
+        preview(config["destination"])
     else:
-        config_file = os.path.join(target_path, "_config.yml")
-        try:
-            config = parse_config(config_file)
-        except (Exception, YAMLError) as e:
-            logging.exception("Parse config: {0}\n{1}"
-                              .format(unicode(e), traceback.format_exc()))
-            sys.exit(1)
-        level = logging.DEBUG if config["debug"] else logging.INFO
-        logging_init(level)   # reload logger
-
-        if args["generate"]:
-            if args["--ignore-root"]:
-                config.update({u"root": u"/"})
-            generator = Generator(config)
-            generator.generate(args["--delete"], args["--update-theme"])
-        elif args["new"]:
-            create_new_wiki(args["-c"], args["-t"], args["-f"])
-        elif args["preview"]:
-            preview(config["destination"])
-        else:
-            # docopt itself will display the help info.
-            pass
-
-    logger.info("Done.")
+        # docopt itself will display the help info.
+        pass
 
 
 def main():
     args = docopt(__doc__, version="Simiki {0}".format(__version__))
+    unicode_docopt(args)
+
     execute(args)
+
+    logger.info("Done.")
+
 
 if __name__ == "__main__":
     main()
