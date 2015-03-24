@@ -10,46 +10,63 @@ import SimpleHTTPServer
 import SocketServer
 
 
-logger = logging.getLogger(__name__)
+URL_ROOT = None
+PUBLIC_DIRECTORY = None
 
 
 class Reuse_TCPServer(SocketServer.TCPServer):
     allow_reuse_address = True
 
 
-def preview(path, port=8000):
+class YARequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+
+    def translate_path(self, path):
+        if URL_ROOT != '/' and self.path.startswith(URL_ROOT):
+            if self.path == URL_ROOT or self.path == URL_ROOT + '/':
+                # TODO urlparse.urljoin
+                return PUBLIC_DIRECTORY + '/index.html'
+            else:
+                return PUBLIC_DIRECTORY + path[len(URL_ROOT):]
+        else:
+            return SimpleHTTPServer.SimpleHTTPRequestHandler \
+                                   .translate_path(self, path)
+
+    def do_GET(self):
+        # redirect url
+        if URL_ROOT != '/' and self.path == '/':
+            self.send_response(301)
+            self.send_header('Location', URL_ROOT)
+            self.end_headers()
+        SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
+
+
+def preview(path, url_root, port=8000):
+    '''
+    :param path: directory path relative to current path
+    :param url_root: `root` setted in _config.yml
+    '''
+    global URL_ROOT, PUBLIC_DIRECTORY
+
+    if url_root != '/' and url_root.endswith('/'):
+        url_root = url_root[:-1]
+
+    URL_ROOT = url_root
+    PUBLIC_DIRECTORY = os.path.join(os.getcwdu(), path)
+
     if os.path.exists(path):
         os.chdir(path)
     else:
-        logger.error("Path {} not exists".format(path))
+        logging.error("Path {} not exists".format(path))
     try:
-        Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+        Handler = YARequestHandler
         httpd = Reuse_TCPServer(("", port), Handler)
     except OSError as e:
-        logger.error("Could not listen on port {0}".format(port))
+        logging.error("Could not listen on port {0}".format(port))
         sys.exit(getattr(e, 'exitcode', 1))
 
-    logger.info("Serving at port {0}".format(port))
+    logging.info("Serving at: http://127.0.0.1:{0}{1}/".format(port, url_root))
     try:
         httpd.serve_forever()
     except KeyboardInterrupt as e:
-        logger.info("Shutting down server")
+        logging.info("Shutting down server")
         httpd.socket.close()
-
-if __name__ == "__main__":
-    logger.addHandler(logging.StreamHandler())
-    logger.setLevel(logging.DEBUG)
-
-    logger.debug("Testing server feature...")
-
-    if len(sys.argv) == 3:
-        path = os.path.realpath(sys.argv[1])
-        port = int(sys.argv[2])
-    elif len(sys.argv) == 2:
-        path = os.path.realpath(sys.argv[1])
-        port = 8000
-    else:
-        path = os.path.realpath("html")
-        port = 8000
-
-    preview(path, port)

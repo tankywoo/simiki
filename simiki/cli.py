@@ -250,7 +250,7 @@ def execute(args):
     elif args["new"]:
         create_new_wiki(args["-c"], args["-t"], args["-f"])
     elif args["preview"]:
-        preview(config["destination"])
+        preview(config["destination"], config['root'])
     else:
         # docopt itself will display the help info.
         pass
