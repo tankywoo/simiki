@@ -7,7 +7,7 @@ Simiki CLI
 Usage:
   simiki init [-p <path>]
   simiki new -t <title> -c <category> [-f <file>]
-  simiki generate [--ignore-root] [--delete] [--update-theme]
+  simiki generate [--delete] [--update-theme]
   simiki preview
   simiki -h | --help
   simiki -V | --version
@@ -19,7 +19,6 @@ Options:
   -t <title>          Specify the new post title.
   -f <file>           Specify the new post filename.
   -p <path>           Specify the target path.
-  --ignore-root       Ignore root setting and replace with `/` as root.
   --delete            Empty the destination directory before generate.
   --update-theme      Update theme static files.
 """
@@ -243,8 +242,6 @@ def execute(args):
     logging_init(level)   # reload logger
 
     if args["generate"]:
-        if args["--ignore-root"]:
-            config.update({u"root": u"/"})
         generator = Generator(target_path)
         generator.generate(args["--delete"], args["--update-theme"])
     elif args["new"]:
