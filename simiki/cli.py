@@ -37,8 +37,7 @@ import traceback
 from docopt import docopt
 from yaml import YAMLError
 
-from simiki.generators import (PageGenerator, CatalogGenerator,
-                               CustomCatalogGenerator)
+from simiki.generators import (PageGenerator, CatalogGenerator)
 from simiki.initiator import Initiator
 from simiki.config import parse_config
 from simiki.log import logging_init
@@ -128,7 +127,9 @@ class Generator(object):
             emptytree(dest_dir)
 
         pages = self.generate_pages()
-        self.generate_catalog(pages)
+
+        if not os.path.exists(os.path.join(self.config['source'], 'index.md')):
+            self.generate_catalog(pages)
 
         if empty_dest_dir or update_theme:
             install_theme(self.target_path, self.config["themes_dir"],
@@ -139,13 +140,8 @@ class Generator(object):
 
     def generate_catalog(self, pages):
         logger.info("Generate catalog page.")
-        if self.config["index"]:
-            catalog_generator = CustomCatalogGenerator(self.config,
-                                                       self.target_path)
-        else:
-            catalog_generator = CatalogGenerator(self.config,
-                                                 self.target_path,
-                                                 pages)
+        catalog_generator = CatalogGenerator(self.config, self.target_path,
+                                             pages)
         html = catalog_generator.generate_catalog_html()
         ofile = os.path.join(
             self.target_path,

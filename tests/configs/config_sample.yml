@@ -14,4 +14,3 @@ theme: mytheme
 default_ext: markdown
 pygments: True
 debug: True
-index: False
