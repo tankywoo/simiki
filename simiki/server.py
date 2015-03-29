@@ -22,7 +22,7 @@ class Reuse_TCPServer(SocketServer.TCPServer):
 class YARequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def translate_path(self, path):
-        if URL_ROOT != '' and self.path.startswith(URL_ROOT):
+        if URL_ROOT and self.path.startswith(URL_ROOT):
             if self.path == URL_ROOT or self.path == URL_ROOT + '/':
                 # TODO urlparse.urljoin
                 return PUBLIC_DIRECTORY + '/index.html'
@@ -34,9 +34,9 @@ class YARequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         # redirect url
-        if URL_ROOT != '' and self.path == '/':
+        if URL_ROOT and not self.path.startswith(URL_ROOT):
             self.send_response(301)
-            self.send_header('Location', URL_ROOT + '/')
+            self.send_header('Location', URL_ROOT + self.path)
             self.end_headers()
         SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
