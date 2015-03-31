@@ -118,6 +118,7 @@ class Generator(object):
     def __init__(self, target_path):
         self.config = config
         self.target_path = target_path
+        self.pages = {}
 
     def generate(self, empty_dest_dir=False, update_theme=False):
         if empty_dest_dir:
@@ -126,10 +127,10 @@ class Generator(object):
                                     self.config["destination"])
             emptytree(dest_dir)
 
-        pages = self.generate_pages()
+        self.generate_pages()
 
         if not os.path.exists(os.path.join(self.config['source'], 'index.md')):
-            self.generate_catalog(pages)
+            self.generate_catalog(self.pages)
 
         if empty_dest_dir or update_theme:
             install_theme(self.target_path, self.config["themes_dir"],
@@ -155,7 +156,6 @@ class Generator(object):
         content_path = self.config["source"]
 
         page_count = 0
-        pages = {}
         for root, dirs, files in os.walk(content_path):
             files = [f for f in files if not f.startswith(".")]
             dirs[:] = [d for d in dirs if not d.startswith(".")]
@@ -165,10 +165,9 @@ class Generator(object):
                 md_file = os.path.join(root, filename)
                 page_meta = self.generate_single_page(md_file)
                 if page_meta:
-                    pages[md_file] = page_meta
+                    self.pages[md_file] = page_meta
                     page_count += 1
         logger.info("{0} files generated.".format(page_count))
-        return pages
 
     def generate_single_page(self, md_file):
         logger.debug("Generate: {0}".format(md_file))
