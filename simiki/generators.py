@@ -262,38 +262,3 @@ class CatalogGenerator(BaseGenerator):
         tpl_vars = self.get_template_vars()
         html = self.env.get_template("index.html").render(tpl_vars)
         return html
-
-
-class CustomCatalogGenerator(CatalogGenerator):
-
-    def __init__(self, site_config, base_path):
-        super(CustomCatalogGenerator, self).__init__(site_config,
-                                                     base_path,
-                                                     None)
-
-    def get_template_vars(self):
-        if self.site_config["index"] is True:
-            fn = "index.md"
-        else:
-            fn = self.site_config["index"]
-        idx_mfile = os.path.join(
-            os.path.abspath(self.site_config["source"]),
-            fn
-        )
-        page_generator = PageGenerator(self.site_config, self.base_path,
-                                       idx_mfile)
-        _, raw_idx_content = page_generator.get_meta_and_content()
-        idx_content = page_generator.parse_markdown(raw_idx_content)
-        page = {"content": idx_content}
-
-        tpl_vars = {
-            "site": self.site_config,
-            "page": page,
-        }
-
-        # if site.root endwith `\`, remote it.
-        site_root = tpl_vars["site"]["root"]
-        if site_root.endswith("/"):
-            tpl_vars["site"]["root"] = site_root[:-1]
-
-        return tpl_vars

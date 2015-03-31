@@ -32,7 +32,6 @@ def _set_default_config():
         "default_ext": "md",
         "pygments": True,
         "debug": False,
-        "index": False,
         "time": datetime.datetime.now(),
     }
     return config

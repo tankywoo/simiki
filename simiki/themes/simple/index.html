@@ -23,18 +23,14 @@
     <div id="wiki_title">{{ site.title }}</div>
 
     <div id="index">
-  {% if site.index %}
-    {{ page.content }}
-  {% else %}
-    {% for category_name, pages in site.structure.iteritems() %}
-      {# Top-level wiki pages not display in index #}
-      {% if site.default_ext not in category_name %}
-      <h2 id="{{ category_name }}">{{ category_name }}</h2>
-        {% set url = "./" ~ category_name %}
-        {{ list_page(pages, url, category_name) }}
-      <div class="clearfix"></div>
-      {% endif %}
-    {% endfor %}
-  {% endif %}
+  {% for category_name, pages in site.structure.iteritems() %}
+    {# Top-level wiki pages not display in index #}
+    {% if site.default_ext not in category_name %}
+    <h2 id="{{ category_name }}">{{ category_name }}</h2>
+      {% set url = "./" ~ category_name %}
+      {{ list_page(pages, url, category_name) }}
+    <div class="clearfix"></div>
+    {% endif %}
+  {% endfor %}
     </div>
 {% endblock %}
