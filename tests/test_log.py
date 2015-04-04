@@ -4,6 +4,8 @@ import unittest
 import logging
 from StringIO import StringIO
 
+import nose
+
 from simiki.utils import color_msg
 from simiki.log import logging_init
 
@@ -11,41 +13,40 @@ from simiki.log import logging_init
 class TestLogInit(unittest.TestCase):
 
     def setUp(self):
+        logging.disable(logging.NOTSET)
         self.stream = StringIO()
-        self.handler = logging.StreamHandler(self.stream)
-        logging_init(level=logging.DEBUG, handler=self.handler)
         self.logger = logging.getLogger()
+        self.handler = logging.StreamHandler(self.stream)
+        for handler in self.logger.handlers:
+            # exclude nosetest capture handler
+            if not isinstance(handler,
+                              nose.plugins.logcapture.MyMemoryHandler):
+                self.logger.removeHandler(handler)
+        logging_init(level=logging.DEBUG, handler=self.handler)
 
     def test_logging_init(self):
-        self.logger.debug("debug")
-        self.assertEqual(self.stream.getvalue().strip(),
-                         "[{0}]: debug".format(color_msg("blue", "DEBUG")))
-        self.stream.truncate(0)
-
-        self.logger.info("info")
-        self.assertEqual(self.stream.getvalue().strip(),
-                         "[{0}]: info".format(color_msg("green", "INFO")))
-        self.stream.truncate(0)
-
-        self.logger.warning("warning")
-        self.assertEqual(
-            self.stream.getvalue().strip(),
-            "[{0}]: warning".format(color_msg("yellow", "WARNING")))
-        self.stream.truncate(0)
-
-        self.logger.error("error")
-        self.assertEqual(self.stream.getvalue().strip(),
-                         "[{0}]: error".format(color_msg("red", "ERROR")))
-        self.stream.truncate(0)
-
-        self.logger.critical("critical")
-        self.assertEqual(
-            self.stream.getvalue().strip(),
-            "[{0}]: critical".format(color_msg("bgred", "CRITICAL")))
-        self.stream.truncate(0)
+        l2c = {
+            "debug": "blue",
+            "info": "green",
+            "warning": "yellow",
+            "error": "red",
+            "critical": "bgred"
+        }
+        for level in l2c:
+            # self.handler.flush()
+            self.stream.truncate(0)
+            func = getattr(self.logger, level)
+            func(level)
+            expected_output = "[{0}]: {1}" \
+                .format(color_msg(l2c[level], level.upper()), level)
+            self.assertEqual(self.stream.getvalue().strip(), expected_output)
 
     def tearDown(self):
-        self.logger.handlers = []
+        logging.disable(logging.CRITICAL)
+        for handler in self.logger.handlers:
+            if not isinstance(handler,
+                              nose.plugins.logcapture.MyMemoryHandler):
+                self.logger.removeHandler(handler)
 
 if __name__ == "__main__":
     unittest.main()
