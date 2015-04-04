@@ -7,7 +7,7 @@ Simiki CLI
 Usage:
   simiki init [-p <path>]
   simiki new -t <title> -c <category> [-f <file>]
-  simiki generate [--delete] [--update-theme]
+  simiki generate
   simiki preview
   simiki -h | --help
   simiki -V | --version
@@ -15,12 +15,10 @@ Usage:
 Options:
   -h, --help          Help information.
   -V, --version       Show version.
+  -p <path>           Specify the target path.
   -c <category>       Specify the category.
   -t <title>          Specify the new post title.
   -f <file>           Specify the new post filename.
-  -p <path>           Specify the target path.
-  --delete            Empty the destination directory before generate.
-  --update-theme      Update theme static files.
 """
 
 from __future__ import print_function, unicode_literals, absolute_import
@@ -56,9 +54,6 @@ def init_site(target_path):
     try:
         initiator = Initiator(default_config_file, target_path)
         initiator.init()
-        default_config = parse_config(default_config_file)
-        install_theme(target_path, default_config["themes_dir"],
-                      default_config["theme"], default_config["destination"])
     except Exception as e:
         logging.exception("Initialize site: {0}\n{1}"
                           .format(unicode(e), traceback.format_exc()))
@@ -94,25 +89,6 @@ def create_new_wiki(category, title, filename):
             fd.write(meta)
 
 
-def install_theme(current_dir, theme_dir, theme_name, dest_path):
-    """Copy static directory under theme to destination directory"""
-    src_theme = os.path.join(current_dir, theme_dir, theme_name, "static")
-    dest_theme = os.path.join(current_dir, dest_path, "static")
-    if os.path.exists(dest_theme):
-        shutil.rmtree(dest_theme)
-
-    copytree(src_theme, dest_theme)
-    logging.info("Installing theme: {0}".format(theme_name))
-
-
-def copy_attach(current_dir, attach_dir, dest_dir):
-    """Copy attach directory under root path to destination directory"""
-    src_p = os.path.join(current_dir, attach_dir)
-    dest_p = os.path.join(current_dir, dest_dir, attach_dir)
-    if os.path.exists(src_p):
-        copytree(src_p, dest_p)
-
-
 class Generator(object):
 
     def __init__(self, target_path):
@@ -120,24 +96,20 @@ class Generator(object):
         self.target_path = target_path
         self.pages = {}
 
-    def generate(self, empty_dest_dir=False, update_theme=False):
-        if empty_dest_dir:
-            logger.info("Empty the destination directory")
-            dest_dir = os.path.join(self.target_path,
-                                    self.config["destination"])
-            emptytree(dest_dir)
+    def generate(self):
+        logger.debug("Empty the destination directory")
+        dest_dir = os.path.join(self.target_path,
+                                self.config["destination"])
+        emptytree(dest_dir)
 
         self.generate_pages()
 
         if not os.path.exists(os.path.join(self.config['source'], 'index.md')):
             self.generate_catalog(self.pages)
 
-        if empty_dest_dir or update_theme:
-            install_theme(self.target_path, self.config["themes_dir"],
-                          self.config["theme"], self.config["destination"])
+        self.install_theme()
 
-        copy_attach(self.target_path, self.config['attach'],
-                    self.config['destination'])
+        self.copy_attach()
 
     def generate_catalog(self, pages):
         logger.info("Generate catalog page.")
@@ -196,13 +168,33 @@ class Generator(object):
         meta = page_generator.meta
         return meta
 
+    def install_theme(self):
+        """Copy static directory under theme to destination directory"""
+        src_theme = os.path.join(self.target_path, self.config["themes_dir"],
+                                 self.config["theme"], "static")
+        dest_theme = os.path.join(self.target_path, self.config["destination"],
+                                  "static")
+        if os.path.exists(dest_theme):
+            shutil.rmtree(dest_theme)
+
+        copytree(src_theme, dest_theme)
+        logging.debug("Installing theme: {0}".format(self.config["theme"]))
+
+    def copy_attach(self):
+        """Copy attach directory under root path to destination directory"""
+        src_p = os.path.join(self.target_path, self.config['attach'])
+        dest_p = os.path.join(self.target_path, self.config["destination"],
+                              self.config['attach'])
+        if os.path.exists(src_p):
+            copytree(src_p, dest_p)
+
     @staticmethod
     def write_file(content, output_fname):
         """Write content to output file."""
         output_dir, _ = os.path.split(output_fname)
         if not os.path.exists(output_dir):
-            logging.info("The output directory %s not exists, create it",
-                         output_dir)
+            logging.debug("The output directory %s not exists, create it",
+                          output_dir)
             mkdir_p(output_dir)
         with io.open(output_fname, "wt", encoding="utf-8") as fd:
             fd.write(content)
@@ -238,7 +230,7 @@ def execute(args):
 
     if args["generate"]:
         generator = Generator(target_path)
-        generator.generate(args["--delete"], args["--update-theme"])
+        generator.generate()
     elif args["new"]:
         create_new_wiki(args["-c"], args["-t"], args["-f"])
     elif args["preview"]:

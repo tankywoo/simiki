@@ -15,8 +15,6 @@ from simiki.utils import emptytree
 TESTS_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 INIT_ARGS = {
-    u'--delete': False,
-    u'--update-theme': False,
     u'--help': False,
     u'--version': False,
     u'-c': None,
@@ -41,7 +39,6 @@ class TestCliInit(unittest.TestCase):
             "_config.yml",
             "fabfile.py",
             os.path.join("content", "intro", "gettingstarted.md"),
-            os.path.join("output", "static", "css", "style.css"),
             os.path.join("themes", "simple", "page.html"),
             os.path.join("themes", "simple", "static", "css", "style.css")
         ]
@@ -50,8 +47,6 @@ class TestCliInit(unittest.TestCase):
             "output",
             "themes",
             os.path.join("themes", "simple"),
-            os.path.join("output", "static"),
-            os.path.join("output", "static", "css")
         ]
 
     def test_init(self):
@@ -87,6 +82,13 @@ class TestCliGenerate(unittest.TestCase):
             self.output_path,
             os.path.join(self.output_path, "intro"),
         ]
+        self.attach = [
+            os.path.join(self.output_path, 'attach', 'images', 'linux',
+                         'opstools.png'),
+        ]
+        self.static = [
+            os.path.join(self.output_path, "static", "css", "style.css"),
+        ]
         os.chdir(self.target_path)
 
     def test_generate(self):
@@ -101,17 +103,10 @@ class TestCliGenerate(unittest.TestCase):
         for d in self.dirs:
             self.assertTrue(os.path.isdir(os.path.join(self.target_path, d)))
 
-    def test_generate_with_update_theme(self):
-        self.args.update({u'generate': True, u'--update-theme': True})
-        cli.execute(self.args)
-        self.files.extend([os.path.join(self.output_path, "static", "css",
-                                        "style.css")])
-        self.dirs.extend([os.path.join(self.output_path, "static"),
-                          os.path.join(self.output_path, "static", "css")])
-        for f in self.files:
-            self.assertTrue(os.path.isfile(os.path.join(self.target_path, f)))
+        for f in self.attach:
+            self.assertTrue(os.path.isdir(os.path.join(self.target_path, d)))
 
-        for d in self.dirs:
+        for f in self.static:
             self.assertTrue(os.path.isdir(os.path.join(self.target_path, d)))
 
     def tearDown(self):
@@ -150,26 +145,6 @@ class TestCliNewWiki(unittest.TestCase):
     def tearDown(self):
         if os.path.exists(self.odir_root):
             shutil.rmtree(self.odir_root)
-
-
-class TestCopyAttach(unittest.TestCase):
-    def setUp(self):
-        self.current_dir = TESTS_ROOT
-        self.attach_dir = 'attach'
-        self.dest_dir = '_build'
-        self.dest_path = os.path.join(self.current_dir, self.dest_dir)
-        if os.path.exists(self.dest_path):
-            shutil.rmtree(self.dest_path)
-
-    def test_copy_attach(self):
-        cli.copy_attach(self.current_dir, self.attach_dir, self.dest_dir)
-        ofile = os.path.join(self.dest_dir, self.attach_dir,
-                             'images', 'linux', 'opstools.png')
-        self.assertTrue(os.path.isfile(ofile))
-
-    def tearDown(self):
-        if os.path.exists(self.dest_path):
-            shutil.rmtree(self.dest_path)
 
 
 if __name__ == "__main__":
