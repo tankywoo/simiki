@@ -100,7 +100,8 @@ class Generator(object):
         logger.debug("Empty the destination directory")
         dest_dir = os.path.join(self.target_path,
                                 self.config["destination"])
-        emptytree(dest_dir)
+        if os.path.exists(dest_dir):
+            emptytree(dest_dir)
 
         self.generate_pages()
 
