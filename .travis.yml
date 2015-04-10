@@ -6,8 +6,7 @@ install:
   - "pip install -r requirements.txt"
   - "pip install coverage"
 
-script: nosetests -v --with-coverage --cover-package=simiki
+script: nosetests -v --with-coverage --cover-package=simiki --cover-erase -s
 
 after_success:
-  - pip install coveralls
-  - coveralls
+  coveralls

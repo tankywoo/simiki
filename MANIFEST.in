@@ -3,4 +3,5 @@ include CHANGELOG.rst
 include LICENSE
 include requirements.txt
 include dev_requirements.txt
+include tox.ini
 recursive-include simiki *.html *.css *.in *.md *.py
