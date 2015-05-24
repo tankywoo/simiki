@@ -119,8 +119,14 @@ class PageGenerator(BaseGenerator):
 
     def get_template_vars(self, meta, content):
         """Get template variables, include site config and page config"""
-        category, _ = self.get_category_and_file()
-        page = {"category": category, "content": content}
+        category, src_fname = self.get_category_and_file()
+        dst_fname = src_fname.replace(
+            ".{0}".format(self.site_config["default_ext"]), ".html")
+        page = {
+            "category": category,
+            "content": content,
+            "filename": dst_fname
+        }
         page.update(meta)
         template_vars = {
             "site": self.site_config,
