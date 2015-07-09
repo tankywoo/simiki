@@ -40,19 +40,10 @@ def check_extension(filename):
     allowed_extensions = (".md", ".mkd", ".mdown", ".markdown")
     return os.path.splitext(filename)[1] in allowed_extensions
 
-# def copytree(src, dst):
-#     try:
-#         shutil.copytree(src, dst)
-# except OSError as exc: # python >2.5
-#         if exc.errno == errno.ENOTDIR:
-#             shutil.copy(src, dst)
-#         else: raise
-
 
 def copytree(src, dst, symlinks=False, ignore=None):
     """Copy from source directory to destination"""
 
-    # TODO: OSError: [Errno 17] File exists: '/home/tankywoo/simiki/html/css'
     if not os.path.exists(dst):
         os.makedirs(dst)
     for item in os.listdir(src):
@@ -76,7 +67,8 @@ def emptytree(directory):
                 shutil.rmtree(fp)
                 logger.debug("Delete directory %s", fp)
             except OSError as e:
-                logger.error("Unable to delete directory %s: %s", fp, unicode(e))
+                logger.error("Unable to delete directory %s: %s",
+                             fp, unicode(e))
         elif os.path.isfile(fp):
             try:
                 logging.debug("Delete file %s", fp)
@@ -105,6 +97,7 @@ def listdir_nohidden(path):
             f = unicode(f, "utf-8")
         if not f.startswith('.'):
             yield f
+
 
 if __name__ == "__main__":
     print(color_msg("black", "Black"))

@@ -16,6 +16,7 @@ import yaml
 class ConfigFileNotFound(Exception):
     pass
 
+
 def _set_default_config():
     config = {
         "url": "",
@@ -67,6 +68,7 @@ def parse_config(config_file):
     return config
 
 if __name__ == "__main__":
+    # pylint: disable=pointless-string-statement
     """
     Usage:
         python -m simiki.config : to test config template
@@ -75,14 +77,15 @@ if __name__ == "__main__":
     """
     if len(sys.argv) == 1:
         base_dir = os.path.dirname(__file__)
-        config_file = os.path.join(base_dir, "conf_templates", "_config.yml.in")
+        _config_file = os.path.join(base_dir, "conf_templates",
+                                    "_config.yml.in")
     elif len(sys.argv) == 2:
         base_dir = os.getcwd()
-        config_file = os.path.join(base_dir, sys.argv[1])
+        _config_file = os.path.join(base_dir, sys.argv[1])
     else:
         logging.error("Use the template config file by default, "
                       "you can specify the config file to parse. \n"
                       "Usage: `python -m simiki.config [_config.yml]'")
         sys.exit(1)
 
-    pprint(parse_config(config_file))
+    pprint(parse_config(_config_file))

@@ -10,8 +10,6 @@ from __future__ import (print_function, with_statement, unicode_literals,
 import os
 import os.path
 import io
-import datetime
-import logging
 import copy
 try:
     from collections import OrderedDict
@@ -22,8 +20,8 @@ import markdown
 import yaml
 from jinja2 import (Environment, FileSystemLoader, TemplateError)
 
-
 PLAT_LINE_SEP = '\n'
+
 
 class BaseGenerator(object):
     """Base generator class"""
@@ -142,8 +140,8 @@ class PageGenerator(BaseGenerator):
 
     def get_category_and_file(self):
         """Get the name of category and file(with extension)"""
-        src_file_relpath_to_source = os.path.relpath(self.src_file_relpath,
-                                                     self.site_config['source'])
+        src_file_relpath_to_source = \
+            os.path.relpath(self.src_file_relpath, self.site_config['source'])
         category, filename = os.path.split(src_file_relpath_to_source)
         return (category, filename)
 
