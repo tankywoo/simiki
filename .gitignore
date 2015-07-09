@@ -38,4 +38,3 @@ nosetests.xml
 
 # Custom
 *.swp
-*.bak
