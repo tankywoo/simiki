@@ -69,9 +69,10 @@ class TestPageGenerator(unittest.TestCase):
                 u'category': u'foo\u76ee\u5f55',
                 u'content': u'<p>Simiki is a simple wiki '
                             'framework, written in Python.</p>',
-                'date': '2013-10-17 00:03',
-                'layout': 'page',
-                'title': 'Foo Page 2'
+                u'filename': u'foo_page_\u4e2d\u6587.html',
+                u'date': '2013-10-17 00:03',
+                u'layout': 'page',
+                u'title': 'Foo Page 2'
             },
             u'site': get_default_config()
         }
