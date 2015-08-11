@@ -8,7 +8,7 @@ Usage:
   simiki init [-p <path>]
   simiki new -t <title> -c <category> [-f <file>]
   simiki generate
-  simiki preview
+  simiki preview [--host <host>] [--port <port>]
   simiki -h | --help
   simiki -V | --version
 
@@ -19,6 +19,8 @@ Options:
   -c <category>       Specify the category.
   -t <title>          Specify the new post title.
   -f <file>           Specify the new post filename.
+  --host <host>       bind host to preview [default: localhost]
+  --port <port>       bind port to preview [default: 8000]
 """
 
 from __future__ import print_function, unicode_literals, absolute_import
@@ -235,7 +237,9 @@ def execute(args):
     elif args["new"]:
         create_new_wiki(args["-c"], args["-t"], args["-f"])
     elif args["preview"]:
-        preview(config["destination"], config['root'])
+        args['--port'] = int(args['--port'])
+        preview(config["destination"], config['root'],
+                args["--host"], args["--port"])
     else:
         # docopt itself will display the help info.
         pass

@@ -41,12 +41,17 @@ class YARequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
 
-def preview(path, url_root, port=8000):
+def preview(path, url_root, host='localhost', port=8000):
     '''
     :param path: directory path relative to current path
     :param url_root: `root` setted in _config.yml
     '''
     global URL_ROOT, PUBLIC_DIRECTORY
+
+    if not host:
+        host = 'localhost'
+    if not port:
+        port = 8000
 
     if url_root.endswith('/'):
         url_root = url_root[:-1]
@@ -60,12 +65,12 @@ def preview(path, url_root, port=8000):
         logging.error("Path {} not exists".format(path))
     try:
         Handler = YARequestHandler
-        httpd = Reuse_TCPServer(("", port), Handler)
+        httpd = Reuse_TCPServer((host, port), Handler)
     except OSError as e:
         logging.error("Could not listen on port {0}".format(port))
         sys.exit(getattr(e, 'exitcode', 1))
 
-    logging.info("Serving at: http://127.0.0.1:{0}{1}/".format(port, url_root))
+    logging.info("Serving at: http://{0}:{1}{2}/".format(host, port, url_root))
     try:
         httpd.serve_forever()
     except KeyboardInterrupt as e:
