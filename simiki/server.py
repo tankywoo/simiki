@@ -24,7 +24,6 @@ class YARequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def translate_path(self, path):
         if URL_ROOT and self.path.startswith(URL_ROOT):
             if self.path == URL_ROOT or self.path == URL_ROOT + '/':
-                # TODO urlparse.urljoin
                 return PUBLIC_DIRECTORY + '/index.html'
             else:
                 return PUBLIC_DIRECTORY + path[len(URL_ROOT):]
