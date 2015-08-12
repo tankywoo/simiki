@@ -1,3 +1,13 @@
+v1.4 (2015-08-12)
+===================
+
+1. Support draft in meta
+2. Fix server prompt and relative url error
+3. Remove unused '--ignore-root' option
+4. Redirect all pages instead only index page
+5. Support '--host/--port' option in preview
+
+
 v1.3 (2015-03-04)
 ===================
 
