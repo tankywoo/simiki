@@ -138,7 +138,11 @@ class Generator(object):
                 if not filename.endswith(self.config["default_ext"]):
                     continue
                 md_file = os.path.join(root, filename)
-                page_meta = self.generate_single_page(md_file)
+                try:
+                    page_meta = self.generate_single_page(md_file)
+                except Exception as e:
+                    logger.exception('{0}: {1}'.format(md_file, unicode(e)))
+                    continue
                 if page_meta:
                     self.pages[md_file] = page_meta
                     page_count += 1
@@ -148,11 +152,7 @@ class Generator(object):
         logger.debug("Generate: {0}".format(md_file))
         page_generator = PageGenerator(self.config, self.target_path,
                                        os.path.realpath(md_file))
-        try:
-            html = page_generator.to_html()
-        except Exception as e:
-            logger.exception('{0}: {1}'.format(md_file, unicode(e)))
-            sys.exit(1)
+        html = page_generator.to_html()
 
         # ignore draft
         if not html:
