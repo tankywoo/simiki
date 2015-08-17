@@ -215,7 +215,7 @@ def execute(args):
 
     logging_init(logging.DEBUG)
 
-    target_path = args['-p'].decode('utf-8') if args['-p'] else os.getcwdu()
+    target_path = args['-p'] if args['-p'] else os.getcwdu()
 
     if args["init"]:
         init_site(target_path)
