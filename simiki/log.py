@@ -13,6 +13,8 @@ class ANSIFormatter(Formatter):
     """Use ANSI escape sequences to colored log"""
 
     def format(self, record):
+        msg = super(ANSIFormatter, self).format(record)
+
         lvl2color = {
             "DEBUG": "blue",
             "INFO": "green",
@@ -21,7 +23,6 @@ class ANSIFormatter(Formatter):
             "CRITICAL": "bgred"
         }
 
-        msg = record.getMessage()
         rln = record.levelname
         if rln in lvl2color:
             return "[{0}]: {1}".format(
