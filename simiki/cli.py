@@ -57,8 +57,8 @@ def init_site(target_path):
         initiator = Initiator(default_config_file, target_path)
         initiator.init()
     except Exception as e:
-        logging.exception("Initialize site: {0}\n{1}"
-                          .format(unicode(e), traceback.format_exc()))
+        # always in debug mode when init site
+        logging.exception("Initialize site with error:")
         sys.exit(1)
 
 
@@ -141,7 +141,10 @@ class Generator(object):
                 try:
                     page_meta = self.generate_single_page(md_file)
                 except Exception as e:
-                    logger.exception('{0}: {1}'.format(md_file, unicode(e)))
+                    if config.get('debug', False):
+                        logger.exception('{0}:'.format(md_file))
+                    else:
+                        logger.error('{0}:\n{1}'.format(md_file, unicode(e)))
                     continue
                 if page_meta:
                     self.pages[md_file] = page_meta
@@ -225,8 +228,8 @@ def execute(args):
     try:
         config = parse_config(config_file)
     except (Exception, YAMLError) as e:
-        logging.exception("Parse config: {0}\n{1}"
-                          .format(unicode(e), traceback.format_exc()))
+        # always in debug mode when parse config
+        logging.exception("Parse config with error:")
         sys.exit(1)
     level = logging.DEBUG if config["debug"] else logging.INFO
     logging_init(level)   # reload logger
