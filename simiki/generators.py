@@ -222,7 +222,7 @@ class CatalogGenerator(BaseGenerator):
                 else:
                     p = p.setdefault(x, {})
 
-        return dct[self.site_config['source']]
+        return dct.get(self.site_config['source'], {})
 
     def sort_structure(self, structure):
         """Sort index structure in lower-case, alphabetical order
