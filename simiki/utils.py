@@ -58,10 +58,10 @@ def copytree(src, dst, symlinks=False, ignore=None):
 def emptytree(directory):
     """Delete all the files and dirs under specified directory"""
 
+    if not isinstance(directory, unicode):
+        directory = unicode(directory, 'utf-8')
     for p in os.listdir(directory):
         fp = os.path.join(directory, p)
-        if not isinstance(fp, unicode):
-            fp = unicode(fp, "utf-8")
         if os.path.isdir(fp):
             try:
                 shutil.rmtree(fp)
