@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 import sys
 import logging
@@ -27,7 +27,7 @@ class ANSIFormatter(Formatter):
         if rln in lvl2color:
             return "[{0}]: {1}".format(
                 utils.color_msg(lvl2color[rln], rln),
-                msg.encode('utf-8')
+                msg
             )
         else:
             return msg
