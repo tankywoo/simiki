@@ -13,7 +13,13 @@ class ANSIFormatter(Formatter):
     """Use ANSI escape sequences to colored log"""
 
     def format(self, record):
-        msg = super(ANSIFormatter, self).format(record)
+        try:
+            msg = super(ANSIFormatter, self).format(record)
+        except:
+            # for python2.6
+            # Formatter is old-style class in python2.6 and type is classobj
+            # another trick: http://stackoverflow.com/a/18392639/1276501
+            msg = Formatter.format(self, record)
 
         lvl2color = {
             "DEBUG": "blue",
