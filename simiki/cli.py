@@ -141,10 +141,17 @@ class Generator(object):
                 try:
                     page_meta = self.generate_single_page(md_file)
                 except Exception as e:
+                    log_msg = ''
+                    if 'extra_msg' in dir(e):
+                        log_msg = e.extra_msg
                     if config.get('debug', False):
-                        logger.exception('{0}:'.format(md_file))
+                        logger.exception('{0}: {1}'.format(md_file, log_msg))
                     else:
-                        logger.error('{0}:\n{1}'.format(md_file, unicode(e)))
+                        if log_msg:
+                            log_msg = ', '.join((log_msg, unicode(e)))
+                        else:
+                            log_msg = unicode(e)
+                        logger.error('{0}: {1}'.format(md_file, log_msg))
                     continue
                 if page_meta:
                     self.pages[md_file] = page_meta

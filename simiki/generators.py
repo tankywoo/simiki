@@ -68,8 +68,8 @@ class PageGenerator(BaseGenerator):
             template = self.env.get_template(template_file)
             html = template.render(template_vars)
         except TemplateError as e:
-            raise Exception("Unable to load template {0}: {1}"
-                            .format(template_file, unicode(e)))
+            e.extra_msg = "unable to load template '{0}'".format(template_file)
+            raise
 
         return html
 
@@ -83,14 +83,14 @@ class PageGenerator(BaseGenerator):
         with io.open(self.src_file_path, "rt", encoding="utf-8") as fd:
             textlist = fd.read().lstrip().splitlines()
             if textlist[0] != meta_notation:
-                raise Exception("Disallow anything except newline "
-                                "before begin meta notation: '---'")
+                raise Exception("disallow anything except newline "
+                                "before begin meta notation '---'")
             textlist = textlist[1:]
 
         try:
             second_meta_notation_index = textlist.index(meta_notation)
         except ValueError:
-            raise Exception("Can't find end meta notation: '---'")
+            raise Exception("can't find end meta notation '---'")
         meta_textlist = textlist[:second_meta_notation_index]
         markup_textlist = textlist[second_meta_notation_index+1:]
 
@@ -153,14 +153,11 @@ class PageGenerator(BaseGenerator):
         try:
             meta = yaml.load(meta_yaml)
         except yaml.YAMLError as e:
-            raise Exception("Yaml format error in {0}:\n{1}".format(
-                self.src_file_path,
-                unicode(e)
-            ))
+            e.extra_msg = 'yaml format error'
+            raise
 
         if not self._check_meta(meta):
-            raise Exception("{0}: no 'title' in meta"
-                            .format(self.src_file_relpath))
+            raise Exception("no 'title' in meta")
 
         return meta
 
