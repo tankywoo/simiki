@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 import sys
 import logging
@@ -13,6 +13,14 @@ class ANSIFormatter(Formatter):
     """Use ANSI escape sequences to colored log"""
 
     def format(self, record):
+        try:
+            msg = super(ANSIFormatter, self).format(record)
+        except:
+            # for python2.6
+            # Formatter is old-style class in python2.6 and type is classobj
+            # another trick: http://stackoverflow.com/a/18392639/1276501
+            msg = Formatter.format(self, record)
+
         lvl2color = {
             "DEBUG": "blue",
             "INFO": "green",
@@ -21,12 +29,11 @@ class ANSIFormatter(Formatter):
             "CRITICAL": "bgred"
         }
 
-        msg = record.getMessage()
         rln = record.levelname
         if rln in lvl2color:
             return "[{0}]: {1}".format(
                 utils.color_msg(lvl2color[rln], rln),
-                msg.encode('utf-8')
+                msg
             )
         else:
             return msg

@@ -57,8 +57,8 @@ def init_site(target_path):
         initiator = Initiator(default_config_file, target_path)
         initiator.init()
     except Exception as e:
-        logging.exception("Initialize site: {0}\n{1}"
-                          .format(unicode(e), traceback.format_exc()))
+        # always in debug mode when init site
+        logging.exception("Initialize site with error:")
         sys.exit(1)
 
 
@@ -103,7 +103,9 @@ class Generator(object):
         dest_dir = os.path.join(self.target_path,
                                 self.config["destination"])
         if os.path.exists(dest_dir):
-            emptytree(dest_dir)
+            # for github pages
+            exclude_list = ['.git', 'CNAME']
+            emptytree(dest_dir, exclude_list)
 
         self.generate_pages()
 
@@ -138,7 +140,21 @@ class Generator(object):
                 if not filename.endswith(self.config["default_ext"]):
                     continue
                 md_file = os.path.join(root, filename)
-                page_meta = self.generate_single_page(md_file)
+                try:
+                    page_meta = self.generate_single_page(md_file)
+                except Exception as e:
+                    log_msg = ''
+                    if 'extra_msg' in dir(e):
+                        log_msg = e.extra_msg
+                    if config.get('debug', False):
+                        logger.exception('{0}: {1}'.format(md_file, log_msg))
+                    else:
+                        if log_msg:
+                            log_msg = ', '.join((log_msg, unicode(e)))
+                        else:
+                            log_msg = unicode(e)
+                        logger.error('{0}: {1}'.format(md_file, log_msg))
+                    continue
                 if page_meta:
                     self.pages[md_file] = page_meta
                     page_count += 1
@@ -148,11 +164,7 @@ class Generator(object):
         logger.debug("Generate: {0}".format(md_file))
         page_generator = PageGenerator(self.config, self.target_path,
                                        os.path.realpath(md_file))
-        try:
-            html = page_generator.to_html()
-        except Exception as e:
-            logger.exception('{0}: {1}'.format(md_file, unicode(e)))
-            sys.exit(1)
+        html = page_generator.to_html()
 
         # ignore draft
         if not html:
@@ -215,7 +227,7 @@ def execute(args):
 
     logging_init(logging.DEBUG)
 
-    target_path = args['-p'].decode('utf-8') if args['-p'] else os.getcwdu()
+    target_path = args['-p'] if args['-p'] else os.getcwdu()
 
     if args["init"]:
         init_site(target_path)
@@ -225,8 +237,8 @@ def execute(args):
     try:
         config = parse_config(config_file)
     except (Exception, YAMLError) as e:
-        logging.exception("Parse config: {0}\n{1}"
-                          .format(unicode(e), traceback.format_exc()))
+        # always in debug mode when parse config
+        logging.exception("Parse config with error:")
         sys.exit(1)
     level = logging.DEBUG if config["debug"] else logging.INFO
     logging_init(level)   # reload logger

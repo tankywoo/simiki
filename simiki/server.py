@@ -70,6 +70,7 @@ def preview(path, url_root, host='localhost', port=8000):
         sys.exit(getattr(e, 'exitcode', 1))
 
     logging.info("Serving at: http://{0}:{1}{2}/".format(host, port, url_root))
+    logging.info("Serving running... (Press CTRL-C to quit)")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt as e:

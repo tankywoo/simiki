@@ -70,11 +70,11 @@ class Initiator(object):
                                  default_theme_name)
         dst_theme = os.path.join(theme_path, default_theme_name)
         if os.path.exists(dst_theme):
-            return
-
-        copytree(src_theme, dst_theme)
-        logging.info("Copying default theme '{0}' to: {1}"
-                     .format(default_theme_name, theme_path))
+            logging.warning('{0} exists'.format(dst_theme))
+        else:
+            copytree(src_theme, dst_theme)
+            logging.info("Copying default theme '{0}' to: {1}"
+                         .format(default_theme_name, theme_path))
 
     def init(self):
         content_path = os.path.join(self.target_path, self.config["source"])
