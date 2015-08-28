@@ -6,9 +6,9 @@ Simiki CLI
 
 Usage:
   simiki init [-p <path>]
-  simiki new -t <title> -c <category> [-f <file>]
-  simiki generate
-  simiki preview [--host <host>] [--port <port>]
+  simiki new | n -t <title> -c <category> [-f <file>]
+  simiki generate | g
+  simiki preview | p [--host <host>] [--port <port>]
   simiki -h | --help
   simiki -V | --version
 
@@ -243,12 +243,12 @@ def execute(args):
     level = logging.DEBUG if config["debug"] else logging.INFO
     logging_init(level)   # reload logger
 
-    if args["generate"]:
+    if args["generate"] or args["g"]:
         generator = Generator(target_path)
         generator.generate()
-    elif args["new"]:
+    elif args["new"] or args["n"]:
         create_new_wiki(args["-c"], args["-t"], args["-f"])
-    elif args["preview"]:
+    elif args["preview"] or args["p"]:
         args['--port'] = int(args['--port'])
         preview(config["destination"], config['root'],
                 args["--host"], args["--port"])
