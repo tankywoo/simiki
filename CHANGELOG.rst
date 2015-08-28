@@ -1,3 +1,12 @@
+v1.4.1 (2015-08-28)
+===================
+
+1. Make if single page generate failed, continue going with others, not exit
+2. Fix --init unicode problem
+3. Improve logging message
+4. Fix #41, empty output dir exclude .git and CNAME
+
+
 v1.4 (2015-08-12)
 ===================
 
