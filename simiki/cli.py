@@ -103,7 +103,9 @@ class Generator(object):
         dest_dir = os.path.join(self.target_path,
                                 self.config["destination"])
         if os.path.exists(dest_dir):
-            emptytree(dest_dir)
+            # for github pages
+            exclude_list = ['.git', 'CNAME']
+            emptytree(dest_dir, exclude_list)
 
         self.generate_pages()
 
