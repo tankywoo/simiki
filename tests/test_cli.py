@@ -22,9 +22,12 @@ INIT_ARGS = {
     u'-p': None,
     u'-t': None,
     u'generate': False,
+    u'g': False,
     u'init': False,
     u'new': False,
-    u'preview': False
+    u'n': False,
+    u'preview': False,
+    u'p':False
 }
 
 
