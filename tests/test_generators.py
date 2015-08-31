@@ -12,8 +12,6 @@ from simiki.config import parse_config, get_default_config
 from simiki.utils import copytree, emptytree
 from simiki.generators import PageGenerator
 
-TESTS_ROOT = os.path.abspath(os.path.dirname(__file__))
-
 
 class TestPageGenerator(unittest.TestCase):
     def setUp(self):
@@ -32,7 +30,7 @@ class TestPageGenerator(unittest.TestCase):
         copytree(s_themes_path, self.d_themes_path)
 
     def test_get_category_and_file(self):
-        src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
+        src_file_path = os.path.join(self.test_path, 'content', 'foo目录',
                                      'foo_page_中文.md')
         generator = PageGenerator(self.config, self.test_path, src_file_path)
         category, filename = generator.get_category_and_file()
@@ -42,7 +40,7 @@ class TestPageGenerator(unittest.TestCase):
         )
 
     def test_get_meta_and_content(self):
-        src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
+        src_file_path = os.path.join(self.test_path, 'content', 'foo目录',
                                      'foo_page_中文.md')
         generator = PageGenerator(self.config, self.test_path, src_file_path)
         meta, content = generator.get_meta_and_content()
@@ -53,20 +51,20 @@ class TestPageGenerator(unittest.TestCase):
                                   'framework, written in Python.</p>')
 
         # get meta notaion error
-        src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
+        src_file_path = os.path.join(self.test_path, 'content', 'foo目录',
                                      'foo_page_中文_meta_error_1.md')
         generator = PageGenerator(self.config, self.test_path,
                                     src_file_path)
         self.assertRaises(Exception, generator.get_meta_and_content)
 
-        src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
+        src_file_path = os.path.join(self.test_path, 'content', 'foo目录',
                                        'foo_page_中文_meta_error_2.md')
         generator = PageGenerator(self.config, self.test_path,
                                     src_file_path)
         self.assertRaises(Exception, generator.get_meta_and_content)
 
     def test_get_template_vars(self):
-        src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
+        src_file_path = os.path.join(self.test_path, 'content', 'foo目录',
                                      'foo_page_中文.md')
         generator = PageGenerator(self.config, self.test_path, src_file_path)
         meta, content = generator.get_meta_and_content()
@@ -90,24 +88,24 @@ class TestPageGenerator(unittest.TestCase):
         assert template_vars == expected_template_vars
 
     def test_to_html(self):
-        src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
+        src_file_path = os.path.join(self.test_path, 'content', 'foo目录',
                                      'foo_page_中文.md')
         generator = PageGenerator(self.config, self.test_path, src_file_path)
         html = generator.to_html().strip()
-        expected_output = os.path.join(TESTS_ROOT, 'expected_output.html')
+        expected_output = os.path.join(self.test_path, 'expected_output.html')
         fd = open(expected_output, "rb")
         year = datetime.date.today().year
         expected_html = unicode(fd.read(), "utf-8") % year
         assert html == expected_html
 
         # load template error
-        src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
+        src_file_path = os.path.join(self.test_path, 'content', 'foo目录',
                                      'foo_page_中文.md')
         generator = PageGenerator(self.config, 'wrong_basepath', src_file_path)
         self.assertRaises(Exception, generator.to_html)
 
     def test_get_layout(self):
-        src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
+        src_file_path = os.path.join(self.test_path, 'content', 'foo目录',
                                      'foo_page_layout_old_post.md')
         generator = PageGenerator(self.config, self.test_path, src_file_path)
         meta, _ = generator.get_meta_and_content()
@@ -115,7 +113,7 @@ class TestPageGenerator(unittest.TestCase):
         layout = generator.get_layout(meta)
         self.assertEqual(layout, 'page')
 
-        src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
+        src_file_path = os.path.join(self.test_path, 'content', 'foo目录',
                                      'foo_page_layout_without_layout.md')
         generator = PageGenerator(self.config, self.test_path, src_file_path)
         meta, _ = generator.get_meta_and_content()
@@ -124,12 +122,12 @@ class TestPageGenerator(unittest.TestCase):
         self.assertEqual(layout, 'page')
 
     def test_get_meta(self):
-        src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
+        src_file_path = os.path.join(self.test_path, 'content', 'foo目录',
                                      'foo_page_get_meta_yaml_error.md')
         generator = PageGenerator(self.config, self.test_path, src_file_path)
         self.assertRaises(Exception, generator.get_meta_and_content)
 
-        src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
+        src_file_path = os.path.join(self.test_path, 'content', 'foo目录',
                                      'foo_page_get_meta_without_title.md')
         generator = PageGenerator(self.config, self.test_path, src_file_path)
         self.assertRaises(Exception, generator.get_meta_and_content)
