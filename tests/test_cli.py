@@ -119,14 +119,23 @@ class TestCliGenerate(unittest.TestCase):
 
 class TestCliNewWiki(unittest.TestCase):
     def setUp(self):
+        test_path = os.path.dirname(os.path.abspath(__file__))
+        base_path = os.path.dirname(test_path)
+        wiki_path = os.path.join(test_path, 'mywiki_for_others')
+        config_file_tpl = os.path.join(base_path, 'simiki',
+                                       'conf_templates', '_config.yml.in')
+        self.config_file_dst = os.path.join(wiki_path, '_config.yml')
+
+        shutil.copyfile(config_file_tpl, self.config_file_dst)
+
         self.args = deepcopy(INIT_ARGS)
         self.title = "hello/simiki"
         self.category = os.path.join('my目录', 'sub-category')
-        self.source_path = os.path.join(TESTS_ROOT, "content")
-        self.odir = os.path.join(TESTS_ROOT, "content", self.category)
-        self.odir_root = os.path.join(TESTS_ROOT, "content",
-                                      self.category.split(os.sep)[0])
-        os.chdir(TESTS_ROOT)
+        self.source_path = os.path.join(wiki_path, "content")
+        self.odir = os.path.join(wiki_path, "content", self.category)
+        self.odir_root = os.path.dirname(self.odir)
+
+        os.chdir(wiki_path)
         if os.path.exists(self.odir_root):
             shutil.rmtree(self.odir_root)
 
@@ -146,6 +155,7 @@ class TestCliNewWiki(unittest.TestCase):
         assert lines == expected_lines
 
     def tearDown(self):
+        os.remove(self.config_file_dst)
         if os.path.exists(self.odir_root):
             shutil.rmtree(self.odir_root)
 
