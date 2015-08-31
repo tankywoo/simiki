@@ -6,8 +6,10 @@ import os
 import os.path
 import unittest
 import datetime
+import shutil
 
 from simiki.config import parse_config, get_default_config
+from simiki.utils import copytree, emptytree
 from simiki.generators import PageGenerator
 
 TESTS_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -23,6 +25,11 @@ class TestPageGenerator(unittest.TestCase):
         self.config = parse_config(self.config_file)
 
         self.base_path = os.path.dirname(__file__)
+
+        self.themes_path = os.path.join(self.base_path, '../', 'simiki',
+                                        'themes')
+        if not os.path.exists('themes'):
+            copytree(self.themes_path, 'themes')
 
     def test_get_category_and_file(self):
         src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
@@ -125,6 +132,11 @@ class TestPageGenerator(unittest.TestCase):
                                      'foo_page_get_meta_without_title.md')
         generator = PageGenerator(self.config, self.base_path, src_file_path)
         self.assertRaises(Exception, generator.get_meta_and_content)
+
+    def tearDown(self):
+        if os.path.exists('themes'):
+            shutil.rmtree('themes')
+
 
 if __name__ == "__main__":
     unittest.main()
