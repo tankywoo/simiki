@@ -96,7 +96,8 @@ class TestPageGenerator(unittest.TestCase):
         html = generator.to_html().strip()
         expected_output = os.path.join(TESTS_ROOT, 'expected_output.html')
         fd = open(expected_output, "rb")
-        expected_html = unicode(fd.read(), "utf-8")
+        year = datetime.date.today().year
+        expected_html = unicode(fd.read(), "utf-8") % year
         assert html == expected_html
 
         # load template error
