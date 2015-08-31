@@ -6,10 +6,11 @@ import unittest
 import datetime
 from simiki.config import parse_config, get_default_config
 
+test_path = os.path.dirname(os.path.abspath(__file__))
+
 
 class TestParseConfig(unittest.TestCase):
     def setUp(self):
-        test_path = os.path.dirname(os.path.abspath(__file__))
         wiki_path = os.path.join(test_path, 'mywiki_for_others')
 
         self.expected_config = get_default_config()

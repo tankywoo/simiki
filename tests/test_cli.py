@@ -12,7 +12,8 @@ from copy import deepcopy
 from simiki import cli
 from simiki.utils import copytree, emptytree
 
-TESTS_ROOT = os.path.abspath(os.path.dirname(__file__))
+test_path = os.path.dirname(os.path.abspath(__file__))
+base_path = os.path.dirname(test_path)
 
 INIT_ARGS = {
     u'--help': False,
@@ -53,7 +54,7 @@ class TestCliInit(unittest.TestCase):
         ]
 
     def test_init(self):
-        os.chdir(TESTS_ROOT)
+        os.chdir(test_path)
         self.args.update({u'init': True, u'-p': self.target_path})
         cli.execute(self.args)
         for f in self.files:
@@ -70,8 +71,6 @@ class TestCliInit(unittest.TestCase):
 class TestCliGenerate(unittest.TestCase):
     def setUp(self):
         self.args = deepcopy(INIT_ARGS)
-        test_path = os.path.dirname(os.path.abspath(__file__))
-        base_path = os.path.dirname(test_path)
         self.wiki_path = os.path.join(test_path, "mywiki_for_cli")
         self.output_path = os.path.join(self.wiki_path, "output")
 
@@ -137,8 +136,6 @@ class TestCliGenerate(unittest.TestCase):
 
 class TestCliNewWiki(unittest.TestCase):
     def setUp(self):
-        test_path = os.path.dirname(os.path.abspath(__file__))
-        base_path = os.path.dirname(test_path)
         wiki_path = os.path.join(test_path, 'mywiki_for_others')
         config_file_tpl = os.path.join(base_path, 'simiki',
                                        'conf_templates', '_config.yml.in')

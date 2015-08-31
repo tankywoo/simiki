@@ -12,21 +12,22 @@ from simiki.config import parse_config, get_default_config
 from simiki.utils import copytree, emptytree
 from simiki.generators import PageGenerator
 
+test_path = os.path.dirname(os.path.abspath(__file__))
+base_path = os.path.dirname(test_path)
+
 
 class TestPageGenerator(unittest.TestCase):
     def setUp(self):
-        test_path = os.path.dirname(os.path.abspath(__file__))
-        self.base_path = os.path.dirname(test_path)
         self.wiki_path = os.path.join(test_path, 'mywiki_for_generator')
 
         os.chdir(self.wiki_path)
 
-        self.config_file = os.path.join(self.base_path, 'simiki',
+        self.config_file = os.path.join(base_path, 'simiki',
                                         'conf_templates', '_config.yml.in')
 
         self.config = parse_config(self.config_file)
 
-        s_themes_path = os.path.join(self.base_path, 'simiki', 'themes')
+        s_themes_path = os.path.join(base_path, 'simiki', 'themes')
         self.d_themes_path = os.path.join('./', 'themes')
         if os.path.exists(self.d_themes_path):
             shutil.rmtree(self.d_themes_path)
