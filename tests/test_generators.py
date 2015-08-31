@@ -17,24 +17,24 @@ TESTS_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 class TestPageGenerator(unittest.TestCase):
     def setUp(self):
-        self.config_file = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "simiki/conf_templates/_config.yml.in"
-        )
+        self.test_path = os.path.dirname(os.path.abspath(__file__))
+        self.base_path = os.path.dirname(self.test_path)
+
+        self.config_file = os.path.join(self.base_path, 'simiki',
+                                        'conf_templates', '_config.yml.in')
 
         self.config = parse_config(self.config_file)
 
-        self.base_path = os.path.dirname(__file__)
-
-        self.themes_path = os.path.join(self.base_path, '../', 'simiki',
-                                        'themes')
-        if not os.path.exists('themes'):
-            copytree(self.themes_path, 'themes')
+        s_themes_path = os.path.join(self.base_path, 'simiki', 'themes')
+        self.d_themes_path = os.path.join('./', 'themes')
+        if os.path.exists(self.d_themes_path):
+            shutil.rmtree(self.d_themes_path)
+        copytree(s_themes_path, self.d_themes_path)
 
     def test_get_category_and_file(self):
         src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
                                      'foo_page_中文.md')
-        generator = PageGenerator(self.config, self.base_path, src_file_path)
+        generator = PageGenerator(self.config, self.test_path, src_file_path)
         category, filename = generator.get_category_and_file()
         self.assertEqual(
             (category, filename),
@@ -44,7 +44,7 @@ class TestPageGenerator(unittest.TestCase):
     def test_get_meta_and_content(self):
         src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
                                      'foo_page_中文.md')
-        generator = PageGenerator(self.config, self.base_path, src_file_path)
+        generator = PageGenerator(self.config, self.test_path, src_file_path)
         meta, content = generator.get_meta_and_content()
         expected_meta = {'date': '2013-10-17 00:03', 'layout': 'page',
                          'title': 'Foo Page 2'}
@@ -55,20 +55,20 @@ class TestPageGenerator(unittest.TestCase):
         # get meta notaion error
         src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
                                      'foo_page_中文_meta_error_1.md')
-        generator = PageGenerator(self.config, self.base_path,
+        generator = PageGenerator(self.config, self.test_path,
                                     src_file_path)
         self.assertRaises(Exception, generator.get_meta_and_content)
 
         src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
                                        'foo_page_中文_meta_error_2.md')
-        generator = PageGenerator(self.config, self.base_path,
+        generator = PageGenerator(self.config, self.test_path,
                                     src_file_path)
         self.assertRaises(Exception, generator.get_meta_and_content)
 
     def test_get_template_vars(self):
         src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
                                      'foo_page_中文.md')
-        generator = PageGenerator(self.config, self.base_path, src_file_path)
+        generator = PageGenerator(self.config, self.test_path, src_file_path)
         meta, content = generator.get_meta_and_content()
         template_vars = generator.get_template_vars(meta, content)
         expected_template_vars = {
@@ -92,7 +92,7 @@ class TestPageGenerator(unittest.TestCase):
     def test_to_html(self):
         src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
                                      'foo_page_中文.md')
-        generator = PageGenerator(self.config, self.base_path, src_file_path)
+        generator = PageGenerator(self.config, self.test_path, src_file_path)
         html = generator.to_html().strip()
         expected_output = os.path.join(TESTS_ROOT, 'expected_output.html')
         fd = open(expected_output, "rb")
@@ -109,7 +109,7 @@ class TestPageGenerator(unittest.TestCase):
     def test_get_layout(self):
         src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
                                      'foo_page_layout_old_post.md')
-        generator = PageGenerator(self.config, self.base_path, src_file_path)
+        generator = PageGenerator(self.config, self.test_path, src_file_path)
         meta, _ = generator.get_meta_and_content()
 
         layout = generator.get_layout(meta)
@@ -117,7 +117,7 @@ class TestPageGenerator(unittest.TestCase):
 
         src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
                                      'foo_page_layout_without_layout.md')
-        generator = PageGenerator(self.config, self.base_path, src_file_path)
+        generator = PageGenerator(self.config, self.test_path, src_file_path)
         meta, _ = generator.get_meta_and_content()
 
         layout = generator.get_layout(meta)
@@ -126,17 +126,17 @@ class TestPageGenerator(unittest.TestCase):
     def test_get_meta(self):
         src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
                                      'foo_page_get_meta_yaml_error.md')
-        generator = PageGenerator(self.config, self.base_path, src_file_path)
+        generator = PageGenerator(self.config, self.test_path, src_file_path)
         self.assertRaises(Exception, generator.get_meta_and_content)
 
         src_file_path = os.path.join(TESTS_ROOT, 'content', 'foo目录',
                                      'foo_page_get_meta_without_title.md')
-        generator = PageGenerator(self.config, self.base_path, src_file_path)
+        generator = PageGenerator(self.config, self.test_path, src_file_path)
         self.assertRaises(Exception, generator.get_meta_and_content)
 
     def tearDown(self):
-        if os.path.exists('themes'):
-            shutil.rmtree('themes')
+        if os.path.exists(self.d_themes_path):
+            shutil.rmtree(self.d_themes_path)
 
 
 if __name__ == "__main__":
