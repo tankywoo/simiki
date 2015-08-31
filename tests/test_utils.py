@@ -6,12 +6,13 @@ import os.path
 import unittest
 from simiki import utils
 
+TEST_PATH = os.path.join(os.path.dirname(__file__), 'mywiki_for_others')
 
 class TestUtils(unittest.TestCase):
 
     def setUp(self):
-        os.chdir(os.path.dirname(__file__))
-        self.content = 'content2'
+        os.chdir(TEST_PATH)
+        self.content = 'content'
         self.output = 'output'
         if os.path.exists(self.output):
             utils.emptytree(self.output)
