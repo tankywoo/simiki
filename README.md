@@ -49,6 +49,7 @@ For more information, `simiki -h` or have a look at [Simiki.org](http://simiki.o
 * [simiki.org](http://simiki.org)
 * <https://github.com/tankywoo/simiki>
 * Email: <me@tankywoo.com>
+* [Simiki Users](https://github.com/tankywoo/simiki/wiki/Simiki-Users)
 
 ## License ##
 
