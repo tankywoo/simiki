@@ -33,6 +33,8 @@ import datetime
 import shutil
 import logging
 import traceback
+import random
+import multiprocessing
 
 from docopt import docopt
 from yaml import YAMLError
@@ -91,12 +93,18 @@ def create_new_wiki(category, title, filename):
             fd.write(meta)
 
 
+def method_proxy(cls_instance, method_name, *args, **kwargs):
+    '''ref: http://stackoverflow.com/a/10217089/1276501'''
+    return getattr(cls_instance, method_name)(*args, **kwargs)
+
+
 class Generator(object):
 
     def __init__(self, target_path):
         self.config = config
         self.target_path = target_path
         self.pages = {}
+        self.page_count = 0
 
     def generate(self):
         logger.debug("Empty the destination directory")
@@ -131,8 +139,8 @@ class Generator(object):
     def generate_pages(self):
         logger.info("Start generating markdown files.")
         content_path = self.config["source"]
+        _pages_l = []
 
-        page_count = 0
         for root, dirs, files in os.walk(content_path):
             files = [f for f in files if not f.startswith(".")]
             dirs[:] = [d for d in dirs if not d.startswith(".")]
@@ -140,25 +148,40 @@ class Generator(object):
                 if not filename.endswith(self.config["default_ext"]):
                     continue
                 md_file = os.path.join(root, filename)
-                try:
-                    page_meta = self.generate_single_page(md_file)
-                except Exception as e:
-                    log_msg = ''
-                    if 'extra_msg' in dir(e):
-                        log_msg = e.extra_msg
-                    if config.get('debug', False):
-                        logger.exception('{0}: {1}'.format(md_file, log_msg))
-                    else:
-                        if log_msg:
-                            log_msg = ', '.join((log_msg, unicode(e)))
-                        else:
-                            log_msg = unicode(e)
-                        logger.error('{0}: {1}'.format(md_file, log_msg))
-                    continue
-                if page_meta:
-                    self.pages[md_file] = page_meta
-                    page_count += 1
-        logger.info("{0} files generated.".format(page_count))
+                _pages_l.append(md_file)
+
+        npage = len(_pages_l)
+        if npage:
+            nproc = min(multiprocessing.cpu_count(), npage)
+
+            split_pages = [[] for n in xrange(0, nproc)]
+            random.shuffle(_pages_l)
+
+            for i in xrange(npage):
+                split_pages[i % nproc].append(_pages_l[i])
+
+            pool = multiprocessing.Pool(processes=nproc)
+            for n in xrange(nproc):
+                pool.apply_async(
+                    method_proxy,
+                    (self, 'generate_multiple_pages', split_pages[n]),
+                    callback=self._generate_callback
+                )
+
+            pool.close()
+            pool.join()
+
+        logger.info("{0} files generated.".format(self.page_count))
+
+    def generate_multiple_pages(self, md_files):
+        _pages = {}
+        _page_count = 0
+        for _f in md_files:
+            page_meta = self.generate_single_page(_f)
+            if page_meta:
+                _pages[_f] = page_meta
+                _page_count += 1
+        return _pages, _page_count
 
     def generate_single_page(self, md_file):
         logger.debug("Generate: {0}".format(md_file))
@@ -182,6 +205,11 @@ class Generator(object):
         self.write_file(html, output_file)
         meta = page_generator.meta
         return meta
+
+    def _generate_callback(self, result):
+        _pages, _count = result
+        self.pages.update(_pages)
+        self.page_count += _count
 
     def install_theme(self):
         """Copy static directory under theme to destination directory"""
