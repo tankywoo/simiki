@@ -26,14 +26,6 @@ env.remote_output = ""
 env.rsync_delete = False
 
 
-def update_simiki():
-    print(blue("Old Version: "))
-    run("simiki -V")
-    run("pip install -U simiki")
-    print(blue("New Version: "))
-    run("simiki -V")
-
-
 def deploy():
     if not env.remote_output:
         if env.rsync_delete:
