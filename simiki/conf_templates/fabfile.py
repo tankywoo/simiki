@@ -58,6 +58,7 @@ def deploy_rsync():
 
 @task
 def deploy():
+    '''deploy your wiki'''
     if 'rsync' in configs:
         deploy_rsync()
     else:
@@ -66,7 +67,7 @@ def deploy():
 
 @task
 def commit():
-    '''Auto commit tracked changes to git'''
+    '''auto commit tracked changes to git'''
     message = 'Update Documentation'
     commit_file = '-u .'  # add all tracked files
 
