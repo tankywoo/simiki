@@ -1,61 +1,80 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+from __future__ import print_function, absolute_import
 
 import os
-import os.path
-from sys import exit
-from fabric.api import env, local, run
+import sys
+from fabric.api import env, local, task
 from fabric.colors import blue, red
 import fabric.contrib.project as project
+from simiki import config
 
-# Remote host and username
-env.hosts = []
-env.user = ""
+# XXX must run fab in root path of wiki
+configs = config.parse_config('_config.yml')
+
 env.colorize_errors = True
 
-# Local output path
-env.local_output = os.path.join(
-    os.path.abspath(os.path.dirname(__file__)),
-    "output/")
-# Remote path to deploy output
-env.remote_output = ""
 
-# Other options
-env.rsync_delete = False
+def do_exit(msg):
+    print(red(msg))
+    print(blue('Exit!'))
+    sys.exit()
 
 
-def deploy():
-    if not env.remote_output:
-        if env.rsync_delete:
-            print(red("You can't enable env.rsync_delete option "
-                      "if env.remote_output is not set!!!"))
-            print(blue("Exit"))
-            exit()
+if 'rsync' in configs:
+    rsync_configs = configs['rsync']
+    if not isinstance(rsync_configs, dict):
+        do_exit('Warning: rsync not set right in _config.yml')
 
-        print(red("Warning: env.remote_output directory is not set!\n"
-                  "This will cause some problems!!!"))
-        ans = raw_input(red("Do you want to continue? (y/N) "))
-        if ans != "y":
-            print(blue("Exit"))
-            exit()
+    env.user = rsync_configs.get('user', 'root')
+    # Remote host and username
+    if 'host' not in rsync_configs:
+        do_exit('Warning: rsync host not set in _config.yml!')
+    env.hosts = [rsync_configs['host'],]
 
+    # Local output path
+    env.local_output = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        configs['destination'])
+
+    # Remote path to deploy output
+    if 'dir' not in rsync_configs:
+        do_exit('Warning: rsync dir not set in _config.yml!')
+    env.remote_output = rsync_configs['dir']
+
+    # Other options
+    env.port = rsync_configs.get('port')
+    env.rsync_delete = rsync_configs.get('delete', False)
+
+
+def deploy_rsync():
     project.rsync_project(
-        local_dir=env.local_output,
-        remote_dir=env.remote_output.rstrip("/") + "/",
+        local_dir=env.local_output.rstrip("/")+"/",
+        remote_dir=env.remote_output.rstrip("/")+"/",
         delete=env.rsync_delete
     )
 
 
+@task
+def deploy():
+    if 'rsync' in configs:
+        deploy_rsync()
+    else:
+        print(blue('do nothing...'))
+
+
+@task
 def g():
     local("simiki generate")
 
 
+@task
 def p():
     local("simiki preview")
 
 
+@task
 def gp():
     g()
     p()
