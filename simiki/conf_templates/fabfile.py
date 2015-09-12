@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, absolute_import
+from __future__ import print_function, absolute_import, with_statement
 
 import os
 import sys
-from fabric.api import env, local, task
+from fabric.api import env, local, task, settings
 from fabric.colors import blue, red
 import fabric.contrib.project as project
 from simiki import config
@@ -65,3 +65,20 @@ def deploy():
 
 
 @task
+def commit():
+    '''Auto commit tracked changes to git'''
+    message = 'Update Documentation'
+    commit_file = '-u .'  # add all tracked files
+
+    with settings(warn_only=True):
+        # Changes not staged for commit
+        res = local('git status --porcelain 2>/dev/null | grep "^ M" | wc -l',
+                    capture=True)
+        if int(res.strip()):
+            local("git add {0}".format(commit_file))
+
+        # Changes to be committed
+        res = local('git status --porcelain 2>/dev/null | grep "^M" | wc -l',
+                    capture=True)
+        if int(res.strip()):
+            local("git commit -m '{0}'".format(message))
