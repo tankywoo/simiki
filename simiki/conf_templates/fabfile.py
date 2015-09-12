@@ -65,16 +65,3 @@ def deploy():
 
 
 @task
-def g():
-    local("simiki generate")
-
-
-@task
-def p():
-    local("simiki preview")
-
-
-@task
-def gp():
-    g()
-    p()
