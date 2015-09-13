@@ -58,12 +58,38 @@ def deploy_rsync():
     )
 
 
+def deploy_git():
+    '''for pages service of such as github/gitcafe ...'''
+    git_configs = configs.get('git')
+    if not isinstance(git_configs, dict):
+        git_configs = {}
+
+    with settings(warn_only=True):
+        res = local('which -s ghp-import; echo $?', capture=True)
+        if int(res.strip()):
+            do_exit('Warning: ghp-import not installed! '
+                    'run: `pip install ghp-import`')
+    output_dir = configs['destination']
+    remote = git_configs.get('remote', 'origin')
+    branch = git_configs.get('branch', 'gh-pages')
+    # commit gh-pages branch and push to remote
+    _mesg = 'Update output documentation'
+    local('ghp-import -p -m "{0}" -r {1} -b {2} {3}' \
+          .format(_mesg, remote, branch, output_dir))
+
+
 @task
 def deploy():
-    '''deploy your wiki'''
-    if 'rsync' in configs:
-        deploy_rsync()
-    else:
+    '''deploy your output to server/git'''
+    done = False
+
+    for deploy_type in ('rsync', 'git'):
+        if deploy_type in configs:
+            func_name = 'deploy_{0}'.format(deploy_type)
+            globals()[func_name]()
+            done = True
+
+    if not done:
         print(blue('do nothing...'))
 
 
