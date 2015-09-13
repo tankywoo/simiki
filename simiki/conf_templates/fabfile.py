@@ -22,12 +22,16 @@ def do_exit(msg):
     sys.exit()
 
 
-# cannot put this block in deploy_rsync() for env.hosts
-if 'rsync' in configs:
-    rsync_configs = configs['rsync']
-    if not isinstance(rsync_configs, dict):
-        do_exit('Warning: rsync not set right in _config.yml')
+def get_rsync_configs():
+    if 'deploy' in configs:
+        for item in configs['deploy']:
+            if item['type'] == 'rsync':
+                return item
+    return None
 
+# cannot put this block in deploy_rsync() for env.hosts
+rsync_configs = get_rsync_configs()
+if rsync_configs:
     env.user = rsync_configs.get('user', 'root')
     # Remote host and username
     if 'host' not in rsync_configs:
@@ -49,7 +53,7 @@ if 'rsync' in configs:
     env.rsync_delete = rsync_configs.get('delete', False)
 
 
-def deploy_rsync():
+def deploy_rsync(deploy_configs):
     '''for rsync'''
     project.rsync_project(
         local_dir=env.local_output.rstrip("/")+"/",
@@ -58,20 +62,16 @@ def deploy_rsync():
     )
 
 
-def deploy_git():
+def deploy_git(deploy_configs):
     '''for pages service of such as github/gitcafe ...'''
-    git_configs = configs.get('git')
-    if not isinstance(git_configs, dict):
-        git_configs = {}
-
     with settings(warn_only=True):
         res = local('which -s ghp-import; echo $?', capture=True)
         if int(res.strip()):
             do_exit('Warning: ghp-import not installed! '
                     'run: `pip install ghp-import`')
     output_dir = configs['destination']
-    remote = git_configs.get('remote', 'origin')
-    branch = git_configs.get('branch', 'gh-pages')
+    remote = deploy_configs.get('remote', 'origin')
+    branch = deploy_configs.get('branch', 'gh-pages')
     # commit gh-pages branch and push to remote
     _mesg = 'Update output documentation'
     local('ghp-import -p -m "{0}" -r {1} -b {2} {3}' \
@@ -81,13 +81,21 @@ def deploy_git():
 @task
 def deploy():
     '''deploy your output to server/git'''
+    if 'deploy' not in configs or not isinstance(configs['deploy'], list):
+        do_exit('Warning: deploy not set right in _config.yml')
+
+    deploy_configs = configs['deploy']
+
     done = False
 
-    for deploy_type in ('rsync', 'git'):
-        if deploy_type in configs:
-            func_name = 'deploy_{0}'.format(deploy_type)
-            globals()[func_name]()
-            done = True
+    for deploy_item in deploy_configs:
+        deploy_type = deploy_item.pop('type')
+        func_name = 'deploy_{0}'.format(deploy_type)
+        func = globals().get(func_name)
+        if not func:
+            do_exit('Warning: not supprt {0} deploy method'.format(deploy_type))
+        func(deploy_item)
+        done = True
 
     if not done:
         print(blue('do nothing...'))
