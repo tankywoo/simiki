@@ -67,9 +67,9 @@ def deploy():
 
 @task
 def commit():
-    '''auto commit tracked changes to git'''
+    '''git commit source changes from all tracked/untracked files'''
     message = 'Update Documentation'
-    commit_file = '-u .'  # add all tracked files
+    commit_file = '-A'  # include tracked and untracked files
 
     with settings(warn_only=True):
         # Changes not staged for commit
