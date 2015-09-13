@@ -22,6 +22,7 @@ def do_exit(msg):
     sys.exit()
 
 
+# cannot put this block in deploy_rsync() for env.hosts
 if 'rsync' in configs:
     rsync_configs = configs['rsync']
     if not isinstance(rsync_configs, dict):
@@ -49,6 +50,7 @@ if 'rsync' in configs:
 
 
 def deploy_rsync():
+    '''for rsync'''
     project.rsync_project(
         local_dir=env.local_output.rstrip("/")+"/",
         remote_dir=env.remote_output.rstrip("/")+"/",
