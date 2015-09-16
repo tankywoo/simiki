@@ -6,6 +6,7 @@ from __future__ import print_function, absolute_import, with_statement
 import os
 import sys
 import ftplib
+import getpass
 from fabric.api import env, local, task, settings
 from fabric.colors import blue, red
 import fabric.contrib.project as project
@@ -88,7 +89,11 @@ def deploy_ftp(deploy_configs):
     if 'user' in deploy_configs:
         login_kwargs.update({'user': deploy_configs['user']})
     if 'password' in deploy_configs:
-        login_kwargs.update({'passwd': deploy_configs['password']})
+        passwd = deploy_configs['password']
+        # when set password key with no value, get None by yaml
+        if passwd is None:
+            passwd = getpass.getpass('Input your ftp password: ')
+        login_kwargs.update({'passwd': passwd})
 
     ftp_dir = deploy_configs.get('dir', '/')
     output_dir = configs['destination']
