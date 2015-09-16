@@ -5,6 +5,7 @@ from __future__ import print_function, absolute_import, with_statement
 
 import os
 import sys
+import ftplib
 from fabric.api import env, local, task, settings
 from fabric.colors import blue, red
 import fabric.contrib.project as project
@@ -76,6 +77,32 @@ def deploy_git(deploy_configs):
     _mesg = 'Update output documentation'
     local('ghp-import -p -m "{0}" -r {1} -b {2} {3}' \
           .format(_mesg, remote, branch, output_dir))
+
+
+def deploy_ftp(deploy_configs):
+    '''for ftp'''
+    conn_kwargs = {'host': deploy_configs['host']}
+    login_kwargs = {}
+    if 'port' in deploy_configs:
+        conn_kwargs.update({'port': deploy_configs['port']})
+    if 'user' in deploy_configs:
+        login_kwargs.update({'user': deploy_configs['user']})
+    if 'password' in deploy_configs:
+        login_kwargs.update({'passwd': deploy_configs['password']})
+
+    ftp_dir = deploy_configs.get('dir', '/')
+    output_dir = configs['destination']
+
+    ftp = ftplib.FTP()
+    ftp.connect(**conn_kwargs)
+    ftp.login(**login_kwargs)
+
+    for root, dirs, files in os.walk(output_dir):
+        rel_root = os.path.relpath(root, output_dir)
+        for fn in files:
+            store_fn = os.path.join(ftp_dir, rel_root, fn)
+            ftp.storbinary('STOR %s' % store_fn,
+                           open(os.path.join(root, fn), 'rb'))
 
 
 @task
