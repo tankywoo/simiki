@@ -109,6 +109,8 @@ def deploy_ftp(deploy_configs):
             ftp.storbinary('STOR %s' % store_fn,
                            open(os.path.join(root, fn), 'rb'))
 
+    ftp.close()
+
 
 @task
 def deploy():
