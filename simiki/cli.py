@@ -8,7 +8,7 @@ Usage:
   simiki init [-p <path>]
   simiki new | n -t <title> -c <category> [-f <file>]
   simiki generate | g
-  simiki preview | p [--host <host>] [--port <port>]
+  simiki preview | p [--host <host>] [--port <port>] [-w]
   simiki -h | --help
   simiki -V | --version
 
@@ -21,6 +21,7 @@ Options:
   -f <file>           Specify the new post filename.
   --host <host>       bind host to preview [default: localhost]
   --port <port>       bind port to preview [default: 8000]
+  -w                  auto regenerated when file changed
 """
 
 from __future__ import print_function, unicode_literals, absolute_import
@@ -44,6 +45,7 @@ from simiki.initiator import Initiator
 from simiki.config import parse_config
 from simiki.log import logging_init
 from simiki.server import preview
+from simiki.watcher import watch
 from simiki.utils import (copytree, emptytree, mkdir_p)
 from simiki import __version__
 
@@ -91,6 +93,20 @@ def create_new_wiki(category, title, filename):
         logger.info("Creating wiki: {0}".format(fn))
         with io.open(fn, "wt", encoding="utf-8") as fd:
             fd.write(meta)
+
+
+def preview_site(host, port, dest, root, do_watch):
+    '''Preview site with watch content'''
+    nproc = 2 if do_watch else 1
+    # TODO fix KeyboardInterrupt
+    pool = multiprocessing.Pool(processes=nproc)
+    pool.apply_async(preview, (dest, root, host, port))
+    if do_watch:
+        base_path = os.getcwdu()
+        pool.apply_async(watch, (config, base_path))
+
+    pool.close()
+    pool.join()
 
 
 def method_proxy(cls_instance, method_name, *args, **kwargs):
@@ -278,8 +294,8 @@ def execute(args):
         create_new_wiki(args["-c"], args["-t"], args["-f"])
     elif args["preview"] or args["p"]:
         args['--port'] = int(args['--port'])
-        preview(config["destination"], config['root'],
-                args["--host"], args["--port"])
+        preview_site(args['--host'], args['--port'], config['destination'],
+                     config['root'], args['-w'])
     else:
         # docopt itself will display the help info.
         pass
