@@ -7,6 +7,7 @@ import os.path
 import shutil
 import errno
 import logging
+import simiki
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +37,8 @@ def check_extension(filename):
         patterns = ["*.md", "*.mkd", "*.markdown"]
         fnmatch.filter(files, pattern)
     """
-
-    allowed_extensions = (".md", ".mkd", ".mdown", ".markdown")
-    return os.path.splitext(filename)[1] in allowed_extensions
+    exts = ['.{0}'.format(e) for e in simiki.allowed_extensions]
+    return os.path.splitext(filename)[1] in exts
 
 
 def copytree(src, dst, symlinks=False, ignore=None):

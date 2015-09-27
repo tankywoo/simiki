@@ -8,6 +8,7 @@ import time
 import io
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
+import simiki
 from simiki.generators import PageGenerator
 from simiki.utils import mkdir_p
 
@@ -16,7 +17,7 @@ _base_path = None
 
 class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
     '''Observe .md files under content directory'''
-    patterns = ["*.md",]
+    patterns = ['*.{0}'.format(e) for e in simiki.allowed_extensions]
 
     @staticmethod
     def write_file(content, output_fname):
