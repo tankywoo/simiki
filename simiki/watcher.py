@@ -15,13 +15,15 @@ _site_config = None
 _base_path = None
 
 class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
-    '''Observe .md files under content directory'''
+    '''Observe .md files under content directory.
+    Temporary only regenerate, not delete unused files'''
     patterns = ['*.{0}'.format(e) for e in simiki.allowed_extensions]
 
-    def process(self, event):
-        pg = PageGenerator(_site_config, _base_path, event.src_path)
+    @staticmethod
+    def generate_page(_file):
+        pg = PageGenerator(_site_config, _base_path, _file)
         html = pg.to_html()
-        category, filename = os.path.split(event.src_path)
+        category, filename = os.path.split(_file)
         category = os.path.relpath(category, _site_config['source'])
         output_fname = os.path.join(
             _base_path,
@@ -30,6 +32,14 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
             '{0}.html'.format(os.path.splitext(filename)[0])
         )
         write_file(output_fname, html)
+        logging.debug('Regenerating: {0}'.format(_file))
+
+    def process(self, event):
+        if event.event_type in ('moved',):
+            _file = event.dest_path
+        else:
+            _file = event.src_path
+        self.generate_page(_file)
 
     def on_created(self, event):
         self.process(event)
@@ -37,6 +47,8 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
     def on_modified(self, event):
         self.process(event)
 
+    def on_moved(self, event):
+        self.process(event)
 
 def watch(site_config, base_path):
     global _site_config, _base_path
