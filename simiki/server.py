@@ -65,7 +65,7 @@ def preview(path, url_root, host='localhost', port=8000):
     try:
         Handler = YARequestHandler
         httpd = Reuse_TCPServer((host, port), Handler)
-    except OSError as e:
+    except (OSError, IOError) as e:
         logging.error("Could not listen on port {0}".format(port))
         sys.exit(getattr(e, 'exitcode', 1))
 
