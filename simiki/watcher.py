@@ -5,12 +5,11 @@ from __future__ import print_function, absolute_import
 import os
 import logging
 import time
-import io
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 import simiki
 from simiki.generators import PageGenerator
-from simiki.utils import mkdir_p
+from simiki.utils import write_file
 
 _site_config = None
 _base_path = None
@@ -18,17 +17,6 @@ _base_path = None
 class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
     '''Observe .md files under content directory'''
     patterns = ['*.{0}'.format(e) for e in simiki.allowed_extensions]
-
-    @staticmethod
-    def write_file(content, output_fname):
-        """Write content to output file."""
-        output_dir, _ = os.path.split(output_fname)
-        if not os.path.exists(output_dir):
-            logging.debug("The output directory %s not exists, create it",
-                          output_dir)
-            mkdir_p(output_dir)
-        with io.open(output_fname, "wt", encoding="utf-8") as fd:
-            fd.write(content)
 
     def process(self, event):
         pg = PageGenerator(_site_config, _base_path, event.src_path)
@@ -41,7 +29,7 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
             category,
             '{0}.html'.format(os.path.splitext(filename)[0])
         )
-        self.write_file(html, output_fname)
+        write_file(output_fname, html)
 
     def on_created(self, event):
         self.process(event)

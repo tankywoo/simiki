@@ -46,7 +46,7 @@ from simiki.config import parse_config
 from simiki.log import logging_init
 from simiki.server import preview
 from simiki.watcher import watch
-from simiki.utils import (copytree, emptytree, mkdir_p)
+from simiki.utils import (copytree, emptytree, mkdir_p, write_file)
 from simiki import __version__
 
 logger = logging.getLogger(__name__)
@@ -150,7 +150,7 @@ class Generator(object):
             self.config["destination"],
             "index.html"
         )
-        self.write_file(html, ofile)
+        write_file(ofile, html)
 
     def generate_pages(self):
         logger.info("Start generating markdown files.")
@@ -218,7 +218,7 @@ class Generator(object):
             '{0}.html'.format(os.path.splitext(filename)[0])
         )
 
-        self.write_file(html, output_file)
+        write_file(output_file, html)
         meta = page_generator.meta
         return meta
 
@@ -246,17 +246,6 @@ class Generator(object):
                               self.config['attach'])
         if os.path.exists(src_p):
             copytree(src_p, dest_p)
-
-    @staticmethod
-    def write_file(content, output_fname):
-        """Write content to output file."""
-        output_dir, _ = os.path.split(output_fname)
-        if not os.path.exists(output_dir):
-            logging.debug("The output directory %s not exists, create it",
-                          output_dir)
-            mkdir_p(output_dir)
-        with io.open(output_fname, "wt", encoding="utf-8") as fd:
-            fd.write(content)
 
 
 def unicode_docopt(args):
