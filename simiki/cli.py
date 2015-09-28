@@ -36,6 +36,7 @@ import logging
 import traceback
 import random
 import multiprocessing
+import time
 
 from docopt import docopt
 from yaml import YAMLError
@@ -98,15 +99,21 @@ def create_new_wiki(category, title, filename):
 def preview_site(host, port, dest, root, do_watch):
     '''Preview site with watch content'''
     nproc = 2 if do_watch else 1
-    # TODO fix KeyboardInterrupt
     pool = multiprocessing.Pool(processes=nproc)
     pool.apply_async(preview, (dest, root, host, port))
     if do_watch:
         base_path = os.getcwdu()
         pool.apply_async(watch, (config, base_path))
 
-    pool.close()
-    pool.join()
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        pool.terminate()
+        pool.join()
+    else:
+        pool.close()
+        pool.join()
 
 
 def method_proxy(cls_instance, method_name, *args, **kwargs):
