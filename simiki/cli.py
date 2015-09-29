@@ -98,22 +98,31 @@ def create_new_wiki(category, title, filename):
 
 def preview_site(host, port, dest, root, do_watch):
     '''Preview site with watch content'''
-    nproc = 2 if do_watch else 1
-    pool = multiprocessing.Pool(processes=nproc)
-    pool.apply_async(preview, (dest, root, host, port))
+    p_server = multiprocessing.Process(
+        target=preview,
+        args=(dest, root, host, port),
+        name='ServerProcess'
+    )
+    p_server.start()
+
     if do_watch:
         base_path = os.getcwdu()
-        pool.apply_async(watch, (config, base_path))
+        p_watcher = multiprocessing.Process(
+            target=watch,
+            args=(config, base_path),
+            name='WatcherProcess'
+        )
+        p_watcher.start()
 
     try:
-        while True:
+        while p_server.is_alive():
             time.sleep(1)
-    except KeyboardInterrupt:
-        pool.terminate()
-        pool.join()
-    else:
-        pool.close()
-        pool.join()
+        else:
+            if do_watch:
+                p_watcher.terminate()
+    except (KeyboardInterrupt, SystemExit):
+        # manually terminate process?
+        pass
 
 
 def method_proxy(cls_instance, method_name, *args, **kwargs):

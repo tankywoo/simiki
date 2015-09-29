@@ -14,6 +14,7 @@ from simiki.utils import write_file
 _site_config = None
 _base_path = None
 
+
 class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
     '''Observe .md files under content directory.
     Temporary only regenerate, not delete unused files'''
@@ -50,6 +51,7 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
     def on_moved(self, event):
         self.process(event)
 
+
 def watch(site_config, base_path):
     global _site_config, _base_path
     _site_config = site_config
@@ -63,6 +65,7 @@ def watch(site_config, base_path):
     try:
         while True:
             time.sleep(1)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, SystemExit):
+        logging.info("Shutting down watcher")
         observer.stop()
     observer.join()

@@ -73,6 +73,6 @@ def preview(path, url_root, host='localhost', port=8000):
     logging.info("Serving running... (Press CTRL-C to quit)")
     try:
         httpd.serve_forever()
-    except KeyboardInterrupt as e:
+    except (KeyboardInterrupt, SystemExit):
         logging.info("Shutting down server")
         httpd.socket.close()
