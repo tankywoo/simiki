@@ -25,22 +25,18 @@ Simiki is short for `Simple Wiki` :)
 
 	pip install -U simiki
 
-### Init Site ###
+### Initialize ###
 
 	mkdir mywiki && cd mywiki
 	simiki init
 
-### Create a new wiki ###
-
-	simiki new -t "Hello Simiki" -c first-category
-
 ### Generate ###
 
-	simiki generate
+	simiki g
 
 ### Preview ###
 
-	simiki preview
+	simiki p
 
 For more information, `simiki -h` or have a look at [Simiki.org](http://simiki.org)
 
