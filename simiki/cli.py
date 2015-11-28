@@ -13,6 +13,13 @@ Usage:
   simiki -h | --help
   simiki -V | --version
 
+Subcommands:
+  init                Initial site
+  new                 Create a new wiki page
+  generate            Generate site
+  preview             Preview site locally (develop mode)
+  update              Update builtin scripts and themes under local site
+
 Options:
   -h, --help          Help information.
   -V, --version       Show version.
