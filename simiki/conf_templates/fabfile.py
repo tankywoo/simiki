@@ -16,6 +16,7 @@ from simiki import config
 configs = config.parse_config('_config.yml')
 
 env.colorize_errors = True
+SUPPORTED_DEPLOY_TYPES = ('rsync', 'git', 'ftp')
 
 
 def do_exit(msg):
@@ -113,10 +114,21 @@ def deploy_ftp(deploy_configs):
 
 
 @task
-def deploy():
-    '''deploy your site, support rsync / ftp / github pages'''
+def deploy(type=None):
+    '''deploy your site, support rsync / ftp / github pages
+
+    run deploy:
+        $ fab deploy
+
+    run deploy with specific type(not supported specify multiple types):
+        $ fab deploy:type=rsync
+
+    '''
     if 'deploy' not in configs or not isinstance(configs['deploy'], list):
         do_exit('Warning: deploy not set right in _config.yml')
+    if type and type not in SUPPORTED_DEPLOY_TYPES:
+        do_exit('Warning: supported deploy type: {0}'
+                .format(', '.join(SUPPORTED_DEPLOY_TYPES)))
 
     deploy_configs = configs['deploy']
 
@@ -124,6 +136,8 @@ def deploy():
 
     for deploy_item in deploy_configs:
         deploy_type = deploy_item.pop('type')
+        if type and deploy_type != type:
+            continue
         func_name = 'deploy_{0}'.format(deploy_type)
         func = globals().get(func_name)
         if not func:
@@ -132,7 +146,10 @@ def deploy():
         done = True
 
     if not done:
-        print(blue('do nothing...'))
+        if type:
+            do_exit('Warning: specific deploy type not configured yet')
+        else:
+            print(blue('do nothing...'))
 
 
 @task
