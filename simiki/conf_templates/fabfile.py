@@ -114,7 +114,7 @@ def deploy_ftp(deploy_configs):
 
 @task
 def deploy():
-    '''deploy your output to server/git'''
+    '''deploy your site, support rsync / ftp / github pages'''
     if 'deploy' not in configs or not isinstance(configs['deploy'], list):
         do_exit('Warning: deploy not set right in _config.yml')
 
