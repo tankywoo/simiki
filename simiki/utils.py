@@ -7,6 +7,8 @@ import os.path
 import shutil
 import errno
 import logging
+import io
+import simiki
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +38,8 @@ def check_extension(filename):
         patterns = ["*.md", "*.mkd", "*.markdown"]
         fnmatch.filter(files, pattern)
     """
-
-    allowed_extensions = (".md", ".mkd", ".mdown", ".markdown")
-    return os.path.splitext(filename)[1] in allowed_extensions
+    exts = ['.{0}'.format(e) for e in simiki.allowed_extensions]
+    return os.path.splitext(filename)[1] in exts
 
 
 def copytree(src, dst, symlinks=False, ignore=None):
@@ -102,6 +103,16 @@ def listdir_nohidden(path):
             f = unicode(f, "utf-8")
         if not f.startswith('.'):
             yield f
+
+
+def write_file(filename, content):
+    """Write content to file."""
+    _dir, _ = os.path.split(filename)
+    if not os.path.exists(_dir):
+        logging.debug("The directory %s not exists, create it", _dir)
+        mkdir_p(_dir)
+    with io.open(filename, "wt", encoding="utf-8") as fd:
+        fd.write(content)
 
 
 if __name__ == "__main__":

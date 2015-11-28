@@ -8,7 +8,7 @@ Usage:
   simiki init [-p <path>]
   simiki new | n -t <title> -c <category> [-f <file>]
   simiki generate | g
-  simiki preview | p [--host <host>] [--port <port>]
+  simiki preview | p [--host <host>] [--port <port>] [-w]
   simiki -h | --help
   simiki -V | --version
 
@@ -21,6 +21,7 @@ Options:
   -f <file>           Specify the new post filename.
   --host <host>       bind host to preview [default: localhost]
   --port <port>       bind port to preview [default: 8000]
+  -w                  auto regenerated when file changed
 """
 
 from __future__ import print_function, unicode_literals, absolute_import
@@ -35,6 +36,7 @@ import logging
 import traceback
 import random
 import multiprocessing
+import time
 
 from docopt import docopt
 from yaml import YAMLError
@@ -44,7 +46,8 @@ from simiki.initiator import Initiator
 from simiki.config import parse_config
 from simiki.log import logging_init
 from simiki.server import preview
-from simiki.utils import (copytree, emptytree, mkdir_p)
+from simiki.watcher import watch
+from simiki.utils import (copytree, emptytree, mkdir_p, write_file)
 from simiki import __version__
 
 logger = logging.getLogger(__name__)
@@ -93,6 +96,35 @@ def create_new_wiki(category, title, filename):
             fd.write(meta)
 
 
+def preview_site(host, port, dest, root, do_watch):
+    '''Preview site with watch content'''
+    p_server = multiprocessing.Process(
+        target=preview,
+        args=(dest, root, host, port),
+        name='ServerProcess'
+    )
+    p_server.start()
+
+    if do_watch:
+        base_path = os.getcwdu()
+        p_watcher = multiprocessing.Process(
+            target=watch,
+            args=(config, base_path),
+            name='WatcherProcess'
+        )
+        p_watcher.start()
+
+    try:
+        while p_server.is_alive():
+            time.sleep(1)
+        else:
+            if do_watch:
+                p_watcher.terminate()
+    except (KeyboardInterrupt, SystemExit):
+        # manually terminate process?
+        pass
+
+
 def method_proxy(cls_instance, method_name, *args, **kwargs):
     '''ref: http://stackoverflow.com/a/10217089/1276501'''
     return getattr(cls_instance, method_name)(*args, **kwargs)
@@ -134,7 +166,7 @@ class Generator(object):
             self.config["destination"],
             "index.html"
         )
-        self.write_file(html, ofile)
+        write_file(ofile, html)
 
     def generate_pages(self):
         logger.info("Start generating markdown files.")
@@ -202,7 +234,7 @@ class Generator(object):
             '{0}.html'.format(os.path.splitext(filename)[0])
         )
 
-        self.write_file(html, output_file)
+        write_file(output_file, html)
         meta = page_generator.meta
         return meta
 
@@ -230,17 +262,6 @@ class Generator(object):
                               self.config['attach'])
         if os.path.exists(src_p):
             copytree(src_p, dest_p)
-
-    @staticmethod
-    def write_file(content, output_fname):
-        """Write content to output file."""
-        output_dir, _ = os.path.split(output_fname)
-        if not os.path.exists(output_dir):
-            logging.debug("The output directory %s not exists, create it",
-                          output_dir)
-            mkdir_p(output_dir)
-        with io.open(output_fname, "wt", encoding="utf-8") as fd:
-            fd.write(content)
 
 
 def unicode_docopt(args):
@@ -278,8 +299,8 @@ def execute(args):
         create_new_wiki(args["-c"], args["-t"], args["-f"])
     elif args["preview"] or args["p"]:
         args['--port'] = int(args['--port'])
-        preview(config["destination"], config['root'],
-                args["--host"], args["--port"])
+        preview_site(args['--host'], args['--port'], config['destination'],
+                     config['root'], args['-w'])
     else:
         # docopt itself will display the help info.
         pass
