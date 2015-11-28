@@ -156,6 +156,12 @@ class Generator(object):
 
         self.copy_attach()
 
+        # for github pages with custom domain
+        cname_file = os.path.join(os.getcwdu(), 'CNAME')
+        if os.path.exists(cname_file):
+            shutil.copy2(cname_file,
+                         os.path.join(self.config['destination'], 'CNAME'))
+
     def generate_catalog(self, pages):
         logger.info("Generate catalog page.")
         catalog_generator = CatalogGenerator(self.config, self.target_path,
