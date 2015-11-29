@@ -63,7 +63,7 @@ def parse_config(config_file):
         config = yaml.load(fd)
 
     default_config.update(config)
-    config = _post_process(deepcopy(default_config))
+    config = _post_process(default_config)
 
     return config
 
