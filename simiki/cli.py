@@ -27,9 +27,9 @@ Options:
   -c <category>       Specify the category.
   -t <title>          Specify the new post title.
   -f <file>           Specify the new post filename.
-  --host <host>       bind host to preview [default: localhost]
-  --port <port>       bind port to preview [default: 8000]
-  -w                  auto regenerated when file changed
+  --host <host>       Bind host to preview [default: localhost]
+  --port <port>       Bind port to preview [default: 8000]
+  -w                  Auto regenerated when file changed
 """
 
 from __future__ import print_function, unicode_literals, absolute_import
