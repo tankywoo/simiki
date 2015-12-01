@@ -50,7 +50,7 @@ import hashlib
 from docopt import docopt
 from yaml import YAMLError
 
-from simiki.generators import (PageGenerator, CatalogGenerator)
+from simiki.generators import (PageGenerator, CatalogGenerator, FeedGenerator)
 from simiki.initiator import Initiator
 from simiki.config import parse_config
 from simiki.log import logging_init
@@ -230,6 +230,10 @@ class Generator(object):
         if not os.path.exists(os.path.join(self.config['source'], 'index.md')):
             self.generate_catalog(self.pages)
 
+        feed_fn = 'atom.xml'
+        if os.path.exists(os.path.join(os.getcwdu(), feed_fn)):
+            self.generate_feed(self.pages, feed_fn)
+
         self.install_theme()
 
         self.copy_attach()
@@ -239,6 +243,18 @@ class Generator(object):
         if os.path.exists(cname_file):
             shutil.copy2(cname_file,
                          os.path.join(self.config['destination'], 'CNAME'))
+
+    def generate_feed(self, pages, feed_fn):
+        logger.info("Generate feed.")
+        feed_generator = FeedGenerator(self.config, self.target_path, pages,
+                                       feed_fn)
+        feed = feed_generator.generate_feed()
+        ofile = os.path.join(
+            self.target_path,
+            self.config["destination"],
+            feed_fn
+        )
+        write_file(ofile, feed)
 
     def generate_catalog(self, pages):
         logger.info("Generate catalog page.")
