@@ -211,6 +211,7 @@ class Generator(object):
 
     def __init__(self, target_path):
         self.config = config
+        self.config.update({'version': __version__})
         self.target_path = target_path
         self.pages = {}
         self.page_count = 0
