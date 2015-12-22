@@ -20,6 +20,8 @@ import markdown
 import yaml
 from jinja2 import (Environment, FileSystemLoader, TemplateError)
 
+from simiki import jinja_exts
+
 PLAT_LINE_SEP = '\n'
 
 
@@ -41,6 +43,12 @@ class BaseGenerator(object):
         self.env = Environment(
             loader=FileSystemLoader(_template_path)
         )
+        self._jinja_load_exts()
+
+    def _jinja_load_exts(self):
+        '''Load jinja custom filters and extensions'''
+        for _filter in jinja_exts.filters:
+            self.env.filters[_filter] = getattr(jinja_exts, _filter)
 
 
 class PageGenerator(BaseGenerator):
