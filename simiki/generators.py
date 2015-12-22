@@ -18,7 +18,7 @@ except ImportError:
 
 import markdown
 import yaml
-from jinja2 import (Environment, FileSystemLoader, Template, TemplateError)
+from jinja2 import (Environment, FileSystemLoader, TemplateError)
 
 PLAT_LINE_SEP = '\n'
 
@@ -290,6 +290,6 @@ class FeedGenerator(BaseGenerator):
     def generate_feed(self):
         tpl_vars = self.get_template_vars()
         with open(os.path.join(self.base_path, self.feed_fn), 'r') as fd:
-            template = Template(fd.read())
+            template = self.env.from_string(fd.read())
             feed_content = template.render(tpl_vars)
         return feed_content
