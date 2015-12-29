@@ -11,6 +11,7 @@ import os
 import os.path
 import io
 import copy
+import traceback
 try:
     from collections import OrderedDict
 except ImportError:
@@ -67,9 +68,12 @@ class PageGenerator(BaseGenerator):
         try:
             template = self.env.get_template(template_file)
             html = template.render(template_vars)
-        except TemplateError as e:
-            e.extra_msg = "unable to load template '{0}'".format(template_file)
-            raise
+        except TemplateError:
+            # jinja2.exceptions.TemplateNotFound will get blocked
+            # in multiprocessing?
+            exc_msg = "unable to load template '{0}'\n{1}" \
+                      .format(template_file, traceback.format_exc())
+            raise Exception(exc_msg)
 
         return html
 
