@@ -105,8 +105,8 @@ class TestPageGenerator(unittest.TestCase):
         # load template error
         src_file_path = os.path.join(self.wiki_path, 'content', 'foo目录',
                                      'foo_page_中文.md')
-        generator = PageGenerator(self.config, 'wrong_basepath', src_file_path)
-        self.assertRaises(Exception, generator.to_html)
+        self.assertRaises(Exception, PageGenerator, self.config,
+                          'wrong_basepath', src_file_path)
 
     def test_get_layout(self):
         src_file_path = os.path.join(self.wiki_path, 'content', 'foo目录',

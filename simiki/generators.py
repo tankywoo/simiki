@@ -39,6 +39,8 @@ class BaseGenerator(object):
             site_config["themes_dir"],
             site_config["theme"]
         )
+        if not os.path.exists(_template_path):
+            raise Exception("Theme `{0}' not exists".format(_template_path))
         self.env = Environment(
             loader=FileSystemLoader(_template_path)
         )
