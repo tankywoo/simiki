@@ -277,15 +277,18 @@ class Generator(object):
                 split_pages[i % nproc].append(_pages_l[i])
 
             pool = multiprocessing.Pool(processes=nproc)
+            results = []
             for n in xrange(nproc):
-                pool.apply_async(
+                r = pool.apply_async(
                     method_proxy,
                     (self, 'generate_multiple_pages', split_pages[n]),
                     callback=self._generate_callback
                 )
+                results.append(r)
 
             pool.close()
-            pool.join()
+            for r in results:
+                r.get()
 
         logger.info("{0} files generated.".format(self.page_count))
 
@@ -293,7 +296,11 @@ class Generator(object):
         _pages = {}
         _page_count = 0
         for _f in md_files:
-            page_meta = self.generate_single_page(_f)
+            try:
+                page_meta = self.generate_single_page(_f)
+            except Exception:
+                logger.critical('{0} failed to generate'.format(_f))
+                raise
             if page_meta:
                 _pages[_f] = page_meta
                 _page_count += 1
