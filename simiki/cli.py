@@ -299,8 +299,8 @@ class Generator(object):
             try:
                 page_meta = self.generate_single_page(_f)
             except Exception:
-                logger.critical('{0} failed to generate'.format(_f))
-                raise
+                page_meta = None
+                logger.exception('{0} failed to generate:'.format(_f))
             if page_meta:
                 _pages[_f] = page_meta
                 _page_count += 1
