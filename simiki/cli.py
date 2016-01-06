@@ -41,7 +41,6 @@ import io
 import datetime
 import shutil
 import logging
-import traceback
 import random
 import multiprocessing
 import time
@@ -70,7 +69,7 @@ def init_site(target_path):
     try:
         initiator = Initiator(default_config_file, target_path)
         initiator.init()
-    except Exception as e:
+    except Exception:
         # always in debug mode when init site
         logging.exception("Initialize site with error:")
         sys.exit(1)
@@ -376,7 +375,7 @@ def execute(args):
     config_file = os.path.join(target_path, "_config.yml")
     try:
         config = parse_config(config_file)
-    except (Exception, YAMLError) as e:
+    except (Exception, YAMLError):
         # always in debug mode when parse config
         logging.exception("Parse config with error:")
         sys.exit(1)
