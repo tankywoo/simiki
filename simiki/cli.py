@@ -289,7 +289,12 @@ class Generator(object):
             for r in results:
                 r.get()
 
-        logger.info("{0} files generated.".format(self.page_count))
+        generate_result = "{0} files generated.".format(self.page_count)
+        # for failed pages
+        _err_npage = npage - self.page_count
+        if _err_npage:
+            generate_result += " {0} files failed.".format(_err_npage)
+        logger.info(generate_result)
 
     def generate_multiple_pages(self, md_files):
         _pages = {}
