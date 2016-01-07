@@ -361,8 +361,12 @@ def unicode_docopt(args):
             args[k] = args[k].decode('utf-8')
 
 
-def execute(args):
+def main(args=None):
     global config
+
+    if not args:
+        args = docopt(__doc__, version="Simiki {0}".format(__version__))
+    unicode_docopt(args)
 
     logging_init(logging.DEBUG)
 
@@ -370,39 +374,31 @@ def execute(args):
 
     if args["init"]:
         init_site(target_path)
-        return
-
-    config_file = os.path.join(target_path, "_config.yml")
-    try:
-        config = parse_config(config_file)
-    except (Exception, YAMLError):
-        # always in debug mode when parse config
-        logging.exception("Parse config with error:")
-        sys.exit(1)
-    level = logging.DEBUG if config["debug"] else logging.INFO
-    logging_init(level)   # reload logger
-
-    if args["generate"] or args["g"]:
-        generator = Generator(target_path)
-        generator.generate()
-    elif args["new"] or args["n"]:
-        create_new_wiki(args["-c"], args["-t"], args["-f"])
-    elif args["preview"] or args["p"]:
-        args['--port'] = int(args['--port'])
-        preview_site(args['--host'], args['--port'], config['destination'],
-                     config['root'], args['-w'])
-    elif args["update"]:
-        update_builtin()
     else:
-        # docopt itself will display the help info.
-        pass
+        config_file = os.path.join(target_path, "_config.yml")
+        try:
+            config = parse_config(config_file)
+        except (Exception, YAMLError):
+            # always in debug mode when parse config
+            logging.exception("Parse config with error:")
+            sys.exit(1)
+        level = logging.DEBUG if config["debug"] else logging.INFO
+        logging_init(level)   # reload logger
 
-
-def main():
-    args = docopt(__doc__, version="Simiki {0}".format(__version__))
-    unicode_docopt(args)
-
-    execute(args)
+        if args["generate"] or args["g"]:
+            generator = Generator(target_path)
+            generator.generate()
+        elif args["new"] or args["n"]:
+            create_new_wiki(args["-c"], args["-t"], args["-f"])
+        elif args["preview"] or args["p"]:
+            args['--port'] = int(args['--port'])
+            preview_site(args['--host'], args['--port'], config['destination'],
+                         config['root'], args['-w'])
+        elif args["update"]:
+            update_builtin()
+        else:
+            # docopt itself will display the help info.
+            pass
 
     logger.info("Done.")
 

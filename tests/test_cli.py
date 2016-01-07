@@ -28,7 +28,7 @@ INIT_ARGS = {
     u'new': False,
     u'n': False,
     u'preview': False,
-    u'p':False
+    u'p': False
 }
 
 
@@ -56,7 +56,7 @@ class TestCliInit(unittest.TestCase):
     def test_init(self):
         os.chdir(test_path)
         self.args.update({u'init': True, u'-p': self.target_path})
-        cli.execute(self.args)
+        cli.main(self.args)
         for f in self.files:
             self.assertTrue(os.path.isfile(os.path.join(self.target_path, f)))
 
@@ -110,7 +110,7 @@ class TestCliGenerate(unittest.TestCase):
 
     def test_generate(self):
         self.args.update({u'generate': True})
-        cli.execute(self.args)
+        cli.main(self.args)
         for f in self.drafts:
             self.assertFalse(os.path.isfile(os.path.join(self.wiki_path, f)))
 
@@ -159,7 +159,7 @@ class TestCliNewWiki(unittest.TestCase):
 
         self.args.update({u'new': True, u'-t': self.title,
                           u'-c': self.category})
-        cli.execute(self.args)
+        cli.main(self.args)
         self.assertTrue(os.path.isfile(ofile))
 
         with io.open(ofile, "rt", encoding="utf-8") as fd:
