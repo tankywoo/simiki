@@ -39,6 +39,22 @@ class ANSIFormatter(Formatter):
             return msg
 
 
+class NonANSIFormatter(Formatter):
+    '''Non ANSI color format'''
+
+    def format(self, record):
+        try:
+            msg = super(NonANSIFormatter, self).format(record)
+        except:
+            # for python2.6
+            # Formatter is old-style class in python2.6 and type is classobj
+            # another trick: http://stackoverflow.com/a/18392639/1276501
+            msg = Formatter.format(self, record)
+
+        rln = record.levelname
+        return "[{0}]: {1}".format(rln, msg)
+
+
 def _is_platform_allowed_ansi():
     '''ansi be used on linux/macos'''
     platform = sys.platform
@@ -54,8 +70,7 @@ def logging_init(level=None, logger=getLogger(),
     if use_color and _is_platform_allowed_ansi():
         fmt = ANSIFormatter()
     else:
-        # TODO common formatter use [] without color
-        fmt = Formatter()
+        fmt = NonANSIFormatter()
     handler.setFormatter(fmt)
     logger.addHandler(handler)
 
