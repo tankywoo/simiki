@@ -15,15 +15,21 @@ Simiki is a simple wiki framework, written in [Python](https://www.python.org/).
 
 Simiki is short for `Simple Wiki` :)
 
-## Quick Start ##
 
-### Install ###
+## Installation ##
+
+It is available for **Python 2.6 and Python 2.7**, with Linux, Mac OS X and Windows.
+
+Install from [PyPI](https://pypi.python.org/pypi/simiki):
 
 	pip install simiki
 
-### Update ###
+Update:
 
 	pip install -U simiki
+
+
+## Quick Start ##
 
 ### Init Site ###
 
@@ -44,12 +50,14 @@ Simiki is short for `Simple Wiki` :)
 
 For more information, `simiki -h` or have a look at [Simiki.org](http://simiki.org)
 
+
 ## Others ##
 
 * [simiki.org](http://simiki.org)
 * <https://github.com/tankywoo/simiki>
 * Email: <me@tankywoo.com>
 * [Simiki Users](https://github.com/tankywoo/simiki/wiki/Simiki-Users)
+
 
 ## License ##
 
