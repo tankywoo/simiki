@@ -12,6 +12,8 @@ from copy import deepcopy
 from pprint import pprint
 import yaml
 
+import tzlocal
+
 
 class ConfigFileNotFound(Exception):
     pass
@@ -33,7 +35,7 @@ def _set_default_config():
         "default_ext": "md",
         "pygments": True,
         "debug": False,
-        "time": datetime.datetime.now(),
+        "time": datetime.datetime.now(tzlocal.get_localzone()),
     }
     return config
 

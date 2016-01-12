@@ -21,6 +21,8 @@ import markdown
 import yaml
 from jinja2 import (Environment, FileSystemLoader, TemplateError)
 
+from simiki import jinja_exts
+
 PLAT_LINE_SEP = '\n'
 
 
@@ -44,6 +46,12 @@ class BaseGenerator(object):
         self.env = Environment(
             loader=FileSystemLoader(_template_path)
         )
+        self._jinja_load_exts()
+
+    def _jinja_load_exts(self):
+        '''Load jinja custom filters and extensions'''
+        for _filter in jinja_exts.filters:
+            self.env.filters[_filter] = getattr(jinja_exts, _filter)
 
 
 class PageGenerator(BaseGenerator):
@@ -269,3 +277,33 @@ class CatalogGenerator(BaseGenerator):
         tpl_vars = self.get_template_vars()
         html = self.env.get_template("index.html").render(tpl_vars)
         return html
+
+
+class FeedGenerator(BaseGenerator):
+    def __init__(self, site_config, base_path, pages, feed_fn='atom.xml'):
+        '''
+        :pages: all pages' meta variables, dict type
+        '''
+        super(FeedGenerator, self).__init__(site_config, base_path)
+        self.pages = pages
+        self.feed_fn = feed_fn
+
+    def get_template_vars(self):
+        tpl_vars = {
+            "site": self.site_config,
+            "pages": self.pages
+        }
+
+        # if site.root endwith `\`, remote it.
+        site_root = tpl_vars["site"]["root"]
+        if site_root.endswith("/"):
+            tpl_vars["site"]["root"] = site_root[:-1]
+
+        return tpl_vars
+
+    def generate_feed(self):
+        tpl_vars = self.get_template_vars()
+        with open(os.path.join(self.base_path, self.feed_fn), 'r') as fd:
+            template = self.env.from_string(fd.read())
+            feed_content = template.render(tpl_vars)
+        return feed_content
