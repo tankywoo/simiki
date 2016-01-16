@@ -1,5 +1,13 @@
 HTMLCOV="htmlcov/"
 
+help:
+	@echo "Please use \`make <target>' where <target> is one of"
+	@echo "  tox        to run test by tox"
+	@echo "  test       to run test by nosetests with coverage"
+	@echo "  covhtml    to run test by nosetests and create html report"
+	@echo "  clean      to clean temporary files without .tox"
+	@echo "  cleanall   to clean temporary files with .tox"
+
 tox: clean
 	tox
 
