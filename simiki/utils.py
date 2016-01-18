@@ -9,6 +9,7 @@ import errno
 import logging
 import io
 import simiki
+from simiki.compat import unicode
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +101,7 @@ def listdir_nohidden(path):
     """List not hidden files or directories under path"""
     for f in os.listdir(path):
         if isinstance(f, str):
-            f = unicode(f, "utf-8")
+            f = unicode(f)
         if not f.startswith('.'):
             yield f
 

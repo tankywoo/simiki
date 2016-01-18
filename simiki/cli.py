@@ -57,6 +57,12 @@ from simiki.server import preview
 from simiki.watcher import watch
 from simiki.utils import (copytree, emptytree, mkdir_p, write_file)
 from simiki import __version__
+from simiki.compat import unicode, basestring, xrange
+
+try:
+    from os import getcwdu
+except ImportError:
+    from os import getcwd as getcwdu
 
 logger = logging.getLogger(__name__)
 config = None
@@ -114,7 +120,7 @@ def preview_site(host, port, dest, root, do_watch):
     p_server.start()
 
     if do_watch:
-        base_path = os.getcwdu()
+        base_path = getcwdu()
         p_watcher = multiprocessing.Process(
             target=watch,
             args=(config, base_path),
@@ -230,7 +236,7 @@ class Generator(object):
             self.generate_catalog(self.pages)
 
         feed_fn = 'atom.xml'
-        if os.path.exists(os.path.join(os.getcwdu(), feed_fn)):
+        if os.path.exists(os.path.join(getcwdu(), feed_fn)):
             self.generate_feed(self.pages, feed_fn)
 
         self.install_theme()
@@ -238,7 +244,7 @@ class Generator(object):
         self.copy_attach()
 
         # for github pages with custom domain
-        cname_file = os.path.join(os.getcwdu(), 'CNAME')
+        cname_file = os.path.join(getcwdu(), 'CNAME')
         if os.path.exists(cname_file):
             shutil.copy2(cname_file,
                          os.path.join(self.config['destination'], 'CNAME'))
@@ -391,7 +397,7 @@ def main(args=None):
 
     logging_init(logging.DEBUG)
 
-    target_path = args['-p'] if args['-p'] else os.getcwdu()
+    target_path = args['-p'] if args['-p'] else getcwdu()
 
     if args["init"]:
         init_site(target_path)

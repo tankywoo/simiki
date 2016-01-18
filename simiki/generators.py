@@ -22,6 +22,10 @@ import yaml
 from jinja2 import (Environment, FileSystemLoader, TemplateError)
 
 from simiki import jinja_exts
+from simiki.compat import is_py2, is_py3
+
+if is_py3:
+    from functools import cmp_to_key
 
 PLAT_LINE_SEP = '\n'
 
@@ -246,13 +250,21 @@ class CatalogGenerator(BaseGenerator):
         def _cmp(arg1, arg2):
             arg1 = arg1[1]["title"] if "title" in arg1[1] else arg1[0]
             arg2 = arg2[1]["title"] if "title" in arg2[1] else arg2[0]
+            # cmp not exists in py3
+            # via <https://docs.python.org/3.0/whatsnew/3.0.html#ordering-comparisons>
+            cmp = lambda x, y: (x > y) - (x < y)
             return cmp(arg1.lower(), arg2.lower())
+
+        if is_py2:
+            sorted_opts = {'cmp': _cmp}
+        elif is_py3:
+            sorted_opts = {'key': cmp_to_key(_cmp)}
 
         sorted_structure = copy.deepcopy(structure)
         for k, _ in sorted_structure.items():
             sorted_structure = OrderedDict(sorted(
                 sorted_structure.items(),
-                _cmp
+                **sorted_opts
             ))
             if k.endswith(".{0}".format(self.site_config["default_ext"])):
                 continue
