@@ -2,7 +2,7 @@
 
 {% macro list_page(pages, parent_url, parent_id) -%}
       <ul>
-        {%- for page_k, page_v in pages.iteritems() %}
+        {%- for page_k, page_v in pages.items() %}
           {% if site.default_ext in page_k %}
         <li class="pagelist">
           <a href="{{ parent_url }}/{{ page_v.name }}.html">{{ page_v.title }}</a>
@@ -23,7 +23,7 @@
     <div id="wiki_title">{{ site.title }}</div>
 
     <div id="index">
-  {% for category_name, pages in site.structure.iteritems() %}
+  {% for category_name, pages in site.structure.items() %}
     {# Top-level wiki pages not display in index #}
     {% if site.default_ext not in category_name %}
     <h2 id="{{ category_name }}">{{ category_name }}</h2>

@@ -11,6 +11,7 @@ import shutil
 from simiki.config import parse_config, get_default_config
 from simiki.utils import copytree, emptytree
 from simiki.generators import PageGenerator
+from simiki.compat import unicode
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 base_path = os.path.dirname(test_path)

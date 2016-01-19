@@ -6,20 +6,40 @@ import os
 import os.path
 import sys
 import logging
-import SimpleHTTPServer
-import SocketServer
-import urllib2
 
+try:
+    import SimpleHTTPServer as http_server
+except ImportError:
+    # py3
+    import http.server as http_server
+
+try:
+    import SocketServer as socket_server
+except ImportError:
+    # py3
+    import socketserver as socket_server
+
+try:
+    import urllib2 as urllib_request
+except ImportError:
+    # py3
+    import urllib.request as urllib_request
+
+try:
+    from os import getcwdu
+except ImportError:
+    # py3
+    from os import getcwd as getcwdu
 
 URL_ROOT = None
 PUBLIC_DIRECTORY = None
 
 
-class Reuse_TCPServer(SocketServer.TCPServer):
+class Reuse_TCPServer(socket_server.TCPServer):
     allow_reuse_address = True
 
 
-class YARequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+class YARequestHandler(http_server.SimpleHTTPRequestHandler):
 
     def translate_path(self, path):
         if URL_ROOT and self.path.startswith(URL_ROOT):
@@ -28,8 +48,8 @@ class YARequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             else:
                 return PUBLIC_DIRECTORY + path[len(URL_ROOT):]
         else:
-            return SimpleHTTPServer.SimpleHTTPRequestHandler \
-                                   .translate_path(self, path)
+            return http_server.SimpleHTTPRequestHandler \
+                .translate_path(self, path)
 
     def do_GET(self):
         # redirect url
@@ -37,7 +57,7 @@ class YARequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.send_response(301)
             self.send_header('Location', URL_ROOT + self.path)
             self.end_headers()
-        SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
+        http_server.SimpleHTTPRequestHandler.do_GET(self)
 
 
 def preview(path, url_root, host='localhost', port=8000):
@@ -55,8 +75,8 @@ def preview(path, url_root, host='localhost', port=8000):
     if url_root.endswith('/'):
         url_root = url_root[:-1]
 
-    URL_ROOT = urllib2.quote(url_root.encode('utf-8'))
-    PUBLIC_DIRECTORY = os.path.join(os.getcwdu(), path)
+    URL_ROOT = urllib_request.quote(url_root.encode('utf-8'))
+    PUBLIC_DIRECTORY = os.path.join(getcwdu(), path)
 
     if os.path.exists(path):
         os.chdir(path)

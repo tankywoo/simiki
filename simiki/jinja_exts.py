@@ -5,6 +5,7 @@ Jinja2 custom filters and extensions
 '''
 import datetime
 import tzlocal
+from simiki.compat import basestring
 
 filters = ['rfc3339']
 
