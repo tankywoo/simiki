@@ -57,7 +57,7 @@ from simiki.server import preview
 from simiki.watcher import watch
 from simiki.utils import (copytree, emptytree, mkdir_p, write_file)
 from simiki import __version__
-from simiki.compat import unicode, basestring, xrange
+from simiki.compat import unicode, basestring, xrange, raw_input
 
 try:
     from os import getcwdu
@@ -147,9 +147,11 @@ def update_builtin():
                               'fabfile.py')
     _fabfile_l = os.path.join(os.getcwd(), 'fabfile.py')
     if os.path.exists(_fabfile_l):
-        with open(_fabfile_r, 'r') as _fd:
+        # py3 require md5 with bytes object, otherwise raise
+        # TypeError: Unicode-objects must be encoded before hashing
+        with open(_fabfile_r, 'rb') as _fd:
             _fabfile_r_md5 = hashlib.md5(_fd.read()).hexdigest()
-        with open(_fabfile_l, 'r') as _fd:
+        with open(_fabfile_l, 'rb') as _fd:
             _fabfile_l_md5 = hashlib.md5(_fd.read()).hexdigest()
         if _fabfile_l_md5 != _fabfile_r_md5:
             try:
@@ -178,11 +180,11 @@ def update_builtin():
                 files = [f for f in files if not f.startswith(".")]
                 dirs[:] = [d for d in dirs if not d.startswith(".")]
                 for filename in files:
-                    with open(os.path.join(root, filename), 'r') as _fd:
+                    with open(os.path.join(root, filename), 'rb') as _fd:
                         _theme_r_md5 = hashlib.md5(_fd.read()).hexdigest()
                     _dir = os.path.relpath(root, _theme_r)
                     with open(os.path.join(_theme_l, _dir, filename),
-                              'r') as _fd:
+                              'rb') as _fd:
                         _theme_l_md5 = hashlib.md5(_fd.read()).hexdigest()
                     if _theme_l_md5 != _theme_r_md5:
                         _need_update = True

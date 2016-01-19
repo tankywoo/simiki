@@ -21,10 +21,10 @@ if is_py2:
     unicode = unicode
     basestring = basestring
     xrange = xrange
+    raw_input = raw_input
 
 if is_py3:
     unicode = str
     basestring = (str, bytes)
     xrange = range
-
-
+    raw_input = input
