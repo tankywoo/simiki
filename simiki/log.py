@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
-import sys
 import logging
 from logging import getLogger, Formatter, StreamHandler
 
 from simiki import utils
+from simiki.compat import is_linux, is_osx
 
 
 class ANSIFormatter(Formatter):
@@ -57,9 +57,7 @@ class NonANSIFormatter(Formatter):
 
 def _is_platform_allowed_ansi():
     '''ansi be used on linux/macos'''
-    platform = sys.platform
-    if platform.startswith('linux') or \
-       platform == 'darwin':
+    if is_linux or is_osx:
         return True
     else:
         return False

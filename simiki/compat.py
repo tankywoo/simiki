@@ -15,6 +15,20 @@ is_py2 = (_ver[0] == 2)
 is_py3 = (_ver[0] == 3)
 
 
+_platform = sys.platform
+
+# Windows
+is_windows = _platform.startswith('win32')
+
+# Linux
+is_linux = _platform.startswith('linux')
+
+# Mac OS X
+is_osx = _platform.startswith('darwin')
+
+# TODO Windows/Cygwin for 'cygwin'?
+
+
 # Specifics
 
 if is_py2:
