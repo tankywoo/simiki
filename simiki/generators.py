@@ -114,7 +114,10 @@ class PageGenerator(BaseGenerator):
 
         meta = self._get_meta(PLAT_LINE_SEP.join(meta_textlist))
         markup_text = PLAT_LINE_SEP.join(markup_textlist)
-        content = self._parse_markdown(markup_text)
+        if meta.get('render', True):
+            content = self._parse_markdown(markup_text)
+        else:
+            content = markup_text
 
         return (meta, content)
 
