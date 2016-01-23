@@ -1,3 +1,22 @@
+v1.5.0-1 (2016-01-23)
+===================
+
+- Improve generate speed by multiple processes
+- Fix CNAME be deleted when do generate problem
+- Update fabfile(for Fabric)
+
+  * Remove ``update_simiki``, ``g``, ``p``, ``gp`` subcommands
+  * Add ``git`` and ``ftp`` deployment support
+  * Move deploy configuration to _config.yml
+  * Add ``commit`` subcommand to quick commit task
+
+- Add ``-w`` option. Watch content directory and auto do generate if modified
+- Add ``update`` subcommand to update builtin scripts and themes
+- add Atom.xml support (not stable), add ``rfc3339`` custom filter
+- Add new site/page variable ``version``, meta variable ``render``
+- Add Python3.3 and Python3.4 supprt
+
+
 v1.4.1 (2015-08-28)
 ===================
 
@@ -20,9 +39,9 @@ v1.4 (2015-08-12)
 v1.3 (2015-03-04)
 ===================
 
-1. Add `site.time` variable, the generated time.
+1. Add ``site.time`` variable, the generated time.
 2. Improve encoding
-3. Add `--update-them` when generate to improve generation speed
+3. Add ``--update-them`` when generate to improve generation speed
 4. Fix #36, add attach directory to put attachments.
 5. Fix #33, only show color logging message on Linux/MacOS
 
