@@ -6,9 +6,13 @@ import unittest
 import datetime
 from simiki.config import parse_config, get_default_config
 
+test_path = os.path.dirname(os.path.abspath(__file__))
+
 
 class TestParseConfig(unittest.TestCase):
     def setUp(self):
+        wiki_path = os.path.join(test_path, 'mywiki_for_others')
+
         self.expected_config = get_default_config()
         self.expected_config.update({
             "author": "Tanky Woo",
@@ -25,9 +29,7 @@ class TestParseConfig(unittest.TestCase):
             "title": "\u6211\u7684Wiki",
             "url": "http://wiki.tankywoo.com"
         })
-        self.config_file = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "tests", "configs", "config_sample.yml")
+        self.config_file = os.path.join(wiki_path, "config_sample.yml")
 
     def test_parse_config(self):
         config = parse_config(self.config_file)

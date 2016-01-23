@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
-import sys
 import logging
 from logging import getLogger, Formatter, StreamHandler
 
 from simiki import utils
+from simiki.compat import is_linux, is_osx
 
 
 class ANSIFormatter(Formatter):
@@ -39,11 +39,25 @@ class ANSIFormatter(Formatter):
             return msg
 
 
+class NonANSIFormatter(Formatter):
+    '''Non ANSI color format'''
+
+    def format(self, record):
+        try:
+            msg = super(NonANSIFormatter, self).format(record)
+        except:
+            # for python2.6
+            # Formatter is old-style class in python2.6 and type is classobj
+            # another trick: http://stackoverflow.com/a/18392639/1276501
+            msg = Formatter.format(self, record)
+
+        rln = record.levelname
+        return "[{0}]: {1}".format(rln, msg)
+
+
 def _is_platform_allowed_ansi():
     '''ansi be used on linux/macos'''
-    platform = sys.platform
-    if platform.startswith('linux') or \
-       platform == 'darwin':
+    if is_linux or is_osx:
         return True
     else:
         return False
@@ -54,8 +68,7 @@ def logging_init(level=None, logger=getLogger(),
     if use_color and _is_platform_allowed_ansi():
         fmt = ANSIFormatter()
     else:
-        # TODO common formatter use [] without color
-        fmt = Formatter()
+        fmt = NonANSIFormatter()
     handler.setFormatter(fmt)
     logger.addHandler(handler)
 

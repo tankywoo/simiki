@@ -11,6 +11,7 @@ import os
 import os.path
 import io
 import copy
+import traceback
 try:
     from collections import OrderedDict
 except ImportError:
@@ -19,6 +20,12 @@ except ImportError:
 import markdown
 import yaml
 from jinja2 import (Environment, FileSystemLoader, TemplateError)
+
+from simiki import jinja_exts
+from simiki.compat import is_py2, is_py3
+
+if is_py3:
+    from functools import cmp_to_key
 
 PLAT_LINE_SEP = '\n'
 
@@ -38,9 +45,17 @@ class BaseGenerator(object):
             site_config["themes_dir"],
             site_config["theme"]
         )
+        if not os.path.exists(_template_path):
+            raise Exception("Theme `{0}' not exists".format(_template_path))
         self.env = Environment(
             loader=FileSystemLoader(_template_path)
         )
+        self._jinja_load_exts()
+
+    def _jinja_load_exts(self):
+        '''Load jinja custom filters and extensions'''
+        for _filter in jinja_exts.filters:
+            self.env.filters[_filter] = getattr(jinja_exts, _filter)
 
 
 class PageGenerator(BaseGenerator):
@@ -67,9 +82,12 @@ class PageGenerator(BaseGenerator):
         try:
             template = self.env.get_template(template_file)
             html = template.render(template_vars)
-        except TemplateError as e:
-            e.extra_msg = "unable to load template '{0}'".format(template_file)
-            raise
+        except TemplateError:
+            # jinja2.exceptions.TemplateNotFound will get blocked
+            # in multiprocessing?
+            exc_msg = "unable to load template '{0}'\n{1}" \
+                      .format(template_file, traceback.format_exc())
+            raise Exception(exc_msg)
 
         return html
 
@@ -96,7 +114,10 @@ class PageGenerator(BaseGenerator):
 
         meta = self._get_meta(PLAT_LINE_SEP.join(meta_textlist))
         markup_text = PLAT_LINE_SEP.join(markup_textlist)
-        content = self._parse_markdown(markup_text)
+        if meta.get('render', True):
+            content = self._parse_markdown(markup_text)
+        else:
+            content = markup_text
 
         return (meta, content)
 
@@ -232,13 +253,21 @@ class CatalogGenerator(BaseGenerator):
         def _cmp(arg1, arg2):
             arg1 = arg1[1]["title"] if "title" in arg1[1] else arg1[0]
             arg2 = arg2[1]["title"] if "title" in arg2[1] else arg2[0]
+            # cmp not exists in py3
+            # via <https://docs.python.org/3.0/whatsnew/3.0.html#ordering-comparisons>
+            cmp = lambda x, y: (x > y) - (x < y)
             return cmp(arg1.lower(), arg2.lower())
+
+        if is_py2:
+            sorted_opts = {'cmp': _cmp}
+        elif is_py3:
+            sorted_opts = {'key': cmp_to_key(_cmp)}
 
         sorted_structure = copy.deepcopy(structure)
         for k, _ in sorted_structure.items():
             sorted_structure = OrderedDict(sorted(
                 sorted_structure.items(),
-                _cmp
+                **sorted_opts
             ))
             if k.endswith(".{0}".format(self.site_config["default_ext"])):
                 continue
@@ -263,3 +292,33 @@ class CatalogGenerator(BaseGenerator):
         tpl_vars = self.get_template_vars()
         html = self.env.get_template("index.html").render(tpl_vars)
         return html
+
+
+class FeedGenerator(BaseGenerator):
+    def __init__(self, site_config, base_path, pages, feed_fn='atom.xml'):
+        '''
+        :pages: all pages' meta variables, dict type
+        '''
+        super(FeedGenerator, self).__init__(site_config, base_path)
+        self.pages = pages
+        self.feed_fn = feed_fn
+
+    def get_template_vars(self):
+        tpl_vars = {
+            "site": self.site_config,
+            "pages": self.pages
+        }
+
+        # if site.root endwith `\`, remote it.
+        site_root = tpl_vars["site"]["root"]
+        if site_root.endswith("/"):
+            tpl_vars["site"]["root"] = site_root[:-1]
+
+        return tpl_vars
+
+    def generate_feed(self):
+        tpl_vars = self.get_template_vars()
+        with open(os.path.join(self.base_path, self.feed_fn), 'r') as fd:
+            template = self.env.from_string(fd.read())
+            feed_content = template.render(tpl_vars)
+        return feed_content

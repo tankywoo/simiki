@@ -1,13 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function, with_statement, unicode_literals
 import unittest
 import logging
-from StringIO import StringIO
+
+try:
+    # py2
+    from cStringIO import StringIO
+except ImportError:
+    try:
+        # py2
+        from StringIO import StringIO
+    except ImportError:
+        # py3
+        # from io import BytesIO as StringIO
+        from io import StringIO as StringIO
 
 import nose
 
 from simiki.utils import color_msg
 from simiki.log import logging_init
+from simiki.compat import is_py2
 
 
 class TestLogInit(unittest.TestCase):
@@ -35,11 +48,17 @@ class TestLogInit(unittest.TestCase):
         for level in l2c:
             # self.handler.flush()
             self.stream.truncate(0)
+            # in python 3.x, truncate(0) would not change the current file pos
+            # via <http://stackoverflow.com/a/4330829/1276501>
+            self.stream.seek(0)
             func = getattr(self.logger, level)
             func(level)
             expected_output = "[{0}]: {1}" \
                 .format(color_msg(l2c[level], level.upper()), level)
-            self.assertEqual(self.stream.getvalue().strip(), expected_output)
+            stream_output = self.stream.getvalue().strip()
+            if is_py2:
+                stream_output = unicode(stream_output)
+            self.assertEqual(stream_output, expected_output)
 
     def tearDown(self):
         logging.disable(logging.CRITICAL)
