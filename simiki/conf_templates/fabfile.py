@@ -68,7 +68,7 @@ def deploy_rsync(deploy_configs):
 def deploy_git(deploy_configs):
     '''for pages service of such as github/gitcafe ...'''
     with settings(warn_only=True):
-        res = local('which -s ghp-import; echo $?', capture=True)
+        res = local('which ghp-import > /dev/null 2>&1; echo $?', capture=True)
         if int(res.strip()):
             do_exit('Warning: ghp-import not installed! '
                     'run: `pip install ghp-import`')
