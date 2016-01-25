@@ -228,8 +228,8 @@ class Generator(object):
         dest_dir = os.path.join(self.target_path,
                                 self.config["destination"])
         if os.path.exists(dest_dir):
-            # for github pages
-            exclude_list = ['.git', 'CNAME']
+            # for github pages and favicon.ico
+            exclude_list = ['.git', 'CNAME', 'favicon.ico']
             emptytree(dest_dir, exclude_list)
 
         self.generate_pages()
@@ -245,11 +245,14 @@ class Generator(object):
 
         self.copy_attach()
 
-        # for github pages with custom domain
-        cname_file = os.path.join(getcwdu(), 'CNAME')
-        if os.path.exists(cname_file):
-            shutil.copy2(cname_file,
-                         os.path.join(self.config['destination'], 'CNAME'))
+        # for default supported files to be copied to output/
+        # CNAME for github pages with custom domain
+        # TODO favicon can be other formats, such as .png, use glob match?
+        for _fn in ('CNAME', 'favicon.ico'):
+            _file = os.path.join(getcwdu(), _fn)
+            if os.path.exists(_file):
+                shutil.copy2(_file,
+                             os.path.join(self.config['destination'], _fn))
 
     def generate_feed(self, pages, feed_fn):
         logger.info("Generate feed.")
