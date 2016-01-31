@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from __future__ import print_function, absolute_import, with_statement
 
 import os
@@ -39,7 +38,7 @@ if rsync_configs:
     # Remote host and username
     if 'host' not in rsync_configs:
         do_exit('Warning: rsync host not set in _config.yml!')
-    env.hosts = [rsync_configs['host'],]
+    env.hosts = [rsync_configs['host'], ]
 
     # Local output path
     env.local_output = os.path.join(
@@ -77,7 +76,7 @@ def deploy_git(deploy_configs):
     branch = deploy_configs.get('branch', 'gh-pages')
     # commit gh-pages branch and push to remote
     _mesg = 'Update output documentation'
-    local('ghp-import -p -m "{0}" -r {1} -b {2} {3}' \
+    local('ghp-import -p -m "{0}" -r {1} -b {2} {3}'
           .format(_mesg, remote, branch, output_dir))
 
 
@@ -141,7 +140,8 @@ def deploy(type=None):
         func_name = 'deploy_{0}'.format(deploy_type)
         func = globals().get(func_name)
         if not func:
-            do_exit('Warning: not supprt {0} deploy method'.format(deploy_type))
+            do_exit('Warning: not supprt {0} deploy method'
+                    .format(deploy_type))
         func(deploy_item)
         done = True
 
@@ -154,19 +154,54 @@ def deploy(type=None):
 
 @task
 def commit():
-    '''git commit source changes from all tracked/untracked files'''
+    '''git commit source changes from all tracked files
+
+    include:
+
+      - add all tracked files in the work tree, include modified(M), deleted(D)
+      - commit all files in the index, include added(A), modified(M),
+        renamed(R), deleted(D)
+      - untracked files should be manually added to the index before
+        run this task
+
+    before do commit, it requires to confirm the files to be committed; and
+    the requirement before do add is a future feature, it is currently
+    disabled.
+    '''
     message = 'Update Documentation'
-    commit_file = '-A'  # include tracked and untracked files
+    yes_ans = ('y', 'yes')
 
     with settings(warn_only=True):
-        # Changes not staged for commit
-        res = local('git status --porcelain 2>/dev/null | grep "^ M" | wc -l',
-                    capture=True)
+        # Changes in the work tree to add
+        add_file = '--update .'  # include tracked files
+        # hack of res.return_code without warning info
+        res = local('git diff --quiet --exit-code; echo $?', capture=True)
         if int(res.strip()):
-            local("git add {0}".format(commit_file))
+            if False:  # future feature?
+                # TODO: there use diff to uniform with below, and the
+                # output can be formatted like `git add --dry-run --update .`
+                test_res = local('git diff --name-status', capture=True)
+                try:
+                    _ans = raw_input('\n{0}\nAdd these files to index? (y/N) '
+                                     .format(test_res.strip()))
+                    if _ans.lower() in yes_ans:
+                        local("git add {0}".format(add_file))
+                except (KeyboardInterrupt, SystemExit):
+                    pass
+            else:
+                local("git add {0}".format(add_file))
 
-        # Changes to be committed
-        res = local('git status --porcelain 2>/dev/null | grep "^M" | wc -l',
+        # Changes in the index to commit
+        res = local('git diff --cached --quiet --exit-code; echo $?',
                     capture=True)
         if int(res.strip()):
-            local("git commit -m '{0}'".format(message))
+            test_res = local('git diff --cached --name-status', capture=True)
+            try:
+                _ans = raw_input('\n{0}\nCommit these files? (y/N) '
+                                 .format(test_res.strip()))
+                if _ans.lower() in yes_ans:
+                    local("git commit -m '{0}'".format(message))
+            except (KeyboardInterrupt, SystemExit):
+                pass
+        else:
+            print('Nothing to commit.')
