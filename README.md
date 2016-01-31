@@ -69,6 +69,8 @@ Following links are the contribution guidelines you may need:
 * [Fork A Repo](https://help.github.com/articles/fork-a-repo/)
 * [Contributing to Processing with Pull Requests](https://github.com/processing/processing/wiki/Contributing-to-Processing-with-Pull-Requests)
 
+Thanks to every [contributor](https://github.com/tankywoo/simiki/graphs/contributors).
+
 
 ## License ##
 
