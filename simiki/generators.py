@@ -12,6 +12,7 @@ import os.path
 import io
 import copy
 import traceback
+import warnings
 try:
     from collections import OrderedDict
 except ImportError:
@@ -121,13 +122,15 @@ class PageGenerator(BaseGenerator):
 
         return (meta, content)
 
-    @staticmethod
-    def get_layout(meta):
-        """Get layout config in meta, default is 'page'"""
+    def get_layout(self, meta):
+        """Get layout config in meta, default is `page'"""
         if "layout" in meta:
             # Compatible with previous version, which default layout is "post"
             # XXX Will remove this checker in v2.0
             if meta["layout"] == "post":
+                warnings.warn("{0}: layout `post' is deprecated, use `page'"
+                              .format(self.src_file_relpath),
+                              DeprecationWarning)
                 layout = "page"
             else:
                 layout = meta["layout"]

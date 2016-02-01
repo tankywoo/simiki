@@ -45,6 +45,7 @@ import random
 import multiprocessing
 import time
 import hashlib
+import warnings
 
 from docopt import docopt
 from yaml import YAMLError
@@ -63,6 +64,9 @@ try:
     from os import getcwdu
 except ImportError:
     from os import getcwd as getcwdu
+
+# Enable DeprecationWarning, etc.
+warnings.simplefilter('default')
 
 logger = logging.getLogger(__name__)
 config = None
