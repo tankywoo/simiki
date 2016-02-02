@@ -128,9 +128,14 @@ class PageGenerator(BaseGenerator):
             # Compatible with previous version, which default layout is "post"
             # XXX Will remove this checker in v2.0
             if meta["layout"] == "post":
-                warnings.warn("{0}: layout `post' is deprecated, use `page'"
-                              .format(self.src_file_relpath),
-                              DeprecationWarning)
+                warn_msg = "{0}: layout `post' is deprecated, use `page'" \
+                           .format(self.src_file_relpath)
+                if is_py2:
+                    # XXX: warnings message require str, no matter whether
+                    # py2 or py3; but in py3, bytes message is ok in simple
+                    # test, but failed in unittest with py3.3, ok with py3.4?
+                    warn_msg = warn_msg.encode('utf-8')
+                warnings.warn(warn_msg, DeprecationWarning)
                 layout = "page"
             else:
                 layout = meta["layout"]
