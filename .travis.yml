@@ -12,4 +12,5 @@ install:
 script: nosetests -v --with-coverage --cover-package=simiki --cover-erase -s
 
 after_success:
-  coveralls
+  - pip install coveralls
+  - coveralls
