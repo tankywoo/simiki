@@ -262,7 +262,7 @@ class CatalogGenerator(BaseGenerator):
             arg1 = arg1[1]["title"] if "title" in arg1[1] else arg1[0]
             arg2 = arg2[1]["title"] if "title" in arg2[1] else arg2[0]
             # cmp not exists in py3
-            # via <https://docs.python.org/3.0/whatsnew/3.0.html#ordering-comparisons>
+            # via <https://docs.python.org/3.0/whatsnew/3.0.html#ordering-comparisons> # noqa
             cmp = lambda x, y: (x > y) - (x < y)
             return cmp(arg1.lower(), arg2.lower())
 
