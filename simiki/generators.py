@@ -41,6 +41,7 @@ class BaseGenerator(object):
         '''
         self.site_config = copy.deepcopy(site_config)
         self.base_path = base_path
+        self._templates = {}  # templates cache
         _template_path = os.path.join(
             self.base_path,
             site_config["themes_dir"],
@@ -58,37 +59,44 @@ class BaseGenerator(object):
         for _filter in jinja_exts.filters:
             self.env.filters[_filter] = getattr(jinja_exts, _filter)
 
+    def get_template(self, name):
+        '''Return the template by layout name'''
+        if name not in self._templates:
+            try:
+                self._templates[name] = self.env.get_template(name + '.html')
+            except TemplateError:
+                # jinja2.exceptions.TemplateNotFound will get blocked
+                # in multiprocessing?
+                exc_msg = "unable to load template '{0}.html'\n{1}" \
+                          .format(name, traceback.format_exc())
+                raise Exception(exc_msg)
+
+        return self._templates[name]
+
 
 class PageGenerator(BaseGenerator):
 
-    def __init__(self, site_config, base_path, src_file_path):
-        '''
-        :src_file_path: path of a source file
-        '''
+    def __init__(self, site_config, base_path):
         super(PageGenerator, self).__init__(site_config, base_path)
-        self.src_file_path = src_file_path
-        # source file path relative to base_path
-        self.src_file_relpath = os.path.relpath(src_file_path, self.base_path)
+        self.src_file_path = None
+        self.src_file_relpath = None  # source file path relative to base_path
         self.meta = None
         self.content = None
 
-    def to_html(self):
-        """Load template, and generate html"""
+    def to_html(self, src_file_path):
+        """Load template, and generate html
+
+        :src_file_path: path of a source file
+        """
+        self.src_file_path = src_file_path
+        self.src_file_relpath = os.path.relpath(src_file_path, self.base_path)
         self.meta, self.content = self.get_meta_and_content()
         if self.meta.get('draft', False):
             return None
         layout = self.get_layout(self.meta)
-        template_file = "{0}.html".format(layout)
         template_vars = self.get_template_vars(self.meta, self.content)
-        try:
-            template = self.env.get_template(template_file)
-            html = template.render(template_vars)
-        except TemplateError:
-            # jinja2.exceptions.TemplateNotFound will get blocked
-            # in multiprocessing?
-            exc_msg = "unable to load template '{0}'\n{1}" \
-                      .format(template_file, traceback.format_exc())
-            raise Exception(exc_msg)
+        template = self.get_template(layout)
+        html = template.render(template_vars)
 
         return html
 

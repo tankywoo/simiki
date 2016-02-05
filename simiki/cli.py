@@ -330,9 +330,10 @@ class Generator(object):
     def generate_multiple_pages(self, md_files):
         _pages = {}
         _page_count = 0
+        page_generator = PageGenerator(self.config, self.target_path)
         for _f in md_files:
             try:
-                page_meta = self.generate_single_page(_f)
+                page_meta = self.generate_single_page(page_generator, _f)
             except Exception:
                 page_meta = None
                 logger.exception('{0} failed to generate:'.format(_f))
@@ -341,11 +342,9 @@ class Generator(object):
                 _page_count += 1
         return _pages, _page_count
 
-    def generate_single_page(self, md_file):
+    def generate_single_page(self, generator, md_file):
         logger.debug("Generate: {0}".format(md_file))
-        page_generator = PageGenerator(self.config, self.target_path,
-                                       os.path.realpath(md_file))
-        html = page_generator.to_html()
+        html = generator.to_html(os.path.realpath(md_file))
 
         # ignore draft
         if not html:
@@ -361,7 +360,7 @@ class Generator(object):
         )
 
         write_file(output_file, html)
-        meta = page_generator.meta
+        meta = generator.meta
         return meta
 
     def _generate_callback(self, result):
