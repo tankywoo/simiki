@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """ Convert Markdown file to html, which is embeded in html template.
 """
 
@@ -78,18 +77,19 @@ class PageGenerator(BaseGenerator):
 
     def __init__(self, site_config, base_path):
         super(PageGenerator, self).__init__(site_config, base_path)
-        self.src_file_path = None
-        self.src_file_relpath = None  # source file path relative to base_path
+        self._src_file = None
+        self._src_file_rel = None  # source file path relative to base_path
         self.meta = None
         self.content = None
 
-    def to_html(self, src_file_path):
+    def to_html(self, src_file):
         """Load template, and generate html
 
-        :src_file_path: path of a source file
+        :src_file: the filename of the source file. This can either be an
+                   absolute filename or a filename relative to the base path.
         """
-        self.src_file_path = src_file_path
-        self.src_file_relpath = os.path.relpath(src_file_path, self.base_path)
+        self._src_file = src_file
+        self._src_file_rel = os.path.relpath(self._src_file, self.base_path)
         self.meta, self.content = self.get_meta_and_content()
         if self.meta.get('draft', False):
             return None
@@ -100,6 +100,15 @@ class PageGenerator(BaseGenerator):
 
         return html
 
+    @property
+    def src_file(self):
+        return self._src_file
+
+    @src_file.setter
+    def src_file(self, filename):
+        self._src_file = filename
+        self._src_file_rel = os.path.relpath(filename, self.base_path)
+
     def get_meta_and_content(self):
         """Split the source file texts by triple-dashed lines, return the mata
         and content.
@@ -107,7 +116,7 @@ class PageGenerator(BaseGenerator):
         content is html parsed from markdown or other markup text.
         """
         meta_notation = "---"
-        with io.open(self.src_file_path, "rt", encoding="utf-8") as fd:
+        with io.open(self._src_file, "rt", encoding="utf-8") as fd:
             textlist = fd.read().lstrip().splitlines()
             if textlist[0] != meta_notation:
                 raise Exception("disallow anything except newline "
@@ -137,7 +146,7 @@ class PageGenerator(BaseGenerator):
             # XXX Will remove this checker in v2.0
             if meta["layout"] == "post":
                 warn_msg = "{0}: layout `post' is deprecated, use `page'" \
-                           .format(self.src_file_relpath)
+                           .format(self._src_file_rel)
                 if is_py2:
                     # XXX: warnings message require str, no matter whether
                     # py2 or py3; but in py3, bytes message is ok in simple
@@ -178,7 +187,7 @@ class PageGenerator(BaseGenerator):
     def get_category_and_file(self):
         """Get the name of category and file(with extension)"""
         src_file_relpath_to_source = \
-            os.path.relpath(self.src_file_relpath, self.site_config['source'])
+            os.path.relpath(self._src_file_rel, self.site_config['source'])
         category, filename = os.path.split(src_file_relpath_to_source)
         return (category, filename)
 
