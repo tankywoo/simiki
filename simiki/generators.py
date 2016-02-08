@@ -73,6 +73,19 @@ class BaseGenerator(object):
 
         return self._templates[name]
 
+    def _get_template_vars(self):
+        '''Return the common template variables'''
+        template_vars = {
+            'site': self.site_config,
+        }
+
+        # if site.root endswith '/`, remove it.
+        site_root = template_vars['site']['root']
+        if site_root.endswith('/'):
+            template_vars['site']['root'] = site_root[:-1]
+
+        return template_vars
+
 
 class PageGenerator(BaseGenerator):
 
@@ -153,6 +166,7 @@ class PageGenerator(BaseGenerator):
 
     def get_template_vars(self, meta, content):
         """Get template variables, include site config and page config"""
+        template_vars = self._get_template_vars()
         category, src_fname = self.get_category_and_file()
         dst_fname = src_fname.replace(
             ".{0}".format(self.site_config["default_ext"]), ".html")
@@ -162,15 +176,7 @@ class PageGenerator(BaseGenerator):
             "filename": dst_fname
         }
         page.update(meta)
-        template_vars = {
-            "site": self.site_config,
-            "page": page,
-        }
-
-        # if site.root endswith `/`, remove it.
-        site_root = template_vars["site"]["root"]
-        if site_root.endswith("/"):
-            template_vars["site"]["root"] = site_root[:-1]
+        template_vars.update({'page': page})
 
         return template_vars
 
@@ -293,18 +299,11 @@ class CatalogGenerator(BaseGenerator):
         return sorted_structure
 
     def get_template_vars(self):
-        self.site_config["structure"] = \
-            self.sort_structure(self.get_content_structure_and_meta())
-        tpl_vars = {
-            "site": self.site_config,
-        }
+        template_vars = self._get_template_vars()
+        structure = self.sort_structure(self.get_content_structure_and_meta())
+        template_vars['site'].update({'structure': structure})
 
-        # if site.root endwith `\`, remote it.
-        site_root = tpl_vars["site"]["root"]
-        if site_root.endswith("/"):
-            tpl_vars["site"]["root"] = site_root[:-1]
-
-        return tpl_vars
+        return template_vars
 
     def generate_catalog_html(self):
         tpl_vars = self.get_template_vars()
