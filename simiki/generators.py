@@ -10,6 +10,7 @@ import os
 import os.path
 import io
 import copy
+import re
 import traceback
 import warnings
 try:
@@ -112,27 +113,19 @@ class PageGenerator(BaseGenerator):
         meta is page's meta data, dict type.
         content is html parsed from markdown or other markup text.
         """
-        meta_notation = "---"
+        regex = re.compile('(?sm)^---(?P<meta>.*?)^---(?P<body>.*)')
         with io.open(self._src_file, "rt", encoding="utf-8") as fd:
-            textlist = fd.read().lstrip().splitlines()
-            if textlist[0] != meta_notation:
-                raise Exception("disallow anything except newline "
-                                "before begin meta notation '---'")
-            textlist = textlist[1:]
-
-        try:
-            second_meta_notation_index = textlist.index(meta_notation)
-        except ValueError:
-            raise Exception("can't find end meta notation '---'")
-        meta_textlist = textlist[:second_meta_notation_index]
-        markup_textlist = textlist[second_meta_notation_index+1:]
-
-        meta = self._get_meta(PLAT_LINE_SEP.join(meta_textlist))
-        markup_text = PLAT_LINE_SEP.join(markup_textlist)
-        if meta.get('render', True):
-            content = self._parse_markdown(markup_text)
-        else:
-            content = markup_text
+            match_obj = re.match(regex, fd.read())
+            if match_obj:
+                meta = self._get_meta(match_obj.group('meta'))
+                text = match_obj.group('body')
+                if meta.get('render', True):
+                    content = self._parse_markup(text)
+                else:
+                    content = text
+            else:
+                raise Exception('extracting page with format error, '
+                                'see <http://simiki.org/docs/metadata.html>')
 
         return (meta, content)
 
@@ -211,12 +204,15 @@ class PageGenerator(BaseGenerator):
             is_meta_right = False
         return is_meta_right
 
-    def _parse_markdown(self, markdown_content):
-        """Parse markdown text to html"""
+    def _parse_markup(self, markup_text):
+        """Parse markup text to html
+
+        Only support Markdown for now.
+        """
         markdown_extensions = self._set_markdown_extensions()
 
         html_content = markdown.markdown(
-            markdown_content,
+            markup_text,
             extensions=markdown_extensions,
         )
 
