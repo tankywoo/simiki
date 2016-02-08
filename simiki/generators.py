@@ -42,6 +42,7 @@ class BaseGenerator(object):
         self.site_config = copy.deepcopy(site_config)
         self.base_path = base_path
         self._templates = {}  # templates cache
+        self._template_vars = self._get_template_vars()
         _template_path = os.path.join(
             self.base_path,
             site_config["themes_dir"],
@@ -166,7 +167,7 @@ class PageGenerator(BaseGenerator):
 
     def get_template_vars(self, meta, content):
         """Get template variables, include site config and page config"""
-        template_vars = self._get_template_vars()
+        template_vars = copy.deepcopy(self._template_vars)
         category, src_fname = self.get_category_and_file()
         dst_fname = src_fname.replace(
             ".{0}".format(self.site_config["default_ext"]), ".html")
@@ -299,7 +300,7 @@ class CatalogGenerator(BaseGenerator):
         return sorted_structure
 
     def get_template_vars(self):
-        template_vars = self._get_template_vars()
+        template_vars = copy.deepcopy(self._template_vars)
         structure = self.sort_structure(self.get_content_structure_and_meta())
         template_vars['site'].update({'structure': structure})
 
