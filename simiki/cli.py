@@ -7,7 +7,7 @@ Simiki CLI
 Usage:
   simiki init [-p <path>]
   simiki new | n -t <title> -c <category> [-f <file>]
-  simiki generate | g
+  simiki generate | g [--draft]
   simiki preview | p [--host <host>] [--port <port>] [-w]
   simiki update
   simiki -h | --help
@@ -21,15 +21,16 @@ Subcommands:
   update              Update builtin scripts and themes under local site
 
 Options:
-  -h, --help          Help information.
-  -V, --version       Show version.
-  -p <path>           Specify the target path.
-  -c <category>       Specify the category.
-  -t <title>          Specify the new post title.
-  -f <file>           Specify the new post filename.
+  -h, --help          Help information
+  -V, --version       Show version
+  -p <path>           Specify the target path
+  -c <category>       Specify the category
+  -t <title>          Specify the new post title
+  -f <file>           Specify the new post filename
   --host <host>       Bind host to preview [default: localhost]
   --port <port>       Bind port to preview [default: 8000]
   -w                  Auto regenerated when file changed
+  --draft             Include draft pages to generate
 """
 
 from __future__ import print_function, unicode_literals, absolute_import
@@ -226,8 +227,15 @@ class Generator(object):
         self.target_path = target_path
         self.pages = {}
         self.page_count = 0
+        self.draft_count = 0
+        self.include_draft = False
 
-    def generate(self):
+    def generate(self, include_draft=False):
+        '''
+        :include_draft: True/False, include draft pages or not to generate.
+        '''
+        self.include_draft = include_draft
+
         logger.debug("Empty the destination directory")
         dest_dir = os.path.join(self.target_path,
                                 self.config["destination"])
@@ -320,31 +328,46 @@ class Generator(object):
             for r in results:
                 r.get()
 
-        generate_result = "{0} files generated.".format(self.page_count)
-        # for failed pages
+        generate_result = ["Generate {0} pages".format(self.page_count)]
+        # for draft pages and failed pages
         _err_npage = npage - self.page_count
+        if self.include_draft:
+            generate_result.append("include {0} drafts"
+                                   .format(self.draft_count))
+        else:
+            _err_npage -= self.draft_count
+            generate_result.append("ignore {0} drafts"
+                                   .format(self.draft_count))
         if _err_npage:
-            generate_result += " {0} files failed.".format(_err_npage)
-        logger.info(generate_result)
+            generate_result.append(" {0} pages failed".format(_err_npage))
+        logger.info(', '.join(generate_result) + '.')
 
     def generate_multiple_pages(self, md_files):
         _pages = {}
         _page_count = 0
+        _draft_count = 0
         page_generator = PageGenerator(self.config, self.target_path)
         for _f in md_files:
             try:
                 page_meta = self.generate_single_page(page_generator, _f)
+                if page_meta:
+                    _pages[_f] = page_meta
+                    _page_count += 1
+                    if page_meta.get('draft'):
+                        _draft_count += 1
+                else:
+                    # XXX suppose page as draft if page_meta is None, this may
+                    # cause error in the future
+                    _draft_count += 1
             except Exception:
                 page_meta = None
                 logger.exception('{0} failed to generate:'.format(_f))
-            if page_meta:
-                _pages[_f] = page_meta
-                _page_count += 1
-        return _pages, _page_count
+        return _pages, _page_count, _draft_count
 
     def generate_single_page(self, generator, md_file):
         logger.debug("Generate: {0}".format(md_file))
-        html = generator.to_html(os.path.realpath(md_file))
+        html = generator.to_html(os.path.realpath(md_file),
+                                 self.include_draft)
 
         # ignore draft
         if not html:
@@ -364,9 +387,10 @@ class Generator(object):
         return meta
 
     def _generate_callback(self, result):
-        _pages, _count = result
+        _pages, _page_count, _draft_count = result
         self.pages.update(_pages)
-        self.page_count += _count
+        self.page_count += _page_count
+        self.draft_count += _draft_count
 
     def install_theme(self):
         """Copy static directory under theme to destination directory"""
@@ -422,7 +446,7 @@ def main(args=None):
 
         if args["generate"] or args["g"]:
             generator = Generator(target_path)
-            generator.generate()
+            generator.generate(include_draft=args['--draft'])
         elif args["new"] or args["n"]:
             create_new_wiki(args["-c"], args["-t"], args["-f"])
         elif args["preview"] or args["p"]:

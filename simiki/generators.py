@@ -96,15 +96,18 @@ class PageGenerator(BaseGenerator):
         self.meta = None
         self.content = None
 
-    def to_html(self, src_file):
+    def to_html(self, src_file, include_draft=False):
         """Load template, and generate html
 
         :src_file: the filename of the source file. This can either be an
                    absolute filename or a filename relative to the base path.
+        :include_draft: True/False, include draft pages or not to generate
         """
         self._src_file = os.path.relpath(src_file, self.base_path)
         self.meta, self.content = self.get_meta_and_content()
-        if self.meta.get('draft', False):
+        # Page set `draft: True' mark current page as draft, and will
+        # be ignored if not forced generate include draft pages
+        if not include_draft and self.meta.get('draft', False):
             return None
         layout = self.get_layout(self.meta)
         template_vars = self.get_template_vars(self.meta, self.content)
