@@ -17,6 +17,8 @@ def _update_file(filename, local_path, original_path):
     :local_path: directory of local filename
     :original_path: directory of original filename
     '''
+    up_to_date = True
+
     original_fn = os.path.join(original_path, filename)
     local_fn = os.path.join(local_path, filename)
 
@@ -30,6 +32,7 @@ def _update_file(filename, local_path, original_path):
                 local_fn_md5 = hashlib.md5(_fd.read()).hexdigest()
 
             if local_fn_md5 != original_fn_md5:
+                up_to_date = False
                 try:
                     _ans = raw_input('Overwrite {0}? (y/N) '.format(filename))
                     if _ans.lower() in yes_answer:
@@ -37,6 +40,7 @@ def _update_file(filename, local_path, original_path):
                 except (KeyboardInterrupt, SystemExit):
                     print()  # newline with Ctrl-C
         else:
+            up_to_date = False
             try:
                 _ans = raw_input('New {0}? (y/N) '.format(filename))
                 if _ans.lower() in yes_answer:
@@ -46,6 +50,9 @@ def _update_file(filename, local_path, original_path):
     except Exception as e:
         logger.error(e)
 
+    if up_to_date:
+        logger.info('{0} is already up to date.'.format(filename))
+
 
 def _update_dir(dirname, local_dir, original_dir, tag='directory'):
     '''Update sth on a per-directory basis, such as theme
@@ -54,6 +61,9 @@ def _update_dir(dirname, local_dir, original_dir, tag='directory'):
     :original_path: full path of original dirname
     :tag: input help information
     '''
+
+    up_to_date = True
+
     try:
         if os.path.exists(local_dir):
             _need_update = False
@@ -78,6 +88,7 @@ def _update_dir(dirname, local_dir, original_dir, tag='directory'):
                     break
 
             if _need_update:
+                up_to_date = False
                 try:
                     _ans = raw_input('Overwrite {0} {1}? (y/N) '
                                      .format(tag, dirname))
@@ -87,6 +98,7 @@ def _update_dir(dirname, local_dir, original_dir, tag='directory'):
                 except (KeyboardInterrupt, SystemExit):
                     print()
         else:
+            up_to_date = False
             try:
                 _ans = raw_input('New {0} {1}? (y/N) '.format(tag, dirname))
                 if _ans.lower() in yes_answer:
@@ -95,6 +107,9 @@ def _update_dir(dirname, local_dir, original_dir, tag='directory'):
                 print()
     except Exception as e:
         logger.error(e)
+
+    if up_to_date:
+        logger.info('{0} {1} is already up to date.'.format(tag, dirname))
 
 
 def update_builtin(**kwargs):
