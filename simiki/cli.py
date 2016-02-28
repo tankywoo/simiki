@@ -45,7 +45,6 @@ import logging
 import random
 import multiprocessing
 import time
-import hashlib
 import warnings
 
 from docopt import docopt
@@ -57,9 +56,10 @@ from simiki.config import parse_config
 from simiki.log import logging_init
 from simiki.server import preview
 from simiki.watcher import watch
+from simiki.updater import update_builtin
 from simiki.utils import (copytree, emptytree, mkdir_p, write_file)
+from simiki.compat import unicode, basestring, xrange
 from simiki import __version__
-from simiki.compat import unicode, basestring, xrange, raw_input
 
 try:
     from os import getcwdu
@@ -142,76 +142,6 @@ def preview_site(host, port, dest, root, do_watch):
     except (KeyboardInterrupt, SystemExit):
         # manually terminate process?
         pass
-
-
-def update_builtin():
-    '''Update builtin scripts and themes under local site'''
-    # for fabfile.py
-    yes_ans = ('y', 'yes')
-    _fabfile_r = os.path.join(os.path.dirname(__file__), 'conf_templates',
-                              'fabfile.py')
-    _fabfile_l = os.path.join(os.getcwd(), 'fabfile.py')
-    if os.path.exists(_fabfile_l):
-        # py3 require md5 with bytes object, otherwise raise
-        # TypeError: Unicode-objects must be encoded before hashing
-        with open(_fabfile_r, 'rb') as _fd:
-            _fabfile_r_md5 = hashlib.md5(_fd.read()).hexdigest()
-        with open(_fabfile_l, 'rb') as _fd:
-            _fabfile_l_md5 = hashlib.md5(_fd.read()).hexdigest()
-        if _fabfile_l_md5 != _fabfile_r_md5:
-            try:
-                _ans = raw_input('Overwrite fabfile.py? (y/N) ')
-                if _ans.lower() in yes_ans:
-                    shutil.copy2(_fabfile_r, _fabfile_l)
-            except (KeyboardInterrupt, SystemExit):
-                print()  # newline with Ctrl-C
-    else:
-        try:
-            _ans = raw_input('New fabfile.py? (y/N) ')
-            if _ans.lower() in yes_ans:
-                shutil.copy2(_fabfile_r, _fabfile_l)
-        except (KeyboardInterrupt, SystemExit):
-            print()
-
-    # for themes
-    _themes_r = os.path.join(os.path.dirname(__file__), 'themes')
-    _themes_l = os.path.join(os.getcwd(), config['themes_dir'])
-    for theme in os.listdir(_themes_r):
-        _theme_r = os.path.join(_themes_r, theme)
-        _theme_l = os.path.join(_themes_l, theme)
-        if os.path.exists(_theme_l):
-            _need_update = False
-            for root, dirs, files in os.walk(_theme_r):
-                files = [f for f in files if not f.startswith(".")]
-                dirs[:] = [d for d in dirs if not d.startswith(".")]
-                for filename in files:
-                    with open(os.path.join(root, filename), 'rb') as _fd:
-                        _theme_r_md5 = hashlib.md5(_fd.read()).hexdigest()
-                    _dir = os.path.relpath(root, _theme_r)
-                    with open(os.path.join(_theme_l, _dir, filename),
-                              'rb') as _fd:
-                        _theme_l_md5 = hashlib.md5(_fd.read()).hexdigest()
-                    if _theme_l_md5 != _theme_r_md5:
-                        _need_update = True
-                        break
-                if _need_update:
-                    break
-            if _need_update:
-                try:
-                    _ans = raw_input('Overwrite theme {0}? (y/N) '
-                                     .format(theme))
-                    if _ans.lower() in yes_ans:
-                        shutil.rmtree(_theme_l)
-                        copytree(_theme_r, _theme_l)
-                except (KeyboardInterrupt, SystemExit):
-                    print()
-        else:
-            try:
-                _ans = raw_input('New theme {0}? (y/N) '.format(theme))
-                if _ans.lower() in yes_ans:
-                    copytree(_theme_r, _theme_l)
-            except (KeyboardInterrupt, SystemExit):
-                print()
 
 
 def method_proxy(cls_instance, method_name, *args, **kwargs):
@@ -454,7 +384,7 @@ def main(args=None):
             preview_site(args['--host'], args['--port'], config['destination'],
                          config['root'], args['-w'])
         elif args["update"]:
-            update_builtin()
+            update_builtin(themes_dir=config['themes_dir'])
         else:
             # docopt itself will display the help info.
             pass
