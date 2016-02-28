@@ -3,38 +3,60 @@
 import os
 import hashlib
 import shutil
+import logging
 from simiki.compat import raw_input
 from simiki.utils import copytree
+
+logger = logging.getLogger(__name__)
+yes_answer = ('y', 'yes')
+
+
+def _update_file(filename, local_path, original_path):
+    '''
+    :filename: file name to be updated, without directory
+    :local_path: directory of local filename
+    :original_path: directory of original filename
+    '''
+    original_fn = os.path.join(original_path, filename)
+    local_fn = os.path.join(local_path, filename)
+
+    try:
+        if os.path.exists(local_fn):
+            # py3 require md5 with bytes object, otherwise raise
+            # TypeError: Unicode-objects must be encoded before hashing
+            with open(original_fn, 'rb') as _fd:
+                original_fn_md5 = hashlib.md5(_fd.read()).hexdigest()
+            with open(local_fn, 'rb') as _fd:
+                local_fn_md5 = hashlib.md5(_fd.read()).hexdigest()
+
+            if local_fn_md5 != original_fn_md5:
+                try:
+                    _ans = raw_input('Overwrite {0}? (y/N) '.format(filename))
+                    if _ans.lower() in yes_answer:
+                        shutil.copy2(original_fn, local_fn)
+                except (KeyboardInterrupt, SystemExit):
+                    print()  # newline with Ctrl-C
+        else:
+            try:
+                _ans = raw_input('New {0}? (y/N) '.format(filename))
+                if _ans.lower() in yes_answer:
+                    shutil.copy2(original_fn, local_fn)
+            except (KeyboardInterrupt, SystemExit):
+                print()
+    except Exception as e:
+        logger.error(e)
 
 
 def update_builtin(**kwargs):
     '''Update builtin scripts and themes under local site'''
     # for fabfile.py
     yes_ans = ('y', 'yes')
-    _fabfile_r = os.path.join(os.path.dirname(__file__), 'conf_templates',
-                              'fabfile.py')
-    _fabfile_l = os.path.join(os.getcwd(), 'fabfile.py')
-    if os.path.exists(_fabfile_l):
-        # py3 require md5 with bytes object, otherwise raise
-        # TypeError: Unicode-objects must be encoded before hashing
-        with open(_fabfile_r, 'rb') as _fd:
-            _fabfile_r_md5 = hashlib.md5(_fd.read()).hexdigest()
-        with open(_fabfile_l, 'rb') as _fd:
-            _fabfile_l_md5 = hashlib.md5(_fd.read()).hexdigest()
-        if _fabfile_l_md5 != _fabfile_r_md5:
-            try:
-                _ans = raw_input('Overwrite fabfile.py? (y/N) ')
-                if _ans.lower() in yes_ans:
-                    shutil.copy2(_fabfile_r, _fabfile_l)
-            except (KeyboardInterrupt, SystemExit):
-                print()  # newline with Ctrl-C
-    else:
-        try:
-            _ans = raw_input('New fabfile.py? (y/N) ')
-            if _ans.lower() in yes_ans:
-                shutil.copy2(_fabfile_r, _fabfile_l)
-        except (KeyboardInterrupt, SystemExit):
-            print()
+    # for fabfile.py
+    _update_file(
+        'fabfile.py',
+        os.getcwd(),
+        os.path.join(os.path.dirname(__file__), 'conf_templates')
+    )
 
     # for themes
     _themes_r = os.path.join(os.path.dirname(__file__), 'themes')
