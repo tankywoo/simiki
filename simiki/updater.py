@@ -99,6 +99,9 @@ def _update_dir(dirname, local_dir, original_dir, tag='directory'):
 
 def update_builtin(**kwargs):
     '''Update builtin scripts and themes under local site'''
+    logger.info('Start updating builin files.')
+    logger.warning('Update is risky, please make sure you have backups')
+
     # for fabfile.py
     _update_file(
         'fabfile.py',
