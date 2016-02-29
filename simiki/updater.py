@@ -11,6 +11,10 @@ logger = logging.getLogger(__name__)
 yes_answer = ('y', 'yes')
 
 
+def get_input(text):
+    return raw_input(text)
+
+
 def _update_file(filename, local_path, original_path):
     '''
     :filename: file name to be updated, without directory
@@ -34,7 +38,7 @@ def _update_file(filename, local_path, original_path):
             if local_fn_md5 != original_fn_md5:
                 up_to_date = False
                 try:
-                    _ans = raw_input('Overwrite {0}? (y/N) '.format(filename))
+                    _ans = get_input('Overwrite {0}? (y/N) '.format(filename))
                     if _ans.lower() in yes_answer:
                         shutil.copy2(original_fn, local_fn)
                 except (KeyboardInterrupt, SystemExit):
@@ -42,7 +46,7 @@ def _update_file(filename, local_path, original_path):
         else:
             up_to_date = False
             try:
-                _ans = raw_input('New {0}? (y/N) '.format(filename))
+                _ans = get_input('New {0}? (y/N) '.format(filename))
                 if _ans.lower() in yes_answer:
                     shutil.copy2(original_fn, local_fn)
             except (KeyboardInterrupt, SystemExit):
@@ -90,7 +94,7 @@ def _update_dir(dirname, local_dir, original_dir, tag='directory'):
             if _need_update:
                 up_to_date = False
                 try:
-                    _ans = raw_input('Overwrite {0} {1}? (y/N) '
+                    _ans = get_input('Overwrite {0} {1}? (y/N) '
                                      .format(tag, dirname))
                     if _ans.lower() in yes_answer:
                         shutil.rmtree(local_dir)
@@ -100,7 +104,7 @@ def _update_dir(dirname, local_dir, original_dir, tag='directory'):
         else:
             up_to_date = False
             try:
-                _ans = raw_input('New {0} {1}? (y/N) '.format(tag, dirname))
+                _ans = get_input('New {0} {1}? (y/N) '.format(tag, dirname))
                 if _ans.lower() in yes_answer:
                     copytree(original_dir, local_dir)
             except (KeyboardInterrupt, SystemExit):
