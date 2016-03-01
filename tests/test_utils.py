@@ -81,6 +81,11 @@ class TestUtils(unittest.TestCase):
         self.assertEqual('d6e211679cb75b24c4e62fb233483fea',
                          utils.get_md5(test_file))
 
+    def test_get_dir_md5(self):
+        test_dir = os.path.join(self.content, 'python')
+        self.assertEqual('ab2bf30fc9b8ead85e52fd19d02a819e',
+                         utils.get_dir_md5(test_dir))
+
     def tearDown(self):
         if os.path.exists(self.output):
             utils.emptytree(self.output)

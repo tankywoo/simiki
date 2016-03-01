@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-'''TODO: check directory md5, not only afile'''
 from __future__ import print_function, unicode_literals
 import os
 import os.path
@@ -30,8 +29,7 @@ class TestUpdater(unittest.TestCase):
         self.original_theme = os.path.join(base_path, 'simiki',
                                            'themes', 'simple')
         self.local_theme = os.path.join(self.wiki_path, 'themes', 'simple')
-        self.original_theme_afile = os.path.join(self.original_theme,
-                                                 'base.html')
+
         self.local_theme_afile = os.path.join(self.local_theme, 'base.html')
 
     @patch('simiki.updater.get_input', return_value='yes')
@@ -45,15 +43,15 @@ class TestUpdater(unittest.TestCase):
         local_fn_md5 = utils.get_md5(self.local_fabfile)
         self.assertEqual(original_fn_md5, local_fn_md5)
 
-        original_fn_md5 = utils.get_md5(self.original_theme_afile)
-        local_fn_md5 = utils.get_md5(self.local_theme_afile)
+        original_fn_md5 = utils.get_dir_md5(self.original_theme)
+        local_fn_md5 = utils.get_dir_md5(self.local_theme)
         self.assertEqual(original_fn_md5, local_fn_md5)
 
         os.remove(self.local_theme_afile)
         updater.update_builtin(**self.kwargs)
 
-        original_fn_md5 = utils.get_md5(self.original_theme_afile)
-        local_fn_md5 = utils.get_md5(self.local_theme_afile)
+        original_fn_md5 = utils.get_dir_md5(self.original_theme)
+        local_fn_md5 = utils.get_dir_md5(self.local_theme)
         self.assertEqual(original_fn_md5, local_fn_md5)
 
     @patch('simiki.updater.get_input', return_value='no')
@@ -78,8 +76,8 @@ class TestUpdater(unittest.TestCase):
         utils.copytree(self.original_theme, self.local_theme)
         with open(self.local_theme_afile, 'wb') as _fd:
             _fd.close()
-        original_fn_md5 = utils.get_md5(self.original_theme_afile)
-        local_fn_md5 = utils.get_md5(self.local_theme_afile)
+        original_fn_md5 = utils.get_dir_md5(self.original_theme)
+        local_fn_md5 = utils.get_dir_md5(self.local_theme)
         self.assertNotEqual(original_fn_md5, local_fn_md5)
 
         updater.update_builtin(**self.kwargs)
@@ -88,8 +86,8 @@ class TestUpdater(unittest.TestCase):
         local_fn_md5 = utils.get_md5(self.local_fabfile)
         self.assertEqual(original_fn_md5, local_fn_md5)
 
-        original_fn_md5 = utils.get_md5(self.original_theme_afile)
-        local_fn_md5 = utils.get_md5(self.local_theme_afile)
+        original_fn_md5 = utils.get_dir_md5(self.original_theme)
+        local_fn_md5 = utils.get_dir_md5(self.local_theme)
         self.assertEqual(original_fn_md5, local_fn_md5)
 
     @patch('simiki.updater.get_input', return_value='no')
@@ -104,8 +102,8 @@ class TestUpdater(unittest.TestCase):
         utils.copytree(self.original_theme, self.local_theme)
         with open(self.local_theme_afile, 'wb') as _fd:
             _fd.close()
-        original_fn_md5 = utils.get_md5(self.original_theme_afile)
-        local_fn_md5 = utils.get_md5(self.local_theme_afile)
+        original_fn_md5 = utils.get_dir_md5(self.original_theme)
+        local_fn_md5 = utils.get_dir_md5(self.local_theme)
         self.assertNotEqual(original_fn_md5, local_fn_md5)
 
         updater.update_builtin(**self.kwargs)
@@ -114,8 +112,8 @@ class TestUpdater(unittest.TestCase):
         local_fn_md5 = utils.get_md5(self.local_fabfile)
         self.assertNotEqual(original_fn_md5, local_fn_md5)
 
-        original_fn_md5 = utils.get_md5(self.original_theme_afile)
-        local_fn_md5 = utils.get_md5(self.local_theme_afile)
+        original_fn_md5 = utils.get_dir_md5(self.original_theme)
+        local_fn_md5 = utils.get_dir_md5(self.local_theme)
         self.assertNotEqual(original_fn_md5, local_fn_md5)
 
     def test_update_builtin_up_to_date(self):
@@ -128,8 +126,8 @@ class TestUpdater(unittest.TestCase):
         local_fn_md5 = utils.get_md5(self.local_fabfile)
         self.assertEqual(original_fn_md5, local_fn_md5)
 
-        original_fn_md5 = utils.get_md5(self.original_theme_afile)
-        local_fn_md5 = utils.get_md5(self.local_theme_afile)
+        original_fn_md5 = utils.get_dir_md5(self.original_theme)
+        local_fn_md5 = utils.get_dir_md5(self.local_theme)
         self.assertEqual(original_fn_md5, local_fn_md5)
 
     def tearDown(self):

@@ -125,6 +125,20 @@ def get_md5(filename):
     return md5_hash
 
 
+def get_dir_md5(dirname):
+    '''Get md5 sum of directory'''
+    md5_hash = hashlib.md5()
+    for root, dirs, files in os.walk(dirname):
+        # os.walk use os.listdir and return arbitrary order list
+        # sort list make it get same md5 hash value
+        dirs[:] = sorted(dirs)
+        for f in sorted(files):
+            with open(os.path.join(root, f), 'rb') as fd:
+                md5_hash.update(fd.read())
+    md5_hash = md5_hash.hexdigest()
+    return md5_hash
+
+
 if __name__ == "__main__":
     print(color_msg("black", "Black"))
     print(color_msg("red", "Red"))
