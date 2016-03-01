@@ -5,7 +5,6 @@ from __future__ import print_function, unicode_literals
 import os
 import os.path
 import shutil
-import hashlib
 import unittest
 try:
     from unittest.mock import patch
@@ -15,12 +14,6 @@ from simiki import utils, updater
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 base_path = os.path.dirname(test_path)
-
-
-def _get_md5(filename):
-    with open(filename, 'rb') as _fd:
-        file_md5 = hashlib.md5(_fd.read()).hexdigest()
-    return file_md5
 
 
 class TestUpdater(unittest.TestCase):
@@ -48,19 +41,19 @@ class TestUpdater(unittest.TestCase):
 
         updater.update_builtin(**self.kwargs)
 
-        original_fn_md5 = _get_md5(self.original_fabfile)
-        local_fn_md5 = _get_md5(self.local_fabfile)
+        original_fn_md5 = utils.get_md5(self.original_fabfile)
+        local_fn_md5 = utils.get_md5(self.local_fabfile)
         self.assertEqual(original_fn_md5, local_fn_md5)
 
-        original_fn_md5 = _get_md5(self.original_theme_afile)
-        local_fn_md5 = _get_md5(self.local_theme_afile)
+        original_fn_md5 = utils.get_md5(self.original_theme_afile)
+        local_fn_md5 = utils.get_md5(self.local_theme_afile)
         self.assertEqual(original_fn_md5, local_fn_md5)
 
         os.remove(self.local_theme_afile)
         updater.update_builtin(**self.kwargs)
 
-        original_fn_md5 = _get_md5(self.original_theme_afile)
-        local_fn_md5 = _get_md5(self.local_theme_afile)
+        original_fn_md5 = utils.get_md5(self.original_theme_afile)
+        local_fn_md5 = utils.get_md5(self.local_theme_afile)
         self.assertEqual(original_fn_md5, local_fn_md5)
 
     @patch('simiki.updater.get_input', return_value='no')
@@ -78,25 +71,25 @@ class TestUpdater(unittest.TestCase):
         # empty fabfile.py
         with open(self.local_fabfile, 'wb') as _fd:
             _fd.close()
-        original_fn_md5 = _get_md5(self.original_fabfile)
-        local_fn_md5 = _get_md5(self.local_fabfile)
+        original_fn_md5 = utils.get_md5(self.original_fabfile)
+        local_fn_md5 = utils.get_md5(self.local_fabfile)
         self.assertNotEqual(original_fn_md5, local_fn_md5)
 
         utils.copytree(self.original_theme, self.local_theme)
         with open(self.local_theme_afile, 'wb') as _fd:
             _fd.close()
-        original_fn_md5 = _get_md5(self.original_theme_afile)
-        local_fn_md5 = _get_md5(self.local_theme_afile)
+        original_fn_md5 = utils.get_md5(self.original_theme_afile)
+        local_fn_md5 = utils.get_md5(self.local_theme_afile)
         self.assertNotEqual(original_fn_md5, local_fn_md5)
 
         updater.update_builtin(**self.kwargs)
 
-        original_fn_md5 = _get_md5(self.original_fabfile)
-        local_fn_md5 = _get_md5(self.local_fabfile)
+        original_fn_md5 = utils.get_md5(self.original_fabfile)
+        local_fn_md5 = utils.get_md5(self.local_fabfile)
         self.assertEqual(original_fn_md5, local_fn_md5)
 
-        original_fn_md5 = _get_md5(self.original_theme_afile)
-        local_fn_md5 = _get_md5(self.local_theme_afile)
+        original_fn_md5 = utils.get_md5(self.original_theme_afile)
+        local_fn_md5 = utils.get_md5(self.local_theme_afile)
         self.assertEqual(original_fn_md5, local_fn_md5)
 
     @patch('simiki.updater.get_input', return_value='no')
@@ -104,25 +97,25 @@ class TestUpdater(unittest.TestCase):
         # empty fabfile.py
         with open(self.local_fabfile, 'wb') as _fd:
             _fd.close()
-        original_fn_md5 = _get_md5(self.original_fabfile)
-        local_fn_md5 = _get_md5(self.local_fabfile)
+        original_fn_md5 = utils.get_md5(self.original_fabfile)
+        local_fn_md5 = utils.get_md5(self.local_fabfile)
         self.assertNotEqual(original_fn_md5, local_fn_md5)
 
         utils.copytree(self.original_theme, self.local_theme)
         with open(self.local_theme_afile, 'wb') as _fd:
             _fd.close()
-        original_fn_md5 = _get_md5(self.original_theme_afile)
-        local_fn_md5 = _get_md5(self.local_theme_afile)
+        original_fn_md5 = utils.get_md5(self.original_theme_afile)
+        local_fn_md5 = utils.get_md5(self.local_theme_afile)
         self.assertNotEqual(original_fn_md5, local_fn_md5)
 
         updater.update_builtin(**self.kwargs)
 
-        original_fn_md5 = _get_md5(self.original_fabfile)
-        local_fn_md5 = _get_md5(self.local_fabfile)
+        original_fn_md5 = utils.get_md5(self.original_fabfile)
+        local_fn_md5 = utils.get_md5(self.local_fabfile)
         self.assertNotEqual(original_fn_md5, local_fn_md5)
 
-        original_fn_md5 = _get_md5(self.original_theme_afile)
-        local_fn_md5 = _get_md5(self.local_theme_afile)
+        original_fn_md5 = utils.get_md5(self.original_theme_afile)
+        local_fn_md5 = utils.get_md5(self.local_theme_afile)
         self.assertNotEqual(original_fn_md5, local_fn_md5)
 
     def test_update_builtin_up_to_date(self):
@@ -131,12 +124,12 @@ class TestUpdater(unittest.TestCase):
 
         updater.update_builtin(**self.kwargs)
 
-        original_fn_md5 = _get_md5(self.original_fabfile)
-        local_fn_md5 = _get_md5(self.local_fabfile)
+        original_fn_md5 = utils.get_md5(self.original_fabfile)
+        local_fn_md5 = utils.get_md5(self.local_fabfile)
         self.assertEqual(original_fn_md5, local_fn_md5)
 
-        original_fn_md5 = _get_md5(self.original_theme_afile)
-        local_fn_md5 = _get_md5(self.local_theme_afile)
+        original_fn_md5 = utils.get_md5(self.original_theme_afile)
+        local_fn_md5 = utils.get_md5(self.local_theme_afile)
         self.assertEqual(original_fn_md5, local_fn_md5)
 
     def tearDown(self):

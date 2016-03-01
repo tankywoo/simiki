@@ -8,6 +8,7 @@ import shutil
 import errno
 import logging
 import io
+import hashlib
 import simiki
 from simiki.compat import unicode
 
@@ -114,6 +115,14 @@ def write_file(filename, content):
         mkdir_p(_dir)
     with io.open(filename, "wt", encoding="utf-8") as fd:
         fd.write(content)
+
+
+def get_md5(filename):
+    # py3 require md5 with bytes object, otherwise raise
+    # TypeError: Unicode-objects must be encoded before hashing
+    with open(filename, 'rb') as fd:
+        md5_hash = hashlib.md5(fd.read()).hexdigest()
+    return md5_hash
 
 
 if __name__ == "__main__":

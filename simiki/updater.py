@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
-import hashlib
 import shutil
 import logging
 from simiki.compat import raw_input
-from simiki.utils import copytree
+from simiki.utils import copytree, get_md5
 
 logger = logging.getLogger(__name__)
 yes_answer = ('y', 'yes')
@@ -28,12 +27,8 @@ def _update_file(filename, local_path, original_path):
 
     try:
         if os.path.exists(local_fn):
-            # py3 require md5 with bytes object, otherwise raise
-            # TypeError: Unicode-objects must be encoded before hashing
-            with open(original_fn, 'rb') as _fd:
-                original_fn_md5 = hashlib.md5(_fd.read()).hexdigest()
-            with open(local_fn, 'rb') as _fd:
-                local_fn_md5 = hashlib.md5(_fd.read()).hexdigest()
+            original_fn_md5 = get_md5(original_fn)
+            local_fn_md5 = get_md5(local_fn)
 
             if local_fn_md5 != original_fn_md5:
                 up_to_date = False
@@ -77,14 +72,13 @@ def _update_dir(dirname, local_dir, original_dir, tag='directory'):
                 rel_dir = os.path.relpath(root, original_dir)
 
                 for fn in files:
-                    with open(os.path.join(root, fn), 'rb') as _fd:
-                        original_fn_md5 = hashlib.md5(_fd.read()).hexdigest()
+                    original_fn_md5 = get_md5(os.path.join(root, fn))
+
                     local_fn = os.path.join(local_dir, rel_dir, fn)
                     if not os.path.exists(local_fn):
                         _need_update = True
                         break
-                    with open(local_fn, 'rb') as _fd:
-                        local_fn_md5 = hashlib.md5(_fd.read()).hexdigest()
+                    local_fn_md5 = get_md5(local_fn)
                     if local_fn_md5 != original_fn_md5:
                         _need_update = True
                         break
