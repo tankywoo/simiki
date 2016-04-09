@@ -1,5 +1,19 @@
+v1.5.1 (2016-04-09)
+=====================
+- Fix ``fab deploy`` find ghp-import command error, pr #51
+- Fix write error when draft: true in watcher
+- Improve ``fab commit``, issue #52
+- Improve generate speed
+  * template cache
+  * regex match page meta
+- Add favicon.ico support, issue #53
+- Add deprecated warning for post layout
+- Add ``--draft`` option to force the generation include draft pages
+- Support Python3.5
+
+
 v1.5.0-1 (2016-01-23)
-===================
+=====================
 
 - Improve generate speed by multiple processes
 - Fix CNAME be deleted when do generate problem
