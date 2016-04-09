@@ -8,6 +8,7 @@ import shutil
 import errno
 import logging
 import io
+import hashlib
 import simiki
 from simiki.compat import unicode
 
@@ -114,6 +115,28 @@ def write_file(filename, content):
         mkdir_p(_dir)
     with io.open(filename, "wt", encoding="utf-8") as fd:
         fd.write(content)
+
+
+def get_md5(filename):
+    # py3 require md5 with bytes object, otherwise raise
+    # TypeError: Unicode-objects must be encoded before hashing
+    with open(filename, 'rb') as fd:
+        md5_hash = hashlib.md5(fd.read()).hexdigest()
+    return md5_hash
+
+
+def get_dir_md5(dirname):
+    '''Get md5 sum of directory'''
+    md5_hash = hashlib.md5()
+    for root, dirs, files in os.walk(dirname):
+        # os.walk use os.listdir and return arbitrary order list
+        # sort list make it get same md5 hash value
+        dirs[:] = sorted(dirs)
+        for f in sorted(files):
+            with open(os.path.join(root, f), 'rb') as fd:
+                md5_hash.update(fd.read())
+    md5_hash = md5_hash.hexdigest()
+    return md5_hash
 
 
 if __name__ == "__main__":

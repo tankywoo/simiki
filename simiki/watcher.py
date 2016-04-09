@@ -22,8 +22,12 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
 
     @staticmethod
     def generate_page(_file):
-        pg = PageGenerator(_site_config, _base_path, _file)
-        html = pg.to_html()
+        pg = PageGenerator(_site_config, _base_path)
+        html = pg.to_html(_file)
+        # ignore draft
+        if not html:
+            return None
+
         category, filename = os.path.split(_file)
         category = os.path.relpath(category, _site_config['source'])
         output_fname = os.path.join(

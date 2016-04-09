@@ -8,6 +8,7 @@ from simiki import utils
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 
+
 class TestUtils(unittest.TestCase):
 
     def setUp(self):
@@ -74,6 +75,16 @@ class TestUtils(unittest.TestCase):
         fs = utils.listdir_nohidden(os.path.join(self.content, '其它'))
         expected_listdir = ['hello.txt', 'helloworld.markdown', '维基.md']
         assert sorted(list(fs)) == sorted(expected_listdir)
+
+    def test_get_md5(self):
+        test_file = os.path.join(self.content, 'python', 'zen_of_python.md')
+        self.assertEqual('d6e211679cb75b24c4e62fb233483fea',
+                         utils.get_md5(test_file))
+
+    def test_get_dir_md5(self):
+        test_dir = os.path.join(self.content, 'python')
+        self.assertEqual('ab2bf30fc9b8ead85e52fd19d02a819e',
+                         utils.get_dir_md5(test_dir))
 
     def tearDown(self):
         if os.path.exists(self.output):

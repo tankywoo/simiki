@@ -7,7 +7,7 @@ Simiki CLI
 Usage:
   simiki init [-p <path>]
   simiki new | n -t <title> -c <category> [-f <file>]
-  simiki generate | g
+  simiki generate | g [--draft]
   simiki preview | p [--host <host>] [--port <port>] [-w]
   simiki update
   simiki -h | --help
@@ -21,15 +21,16 @@ Subcommands:
   update              Update builtin scripts and themes under local site
 
 Options:
-  -h, --help          Help information.
-  -V, --version       Show version.
-  -p <path>           Specify the target path.
-  -c <category>       Specify the category.
-  -t <title>          Specify the new post title.
-  -f <file>           Specify the new post filename.
+  -h, --help          Help information
+  -V, --version       Show version
+  -p <path>           Specify the target path
+  -c <category>       Specify the category
+  -t <title>          Specify the new post title
+  -f <file>           Specify the new post filename
   --host <host>       Bind host to preview [default: localhost]
   --port <port>       Bind port to preview [default: 8000]
   -w                  Auto regenerated when file changed
+  --draft             Include draft pages to generate
 """
 
 from __future__ import print_function, unicode_literals, absolute_import
@@ -44,7 +45,7 @@ import logging
 import random
 import multiprocessing
 import time
-import hashlib
+import warnings
 
 from docopt import docopt
 from yaml import YAMLError
@@ -55,14 +56,18 @@ from simiki.config import parse_config
 from simiki.log import logging_init
 from simiki.server import preview
 from simiki.watcher import watch
+from simiki.updater import update_builtin
 from simiki.utils import (copytree, emptytree, mkdir_p, write_file)
+from simiki.compat import unicode, basestring, xrange
 from simiki import __version__
-from simiki.compat import unicode, basestring, xrange, raw_input
 
 try:
     from os import getcwdu
 except ImportError:
     from os import getcwd as getcwdu
+
+# Enable DeprecationWarning, etc.
+warnings.simplefilter('default')
 
 logger = logging.getLogger(__name__)
 config = None
@@ -139,76 +144,6 @@ def preview_site(host, port, dest, root, do_watch):
         pass
 
 
-def update_builtin():
-    '''Update builtin scripts and themes under local site'''
-    # for fabfile.py
-    yes_ans = ('y', 'yes')
-    _fabfile_r = os.path.join(os.path.dirname(__file__), 'conf_templates',
-                              'fabfile.py')
-    _fabfile_l = os.path.join(os.getcwd(), 'fabfile.py')
-    if os.path.exists(_fabfile_l):
-        # py3 require md5 with bytes object, otherwise raise
-        # TypeError: Unicode-objects must be encoded before hashing
-        with open(_fabfile_r, 'rb') as _fd:
-            _fabfile_r_md5 = hashlib.md5(_fd.read()).hexdigest()
-        with open(_fabfile_l, 'rb') as _fd:
-            _fabfile_l_md5 = hashlib.md5(_fd.read()).hexdigest()
-        if _fabfile_l_md5 != _fabfile_r_md5:
-            try:
-                _ans = raw_input('Overwrite fabfile.py? (y/N) ')
-                if _ans.lower() in yes_ans:
-                    shutil.copy2(_fabfile_r, _fabfile_l)
-            except (KeyboardInterrupt, SystemExit):
-                print()  # newline with Ctrl-C
-    else:
-        try:
-            _ans = raw_input('New fabfile.py? (y/N) ')
-            if _ans.lower() in yes_ans:
-                shutil.copy2(_fabfile_r, _fabfile_l)
-        except (KeyboardInterrupt, SystemExit):
-            print()
-
-    # for themes
-    _themes_r = os.path.join(os.path.dirname(__file__), 'themes')
-    _themes_l = os.path.join(os.getcwd(), config['themes_dir'])
-    for theme in os.listdir(_themes_r):
-        _theme_r = os.path.join(_themes_r, theme)
-        _theme_l = os.path.join(_themes_l, theme)
-        if os.path.exists(_theme_l):
-            _need_update = False
-            for root, dirs, files in os.walk(_theme_r):
-                files = [f for f in files if not f.startswith(".")]
-                dirs[:] = [d for d in dirs if not d.startswith(".")]
-                for filename in files:
-                    with open(os.path.join(root, filename), 'rb') as _fd:
-                        _theme_r_md5 = hashlib.md5(_fd.read()).hexdigest()
-                    _dir = os.path.relpath(root, _theme_r)
-                    with open(os.path.join(_theme_l, _dir, filename),
-                              'rb') as _fd:
-                        _theme_l_md5 = hashlib.md5(_fd.read()).hexdigest()
-                    if _theme_l_md5 != _theme_r_md5:
-                        _need_update = True
-                        break
-                if _need_update:
-                    break
-            if _need_update:
-                try:
-                    _ans = raw_input('Overwrite theme {0}? (y/N) '
-                                     .format(theme))
-                    if _ans.lower() in yes_ans:
-                        shutil.rmtree(_theme_l)
-                        copytree(_theme_r, _theme_l)
-                except (KeyboardInterrupt, SystemExit):
-                    print()
-        else:
-            try:
-                _ans = raw_input('New theme {0}? (y/N) '.format(theme))
-                if _ans.lower() in yes_ans:
-                    copytree(_theme_r, _theme_l)
-            except (KeyboardInterrupt, SystemExit):
-                print()
-
-
 def method_proxy(cls_instance, method_name, *args, **kwargs):
     '''ref: http://stackoverflow.com/a/10217089/1276501'''
     return getattr(cls_instance, method_name)(*args, **kwargs)
@@ -222,14 +157,21 @@ class Generator(object):
         self.target_path = target_path
         self.pages = {}
         self.page_count = 0
+        self.draft_count = 0
+        self.include_draft = False
 
-    def generate(self):
+    def generate(self, include_draft=False):
+        '''
+        :include_draft: True/False, include draft pages or not to generate.
+        '''
+        self.include_draft = include_draft
+
         logger.debug("Empty the destination directory")
         dest_dir = os.path.join(self.target_path,
                                 self.config["destination"])
         if os.path.exists(dest_dir):
-            # for github pages
-            exclude_list = ['.git', 'CNAME']
+            # for github pages and favicon.ico
+            exclude_list = ['.git', 'CNAME', 'favicon.ico']
             emptytree(dest_dir, exclude_list)
 
         self.generate_pages()
@@ -245,11 +187,14 @@ class Generator(object):
 
         self.copy_attach()
 
-        # for github pages with custom domain
-        cname_file = os.path.join(getcwdu(), 'CNAME')
-        if os.path.exists(cname_file):
-            shutil.copy2(cname_file,
-                         os.path.join(self.config['destination'], 'CNAME'))
+        # for default supported files to be copied to output/
+        # CNAME for github pages with custom domain
+        # TODO favicon can be other formats, such as .png, use glob match?
+        for _fn in ('CNAME', 'favicon.ico'):
+            _file = os.path.join(getcwdu(), _fn)
+            if os.path.exists(_file):
+                shutil.copy2(_file,
+                             os.path.join(self.config['destination'], _fn))
 
     def generate_feed(self, pages, feed_fn):
         logger.info("Generate feed.")
@@ -313,32 +258,46 @@ class Generator(object):
             for r in results:
                 r.get()
 
-        generate_result = "{0} files generated.".format(self.page_count)
-        # for failed pages
+        generate_result = ["Generate {0} pages".format(self.page_count)]
+        # for draft pages and failed pages
         _err_npage = npage - self.page_count
+        if self.include_draft:
+            generate_result.append("include {0} drafts"
+                                   .format(self.draft_count))
+        else:
+            _err_npage -= self.draft_count
+            generate_result.append("ignore {0} drafts"
+                                   .format(self.draft_count))
         if _err_npage:
-            generate_result += " {0} files failed.".format(_err_npage)
-        logger.info(generate_result)
+            generate_result.append(" {0} pages failed".format(_err_npage))
+        logger.info(', '.join(generate_result) + '.')
 
     def generate_multiple_pages(self, md_files):
         _pages = {}
         _page_count = 0
+        _draft_count = 0
+        page_generator = PageGenerator(self.config, self.target_path)
         for _f in md_files:
             try:
-                page_meta = self.generate_single_page(_f)
+                page_meta = self.generate_single_page(page_generator, _f)
+                if page_meta:
+                    _pages[_f] = page_meta
+                    _page_count += 1
+                    if page_meta.get('draft'):
+                        _draft_count += 1
+                else:
+                    # XXX suppose page as draft if page_meta is None, this may
+                    # cause error in the future
+                    _draft_count += 1
             except Exception:
                 page_meta = None
                 logger.exception('{0} failed to generate:'.format(_f))
-            if page_meta:
-                _pages[_f] = page_meta
-                _page_count += 1
-        return _pages, _page_count
+        return _pages, _page_count, _draft_count
 
-    def generate_single_page(self, md_file):
+    def generate_single_page(self, generator, md_file):
         logger.debug("Generate: {0}".format(md_file))
-        page_generator = PageGenerator(self.config, self.target_path,
-                                       os.path.realpath(md_file))
-        html = page_generator.to_html()
+        html = generator.to_html(os.path.realpath(md_file),
+                                 self.include_draft)
 
         # ignore draft
         if not html:
@@ -354,13 +313,14 @@ class Generator(object):
         )
 
         write_file(output_file, html)
-        meta = page_generator.meta
+        meta = generator.meta
         return meta
 
     def _generate_callback(self, result):
-        _pages, _count = result
+        _pages, _page_count, _draft_count = result
         self.pages.update(_pages)
-        self.page_count += _count
+        self.page_count += _page_count
+        self.draft_count += _draft_count
 
     def install_theme(self):
         """Copy static directory under theme to destination directory"""
@@ -416,7 +376,7 @@ def main(args=None):
 
         if args["generate"] or args["g"]:
             generator = Generator(target_path)
-            generator.generate()
+            generator.generate(include_draft=args['--draft'])
         elif args["new"] or args["n"]:
             create_new_wiki(args["-c"], args["-t"], args["-f"])
         elif args["preview"] or args["p"]:
@@ -424,7 +384,7 @@ def main(args=None):
             preview_site(args['--host'], args['--port'], config['destination'],
                          config['root'], args['-w'])
         elif args["update"]:
-            update_builtin()
+            update_builtin(themes_dir=config['themes_dir'])
         else:
             # docopt itself will display the help info.
             pass
