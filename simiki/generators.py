@@ -302,10 +302,29 @@ class CatalogGenerator(BaseGenerator):
             sorted_structure[k] = self.sort_structure(sorted_structure[k])
         return sorted_structure
 
+    @staticmethod
+    def get_pages_by_structure(structure):
+        def convert(d):
+            pages = []
+            for k, v in d.items():
+                if 'name' in v:
+                    v.update({'fname': k})
+                    pages.append(v)
+                else:
+                    _pages = convert(v)
+                    pages.append({'name': k, 'pages': _pages})
+
+            return pages
+
+        pages = convert(structure)
+        return pages
+
     def get_template_vars(self):
         template_vars = copy.deepcopy(self._template_vars)
         structure = self.sort_structure(self.get_content_structure_and_meta())
+        pages = self.get_pages_by_structure(structure)
         template_vars['site'].update({'structure': structure})
+        template_vars['site'].update({'pages': pages})
 
         return template_vars
 
