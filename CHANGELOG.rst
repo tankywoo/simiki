@@ -4,8 +4,10 @@ v1.5.1 (2016-04-09)
 - Fix write error when draft: true in watcher
 - Improve ``fab commit``, issue #52
 - Improve generate speed
+
   * template cache
   * regex match page meta
+
 - Add favicon.ico support, issue #53
 - Add deprecated warning for post layout
 - Add ``--draft`` option to force the generation include draft pages
