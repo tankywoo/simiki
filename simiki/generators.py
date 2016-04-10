@@ -302,17 +302,26 @@ class CatalogGenerator(BaseGenerator):
             sorted_structure[k] = self.sort_structure(sorted_structure[k])
         return sorted_structure
 
-    @staticmethod
-    def get_pages_by_structure(structure):
-        def convert(d):
+    def get_pages_by_structure(self, structure):
+        # for custom category settings in _config.yml
+        _category = {}
+        for c in self.site_config.get('category', []):
+            c_name = c.pop('name')
+            _category[c_name] = c
+
+        def convert(d, prefix=''):
             pages = []
             for k, v in d.items():
-                if 'name' in v:
+                if 'name' in v:  # page
                     v.update({'fname': k})
                     pages.append(v)
                 else:
-                    _pages = convert(v)
-                    pages.append({'name': k, 'pages': _pages})
+                    k_with_prefix = os.path.join(prefix, k)
+                    _pages = convert(v, prefix=k_with_prefix)
+                    _s_category = {'name': k, 'pages': _pages}
+                    if k_with_prefix in _category:
+                        _s_category.update(_category[k_with_prefix])
+                    pages.append(_s_category)
 
             return pages
 
