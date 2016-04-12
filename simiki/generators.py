@@ -328,10 +328,32 @@ class CatalogGenerator(BaseGenerator):
         pages = convert(structure)
         return pages
 
+    @staticmethod
+    def to_collection(pages):
+        _pages = []
+        # for two-level, first level is category
+        for category in pages:
+            _c_pages = []
+            _colls = {}
+            for page in category.pop('pages'):
+                if 'collection' in page:
+                    coll_name = page['collection']
+                    _colls.setdefault(coll_name, []).append(page)
+                else:
+                    _c_pages.append(page)
+            colls = []
+            for _coll_n, _coll_p in _colls.items():
+                colls.append({'name': _coll_n, 'pages': _coll_p})
+            _c_pages.extend(colls)
+            category.update({'pages': _c_pages})
+            _pages.append(category)
+
+        return _pages
+
     def get_template_vars(self):
         template_vars = copy.deepcopy(self._template_vars)
         structure = self.sort_structure(self.get_content_structure_and_meta())
-        pages = self.get_pages_by_structure(structure)
+        pages = self.to_collection(self.get_pages_by_structure(structure))
         template_vars['site'].update({'structure': structure})
         template_vars['site'].update({'pages': pages})
 
