@@ -11,6 +11,7 @@ from copy import deepcopy
 
 from simiki import cli
 from simiki.utils import copytree, emptytree
+from simiki.config import get_default_config
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 base_path = os.path.dirname(test_path)
@@ -38,6 +39,7 @@ INIT_ARGS = {
 
 class TestCliInit(unittest.TestCase):
     def setUp(self):
+        self.default_config = get_default_config()
         self.args = deepcopy(INIT_ARGS)
         self.target_path = "_build"
 
@@ -46,15 +48,21 @@ class TestCliInit(unittest.TestCase):
         self.files = [
             "_config.yml",
             "fabfile.py",
-            os.path.join("content", "intro", "gettingstarted.md"),
-            os.path.join("themes", "simple", "page.html"),
-            os.path.join("themes", "simple", "static", "css", "style.css")
+            os.path.join(self.default_config['source'], "intro",
+                         "gettingstarted.md"),
+            os.path.join(self.default_config['themes_dir'],
+                         self.default_config['theme'],
+                         "page.html"),
+            os.path.join(self.default_config['themes_dir'],
+                         self.default_config['theme'],
+                         "static", "css", "style.css")
         ]
         self.dirs = [
-            "content",
-            "output",
-            "themes",
-            os.path.join("themes", "simple"),
+            self.default_config['source'],
+            self.default_config['destination'],
+            self.default_config['themes_dir'],
+            os.path.join(self.default_config['themes_dir'],
+                         self.default_config['theme']),
         ]
 
     def test_init(self):

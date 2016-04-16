@@ -31,7 +31,7 @@ def _set_default_config():
         "destination": "output",
         "attach": "attach",
         "themes_dir": "themes",
-        "theme": "simple",
+        "theme": "simple2",
         "default_ext": "md",
         "pygments": True,
         "debug": False,

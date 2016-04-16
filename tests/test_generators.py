@@ -19,6 +19,8 @@ base_path = os.path.dirname(test_path)
 
 class TestPageGenerator(unittest.TestCase):
     def setUp(self):
+        self.default_config = get_default_config()
+
         self.wiki_path = os.path.join(test_path, 'mywiki_for_generator')
 
         os.chdir(self.wiki_path)
@@ -28,8 +30,10 @@ class TestPageGenerator(unittest.TestCase):
 
         self.config = parse_config(self.config_file)
 
-        s_themes_path = os.path.join(base_path, 'simiki', 'themes')
-        self.d_themes_path = os.path.join('./', 'themes')
+        s_themes_path = os.path.join(base_path, 'simiki',
+                                     self.default_config['themes_dir'])
+        self.d_themes_path = os.path.join('./',
+                                          self.default_config['themes_dir'])
         if os.path.exists(self.d_themes_path):
             shutil.rmtree(self.d_themes_path)
         copytree(s_themes_path, self.d_themes_path)
