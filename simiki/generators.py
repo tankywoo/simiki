@@ -354,8 +354,10 @@ class CatalogGenerator(BaseGenerator):
         template_vars = copy.deepcopy(self._template_vars)
         structure = self.sort_structure(self.get_content_structure_and_meta())
         pages = self.to_collection(self.get_pages_by_structure(structure))
+        # `structure' is deprecated and will be removed later
+        # use `pages' instead
         template_vars['site'].update({'structure': structure})
-        template_vars['site'].update({'pages': pages})
+        template_vars.update({'pages': pages})
 
         return template_vars
 
