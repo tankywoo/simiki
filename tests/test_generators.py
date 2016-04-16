@@ -3,14 +3,14 @@
 from __future__ import print_function, with_statement, unicode_literals
 
 import os
-import os.path
-import unittest
-import datetime
+import json
 import shutil
+import datetime
+import unittest
 
 from simiki.config import parse_config, get_default_config
 from simiki.utils import copytree
-from simiki.generators import PageGenerator
+from simiki.generators import PageGenerator, CatalogGenerator
 from simiki.compat import unicode
 
 test_path = os.path.dirname(os.path.abspath(__file__))
@@ -143,6 +143,72 @@ class TestPageGenerator(unittest.TestCase):
     def tearDown(self):
         if os.path.exists(self.d_themes_path):
             shutil.rmtree(self.d_themes_path)
+
+
+class TestCatalogGenerator(unittest.TestCase):
+    def setUp(self):
+        self.default_config = get_default_config()
+
+        self.wiki_path = os.path.join(test_path, 'mywiki_for_generator')
+
+        os.chdir(self.wiki_path)
+
+        self.config_file = os.path.join(base_path, 'simiki',
+                                        'conf_templates', '_config.yml.in')
+
+        self.config = parse_config(self.config_file)
+
+        s_themes_path = os.path.join(base_path, 'simiki',
+                                     self.default_config['themes_dir'])
+        self.d_themes_path = os.path.join('./',
+                                          self.default_config['themes_dir'])
+        if os.path.exists(self.d_themes_path):
+            shutil.rmtree(self.d_themes_path)
+        copytree(s_themes_path, self.d_themes_path)
+
+        self.pages = {
+            'content/other/page1.md':
+                {'content': '',
+                 'collection': 'mycoll',
+                 'date': '2016-06-02 00:00',
+                 'layout': 'page',
+                 'title': 'Page 1'},
+            'content/other/page2.md':
+                {'content': '',
+                 'date': '2016-06-02 00:00',
+                 'layout': 'page',
+                 'title': 'Page 2'},
+            'content/other/page3.md':
+                {'content': '',
+                 'collection': 'mycoll',
+                 'date': '2016-06-02 00:00',
+                 'layout': 'page',
+                 'title': 'Page 3'},
+        }
+
+        self.generator = CatalogGenerator(self.config, self.wiki_path,
+                                          self.pages)
+
+    def test_get_template_vars(self):
+        tpl_vars = self.generator.get_template_vars()
+        with open(os.path.join(self.wiki_path,
+                               'expected_pages.json'), 'r') \
+                as fd:
+            expected_pages = json.load(fd)
+            assert(tpl_vars['pages'] == expected_pages)
+
+        with open(os.path.join(self.wiki_path,
+                               'expected_structure.json'), 'r') \
+                as fd:
+            expected_structure = json.load(fd)
+            assert(tpl_vars['site']['structure'] == expected_structure)
+
+    def test_to_catalog(self):
+        catalog_html = self.generator.generate_catalog_html()
+        fd = open(os.path.join(self.wiki_path, 'expected_catalog.html'), "rb")
+        year = datetime.date.today().year
+        expected_html = unicode(fd.read(), "utf-8") % year
+        assert catalog_html == expected_html
 
 
 if __name__ == "__main__":
