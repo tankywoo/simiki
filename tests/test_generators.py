@@ -3,6 +3,7 @@
 from __future__ import print_function, with_statement, unicode_literals
 
 import os
+import re
 import json
 import shutil
 import datetime
@@ -100,6 +101,10 @@ class TestPageGenerator(unittest.TestCase):
         src_file = os.path.join(self.wiki_path, 'content', 'foo目录',
                                 'foo_page_中文.md')
         html = self.generator.to_html(src_file).strip()
+        # trip page updated and site generated paragraph
+        html = re.sub('(?sm)\\n\s*<span class="updated">Updated.*?<\/span>',
+                      '', html)
+        html = re.sub('(?m)^\s*<p>Site Generated .*?<\/p>$\n', '', html)
         expected_output = os.path.join(self.wiki_path, 'expected_output.html')
         fd = open(expected_output, "rb")
         year = datetime.date.today().year
@@ -205,6 +210,9 @@ class TestCatalogGenerator(unittest.TestCase):
 
     def test_to_catalog(self):
         catalog_html = self.generator.generate_catalog_html()
+        # trip site generated paragraph
+        catalog_html = re.sub('(?m)^\s*<p>Site Generated .*?<\/p>$\n', '',
+                              catalog_html)
         fd = open(os.path.join(self.wiki_path, 'expected_catalog.html'), "rb")
         year = datetime.date.today().year
         expected_html = unicode(fd.read(), "utf-8") % year

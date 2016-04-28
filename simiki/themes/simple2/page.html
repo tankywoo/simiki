@@ -18,6 +18,10 @@
         {%- endfor -%}
       {%- endif -%}
       &nbsp;&#187;&nbsp;{{ page.title }}
+    <span class="updated">Updated&nbsp;
+      {% if page.updated %}{{ page.updated }}
+      {% else %}{{ page.date }}{% endif %}
+    </span>
     {%- endif -%}
   </div>
 </div>

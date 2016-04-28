@@ -137,6 +137,12 @@ pre code {
     -moz-box-shadow: 2px 2px 8px #aaa;
 }
 
+#header .updated {
+  float: right;
+  font-size: 80%;
+  color: #555;
+}
+
 .title, .page_title {
     text-align: center;
     font-size: 2em;
@@ -149,11 +155,12 @@ pre code {
     border-bottom: 1px dashed #eee;
 }
 
-#footer {
+#footer p {
     margin: 10px auto;
     font-size: 80%;
     text-align: center;
     color: #555;
+    line-height: 1em;
 }
 
 #footer a { color: #555; }
