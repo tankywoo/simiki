@@ -250,13 +250,15 @@ class CatalogGenerator(BaseGenerator):
         :pages: all pages' meta variables, dict type
         '''
         super(CatalogGenerator, self).__init__(site_config, base_path)
-        self.pages = pages
+        self._pages = pages
+        self.pages = None
+        self.structure = None
 
-    def get_content_structure_and_meta(self):
+    def get_structure(self):
         """Ref: http://stackoverflow.com/a/9619101/1276501"""
         dct = {}
         ext = self.site_config["default_ext"]
-        for path, meta in self.pages.items():
+        for path, meta in self._pages.items():
             # Ignore other files
             if not path.endswith(ext):
                 continue
@@ -268,9 +270,11 @@ class CatalogGenerator(BaseGenerator):
                 else:
                     p = p.setdefault(x, {})
 
-        return dct.get(self.site_config['source'], {})
+        self.structure = dct.get(self.site_config['source'], {})
 
-    def sort_structure(self, structure):
+        self.sort_structure()
+
+    def sort_structure(self):
         """Sort index structure in lower-case, alphabetical order
 
         Compare argument is a key/value structure, if the compare argument is a
@@ -291,21 +295,78 @@ class CatalogGenerator(BaseGenerator):
         elif is_py3:
             sorted_opts = {'key': cmp_to_key(_cmp)}
 
-        sorted_structure = copy.deepcopy(structure)
-        for k, _ in sorted_structure.items():
-            sorted_structure = OrderedDict(sorted(
-                sorted_structure.items(),
-                **sorted_opts
-            ))
-            if k.endswith(".{0}".format(self.site_config["default_ext"])):
-                continue
-            sorted_structure[k] = self.sort_structure(sorted_structure[k])
-        return sorted_structure
+        def _sort(structure):
+            sorted_structure = copy.deepcopy(structure)
+            for k, _ in sorted_structure.items():
+                sorted_structure = OrderedDict(sorted(
+                    sorted_structure.items(),
+                    **sorted_opts
+                ))
+                if k.endswith(".{0}".format(self.site_config["default_ext"])):
+                    continue
+                sorted_structure[k] = _sort(sorted_structure[k])
+            return sorted_structure
+
+        self.structure = _sort(self.structure)
+
+    def get_pages(self):
+        # for custom category settings in _config.yml
+        _category = {}
+        for c in self.site_config.get('category', []):
+            c_name = c.pop('name')
+            _category[c_name] = c
+
+        def convert(d, prefix=''):
+            pages = []
+            for k, v in d.items():
+                if 'name' in v:  # page
+                    v.update({'fname': k})
+                    pages.append(v)
+                else:
+                    k_with_prefix = os.path.join(prefix, k)
+                    _pages = convert(v, prefix=k_with_prefix)
+                    _s_category = {'name': k, 'pages': _pages}
+                    if k_with_prefix in _category:
+                        _s_category.update(_category[k_with_prefix])
+                    pages.append(_s_category)
+
+            return pages
+
+        # get pages from structure
+        self.pages = convert(self.structure)
+
+        self.update_pages_collection()
+
+    def update_pages_collection(self):
+        pages = copy.deepcopy(self.pages)
+        self.pages = []
+        # for two-level, first level is category
+        for category in pages:
+            _c_pages = []
+            _colls = {}
+            for page in category.pop('pages'):
+                if 'collection' in page:
+                    coll_name = page['collection']
+                    _colls.setdefault(coll_name, []).append(page)
+                else:
+                    _c_pages.append(page)
+            colls = []
+            for _coll_n, _coll_p in _colls.items():
+                colls.append({'name': _coll_n, 'pages': _coll_p})
+            _c_pages.extend(colls)
+            category.update({'pages': _c_pages})
+            self.pages.append(category)
 
     def get_template_vars(self):
         template_vars = copy.deepcopy(self._template_vars)
-        structure = self.sort_structure(self.get_content_structure_and_meta())
-        template_vars['site'].update({'structure': structure})
+
+        self.get_structure()
+        # `structure' is deprecated and will be removed later
+        # use `pages' instead
+        template_vars['site'].update({'structure': self.structure})
+
+        self.get_pages()
+        template_vars.update({'pages': self.pages})
 
         return template_vars
 

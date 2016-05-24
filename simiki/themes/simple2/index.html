@@ -1,0 +1,49 @@
+{%- extends "base.html" %}
+
+{%- block title %}{{ site.title }}{% endblock %}
+
+{%- block container %}
+<div class="title">{{ site.title }}</div>
+
+<div class="index">
+  {%- if site.index %}  {# custom index page #}
+    {{ page.content }}
+  {%- else %}  {# auto generate index page #}
+    {%- for category in pages %}
+      {%- if site.default_ext not in category %}  {# is category #}
+    <div class="category">
+      <h2 id="{{ category.name }}">
+        {%- if 'label' in category %}{{ category.label }}
+        {%- else %}{{ category.name|capitalize }}{% endif %}
+      </h2>
+      <div class="category_pages">
+        <ul>
+          {%- for page in category.pages %}
+          <li class="pagelist">
+            {%- if site.default_ext in page.fname %}  {# is page #}
+              <a href="./{{ category.name }}/{{ page.name }}.html">{{ page.title }}</a>
+              {%- if 'description' in page %}
+              &nbsp;&nbsp;&nbsp;{{ page.description }}
+              {% endif %}
+            {%- elif 'pages' in page %}  {# is collection #}
+              {% set coll = page %}  {# for readability #}
+              {{ coll.name }}&nbsp;&#58;&nbsp;
+              {%- for coll_page in coll.pages %}
+                <a href="./{{ category.name }}/{{ coll_page.name }}.html">{{ coll_page.title }}</a>
+                {%- if 'description' in coll_page %}
+                &nbsp;{{ coll_page.description }}
+                {% endif %}
+                {%- if not loop.last %}&nbsp;&#47;&nbsp;{% endif %}
+              {%- endfor %}
+            {%- endif %}
+          </li>
+          {%- endfor %}
+        </ul>
+      </div> <!-- end category_pages -->
+    </div> <!-- end category -->
+      {%- endif %}
+    <div class="clearfix"></div>
+    {%- endfor %}
+  {%- endif %}
+</div>
+{%- endblock %}

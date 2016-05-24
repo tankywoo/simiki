@@ -6,6 +6,7 @@ import os.path
 import unittest
 import shutil
 
+from simiki.config import get_default_config
 from simiki.initiator import Initiator
 
 
@@ -13,6 +14,7 @@ class TestInitiator(unittest.TestCase):
 
     def setUp(self):
         BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
+        self.default_config = get_default_config()
         self.config_file = os.path.join(BASE_DIR, "simiki", "conf_templates",
                                         "_config.yml.in")
         self.target_path = os.path.join(BASE_DIR, "tests", "_build")
@@ -21,13 +23,15 @@ class TestInitiator(unittest.TestCase):
         self.files = [
             "_config.yml",
             "fabfile.py",
-            os.path.join("content", "intro", "gettingstarted.md"),
+            os.path.join(self.default_config['source'], "intro",
+                         "gettingstarted.md"),
         ]
         self.dirs = [
-            "content",
-            "output",
-            "themes",
-            os.path.join("themes", "simple"),
+            self.default_config['source'],
+            self.default_config['destination'],
+            self.default_config['themes_dir'],
+            os.path.join(self.default_config['themes_dir'],
+                         self.default_config['theme']),
         ]
 
     def test_target_exist(self):

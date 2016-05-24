@@ -10,6 +10,7 @@ try:
 except ImportError:
     from mock import patch
 from simiki import utils, updater
+from simiki.config import get_default_config
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 base_path = os.path.dirname(test_path)
@@ -18,6 +19,8 @@ base_path = os.path.dirname(test_path)
 class TestUpdater(unittest.TestCase):
 
     def setUp(self):
+        self.default_config = get_default_config()
+
         self.wiki_path = os.path.join(test_path, 'mywiki_for_others')
         os.chdir(self.wiki_path)
 
@@ -27,8 +30,11 @@ class TestUpdater(unittest.TestCase):
         self.local_fabfile = os.path.join(self.wiki_path, 'fabfile.py')
 
         self.original_theme = os.path.join(base_path, 'simiki',
-                                           'themes', 'simple')
-        self.local_theme = os.path.join(self.wiki_path, 'themes', 'simple')
+                                           self.default_config['themes_dir'],
+                                           self.default_config['theme'])
+        self.local_theme = os.path.join(self.wiki_path,
+                                        self.default_config['themes_dir'],
+                                        self.default_config['theme'])
 
         self.local_theme_afile = os.path.join(self.local_theme, 'base.html')
 

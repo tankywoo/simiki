@@ -126,6 +126,8 @@ def update_builtin(**kwargs):
     original_themes = os.path.join(os.path.dirname(__file__), 'themes')
     local_themes = os.path.join(os.getcwd(), kwargs['themes_dir'])
     for theme in os.listdir(original_themes):
+        if theme in ('simple',):  # disabled/deprecated theme list
+            continue
         local_theme = os.path.join(local_themes, theme)
         original_theme = os.path.join(original_themes, theme)
         _update_dir(theme, local_theme, original_theme, 'theme')
