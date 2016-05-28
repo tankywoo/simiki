@@ -320,7 +320,8 @@ class Generator(object):
         _pages = {}
         _page_count = 0
         _draft_count = 0
-        page_generator = PageGenerator(self.config, self.target_path)
+        page_generator = PageGenerator(self.config, self.target_path,
+                                       self.tags)
         for _f in md_files:
             try:
                 page_meta = self.generate_single_page(page_generator, _f)

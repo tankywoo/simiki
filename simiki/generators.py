@@ -90,8 +90,13 @@ class BaseGenerator(object):
 
 class PageGenerator(BaseGenerator):
 
-    def __init__(self, site_config, base_path):
+    def __init__(self, site_config, base_path, tags=None):
         super(PageGenerator, self).__init__(site_config, base_path)
+        self._tags = tags
+        self._reset()
+
+    def _reset(self):
+        """Reset the global self variables"""
         self._src_file = None  # source file path relative to base_path
         self.meta = None
         self.content = None
@@ -103,6 +108,7 @@ class PageGenerator(BaseGenerator):
                    absolute filename or a filename relative to the base path.
         :include_draft: True/False, include draft pages or not to generate
         """
+        self._reset()
         self._src_file = os.path.relpath(src_file, self.base_path)
         self.meta, self.content = self.get_meta_and_content()
         # Page set `draft: True' mark current page as draft, and will
@@ -180,6 +186,8 @@ class PageGenerator(BaseGenerator):
             "filename": dst_fname
         }
         page.update(meta)
+        relation = self.get_relation()
+        page.update({'relation': relation})
         template_vars.update({'page': page})
 
         return template_vars
@@ -201,6 +209,11 @@ class PageGenerator(BaseGenerator):
         except yaml.YAMLError as e:
             e.extra_msg = 'yaml format error'
             raise
+
+        if 'tag' in meta:
+            if isinstance(meta['tag'], basestring):
+                _tags = [t.strip() for t in meta['tag'].split(',')]
+                meta.update({'tag': _tags})
 
         if not self._check_meta(meta):
             raise Exception("no 'title' in meta")
@@ -241,6 +254,18 @@ class PageGenerator(BaseGenerator):
             ])
 
         return markdown_extensions
+
+    def get_relation(self):
+        rn = []
+        if 'tag' in self.meta:
+            for t in self.meta['tag']:
+                rn.extend(self._tags[t])
+        # remove itself
+        rn = [r for r in rn if self.meta['title'] != r['title']]
+        # remove the duplicate items
+        # note this will change the items order
+        rn = [r for n, r in enumerate(rn) if r not in rn[n+1:]]
+        return rn
 
 
 class CatalogGenerator(BaseGenerator):
