@@ -39,6 +39,8 @@ import os
 import os.path
 import sys
 import io
+import re
+import yaml
 import datetime
 import shutil
 import logging
@@ -144,6 +146,17 @@ def preview_site(host, port, dest, root, do_watch):
         pass
 
 
+def extract_meta(markup_file):
+    regex = re.compile('(?sm)^---(?P<meta>.*?)^---(?P<body>.*)')
+    with io.open(markup_file, "rt", encoding="utf-8") as fd:
+        match_obj = re.match(regex, fd.read())
+        if match_obj:
+            return yaml.load(match_obj.group('meta'))
+        else:
+            raise Exception('extracting page with format error, '
+                            'see <http://simiki.org/docs/metadata.html>')
+
+
 def method_proxy(cls_instance, method_name, *args, **kwargs):
     '''ref: http://stackoverflow.com/a/10217089/1276501'''
     return getattr(cls_instance, method_name)(*args, **kwargs)
@@ -155,6 +168,7 @@ class Generator(object):
         self.config = config
         self.config.update({'version': __version__})
         self.target_path = target_path
+        self.tags = {}
         self.pages = {}
         self.page_count = 0
         self.draft_count = 0
@@ -173,6 +187,8 @@ class Generator(object):
             # for github pages and favicon.ico
             exclude_list = ['.git', 'CNAME', 'favicon.ico']
             emptytree(dest_dir, exclude_list)
+
+        self.generate_tags()
 
         self.generate_pages()
 
@@ -195,6 +211,34 @@ class Generator(object):
             if os.path.exists(_file):
                 shutil.copy2(_file,
                              os.path.join(self.config['destination'], _fn))
+
+    def generate_tags(self):
+        for root, dirs, files in os.walk(self.config["source"]):
+            files = [f for f in files if not f.startswith(".")]
+            dirs[:] = [d for d in dirs if not d.startswith(".")]
+            for filename in files:
+                if not filename.endswith(self.config["default_ext"]):
+                    continue
+                md_file = os.path.join(root, filename)
+                meta = extract_meta(md_file)
+                category, _f = os.path.split(
+                    os.path.relpath(md_file, self.config['source']))
+                _f = _f.replace(
+                    ".{0}".format(self.config["default_ext"]), ".html")
+                meta.update({'category': category, 'filename': _f})
+                _tags = meta.get('tag')
+                if not _tags:
+                    continue
+                if isinstance(_tags, basestring):
+                    _tags = [t.strip() for t in _tags.split(',')]
+                    meta.update({'tag': _tags})
+                else:  # for list
+                    pass
+                for t in _tags:
+                    # if t not in self.tags:
+                    #     self.tags[t] = []
+                    # self.tags[t].append(meta)
+                    self.tags.setdefault(t, []).append(meta)
 
     def generate_feed(self, pages, feed_fn):
         logger.info("Generate feed.")
@@ -276,7 +320,8 @@ class Generator(object):
         _pages = {}
         _page_count = 0
         _draft_count = 0
-        page_generator = PageGenerator(self.config, self.target_path)
+        page_generator = PageGenerator(self.config, self.target_path,
+                                       self.tags)
         for _f in md_files:
             try:
                 page_meta = self.generate_single_page(page_generator, _f)
