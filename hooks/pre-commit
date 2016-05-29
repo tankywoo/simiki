@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# Run unittest before commit
+
+make test >/dev/null 2>&1
+unittest=$?
+
+if [[ ${unittest} != 0 ]]; then
+	cat <<\EOF
+Error: Unit Testing Failed!!!
+EOF
+	exit 1
+fi
