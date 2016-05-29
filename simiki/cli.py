@@ -359,6 +359,7 @@ class Generator(object):
 
         write_file(output_file, html)
         meta = generator.meta
+        meta['content'] = generator.content  # TODO
         return meta
 
     def _generate_callback(self, result):
