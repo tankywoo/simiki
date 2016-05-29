@@ -87,6 +87,7 @@ class TestPageGenerator(unittest.TestCase):
                 u'filename': u'foo_page_\u4e2d\u6587.html',
                 u'date': '2013-10-17 00:03',
                 u'layout': 'page',
+                u'relation': None,
                 u'title': 'Foo Page 2'
             },
             u'site': get_default_config()

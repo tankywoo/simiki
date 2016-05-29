@@ -31,7 +31,7 @@
 
   {{ page.content }}
 
-  {% if page.relation %}
+  {%- if page.relation %}
   <div class="relation">
     <h2>Related</h2>
     <ul>
@@ -40,6 +40,6 @@
     {% endfor %}
     </ul>
   </div>
-  {% endif %}
+  {%- endif %}
 
 {%- endblock %}

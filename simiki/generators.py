@@ -100,6 +100,7 @@ class PageGenerator(BaseGenerator):
         self._src_file = None  # source file path relative to base_path
         self.meta = None
         self.content = None
+        self.relation = None
 
     def to_html(self, src_file, include_draft=False):
         """Load template, and generate html
@@ -111,6 +112,7 @@ class PageGenerator(BaseGenerator):
         self._reset()
         self._src_file = os.path.relpath(src_file, self.base_path)
         self.meta, self.content = self.get_meta_and_content()
+        self.get_relation()
         # Page set `draft: True' mark current page as draft, and will
         # be ignored if not forced generate include draft pages
         if not include_draft and self.meta.get('draft', False):
@@ -186,8 +188,7 @@ class PageGenerator(BaseGenerator):
             "filename": dst_fname
         }
         page.update(meta)
-        relation = self.get_relation()
-        page.update({'relation': relation})
+        page.update({'relation': self.relation})
         template_vars.update({'page': page})
 
         return template_vars
