@@ -6,6 +6,7 @@ import os
 import os.path
 import sys
 import logging
+import traceback
 
 try:
     import SimpleHTTPServer as http_server
@@ -86,7 +87,8 @@ def preview(path, url_root, host='localhost', port=8000):
         Handler = YARequestHandler
         httpd = Reuse_TCPServer((host, port), Handler)
     except (OSError, IOError) as e:
-        logging.error("Could not listen on port {0}".format(port))
+        logging.error("Could not listen on port {0}\n{1}"
+                      .format(port, traceback.format_exc()))
         sys.exit(getattr(e, 'exitcode', 1))
 
     logging.info("Serving at: http://{0}:{1}{2}/".format(host, port, url_root))
