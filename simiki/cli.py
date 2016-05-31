@@ -27,7 +27,7 @@ Options:
   -c <category>       Specify the category
   -t <title>          Specify the new post title
   -f <file>           Specify the new post filename
-  --host <host>       Bind host to preview [default: localhost]
+  --host <host>       Bind host to preview [default: 127.0.0.1]
   --port <port>       Bind port to preview [default: 8000]
   -w                  Auto regenerated when file changed
   --draft             Include draft pages to generate
