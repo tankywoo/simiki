@@ -100,7 +100,6 @@ class PageGenerator(BaseGenerator):
         self._src_file = None  # source file path relative to base_path
         self.meta = None
         self.content = None
-        self.relation = None
 
     def to_html(self, src_file, include_draft=False):
         """Load template, and generate html
@@ -112,7 +111,6 @@ class PageGenerator(BaseGenerator):
         self._reset()
         self._src_file = os.path.relpath(src_file, self.base_path)
         self.meta, self.content = self.get_meta_and_content()
-        self.get_relation()
         # Page set `draft: True' mark current page as draft, and will
         # be ignored if not forced generate include draft pages
         if not include_draft and self.meta.get('draft', False):
@@ -132,27 +130,16 @@ class PageGenerator(BaseGenerator):
     def src_file(self, filename):
         self._src_file = os.path.relpath(filename, self.base_path)
 
-    def get_meta_and_content(self):
-        """Split the source file texts by triple-dashed lines, return the mata
-        and content.
-        meta is page's meta data, dict type.
-        content is html parsed from markdown or other markup text.
-        """
-        regex = re.compile('(?sm)^---(?P<meta>.*?)^---(?P<body>.*)')
-        with io.open(self._src_file, "rt", encoding="utf-8") as fd:
-            match_obj = re.match(regex, fd.read())
-            if match_obj:
-                meta = self._get_meta(match_obj.group('meta'))
-                text = match_obj.group('body')
-                if meta.get('render', True):
-                    content = self._parse_markup(text)
-                else:
-                    content = text
-            else:
-                raise Exception('extracting page with format error, '
-                                'see <http://simiki.org/docs/metadata.html>')
+    def get_meta_and_content(self, do_render=True):
+        meta_str, content_str = self.extract_page(self._src_file)
+        meta = self.parse_meta(meta_str)
+        # This is the most time consuming part
+        if do_render and meta.get('render', True):
+            content = self._parse_markup(content_str)
+        else:
+            content = content_str
 
-        return (meta, content)
+        return meta, content
 
     def get_layout(self, meta):
         """Get layout config in meta, default is `page'"""
@@ -179,16 +166,10 @@ class PageGenerator(BaseGenerator):
     def get_template_vars(self, meta, content):
         """Get template variables, include site config and page config"""
         template_vars = copy.deepcopy(self._template_vars)
-        category, src_fname = self.get_category_and_file()
-        dst_fname = src_fname.replace(
-            ".{0}".format(self.site_config["default_ext"]), ".html")
-        page = {
-            "category": category,
-            "content": content,
-            "filename": dst_fname
-        }
+        page = {"content": content}
         page.update(meta)
-        page.update({'relation': self.relation})
+        page.update({'relation': self.get_relation()})
+
         template_vars.update({'page': page})
 
         return template_vars
@@ -200,33 +181,51 @@ class PageGenerator(BaseGenerator):
         category, filename = os.path.split(src_file_relpath_to_source)
         return (category, filename)
 
-    def _get_meta(self, meta_yaml):
-        """Get meta and validate them
+    @staticmethod
+    def extract_page(filename):
+        """Split the page file texts by triple-dashed lines, return the mata
+        and content.
 
-        :param meta_yaml: meta in yaml format
+        :param filename: the filename of markup page
+
+        returns:
+          meta_str (str): page's meta string
+          content_str (str): html parsed from markdown or other markup text.
         """
+        regex = re.compile('(?sm)^---(?P<meta>.*?)^---(?P<body>.*)')
+        with io.open(filename, "rt", encoding="utf-8") as fd:
+            match_obj = re.match(regex, fd.read())
+            if match_obj:
+                meta_str = match_obj.group('meta')
+                content_str = match_obj.group('body')
+            else:
+                raise Exception('extracting page with format error, '
+                                'see <http://simiki.org/docs/metadata.html>')
+
+        return meta_str, content_str
+
+    def parse_meta(self, yaml_str):
+        """Parse meta from yaml string, and validate yaml filed, return dict"""
         try:
-            meta = yaml.load(meta_yaml)
+            meta = yaml.load(yaml_str)
         except yaml.YAMLError as e:
             e.extra_msg = 'yaml format error'
             raise
+
+        category, src_fname = self.get_category_and_file()
+        dst_fname = src_fname.replace(
+            ".{0}".format(self.site_config['default_ext']), '.html')
+        meta.update({'category': category, 'filename': dst_fname})
 
         if 'tag' in meta:
             if isinstance(meta['tag'], basestring):
                 _tags = [t.strip() for t in meta['tag'].split(',')]
                 meta.update({'tag': _tags})
 
-        if not self._check_meta(meta):
+        if "title" not in meta:
             raise Exception("no 'title' in meta")
 
         return meta
-
-    def _check_meta(self, meta):
-        """Check if meta is right"""
-        is_meta_right = True
-        if "title" not in meta:
-            is_meta_right = False
-        return is_meta_right
 
     def _parse_markup(self, markup_text):
         """Parse markup text to html
@@ -258,7 +257,7 @@ class PageGenerator(BaseGenerator):
 
     def get_relation(self):
         rn = []
-        if 'tag' in self.meta:
+        if self._tags and 'tag' in self.meta:
             for t in self.meta['tag']:
                 rn.extend(self._tags[t])
         # remove itself

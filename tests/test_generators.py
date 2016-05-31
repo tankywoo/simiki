@@ -57,7 +57,8 @@ class TestPageGenerator(unittest.TestCase):
         self.generator.src_file = src_file
         meta, content = self.generator.get_meta_and_content()
         expected_meta = {'date': '2013-10-17 00:03', 'layout': 'page',
-                         'title': 'Foo Page 2'}
+                         'title': 'Foo Page 2', 'category': 'foo目录',
+                         'filename': 'foo_page_中文.html'}
         self.assertEqual(meta, expected_meta)
         self.assertEqual(content, '<p>Simiki is a simple wiki '
                                   'framework, written in Python.</p>')
@@ -87,7 +88,7 @@ class TestPageGenerator(unittest.TestCase):
                 u'filename': u'foo_page_\u4e2d\u6587.html',
                 u'date': '2013-10-17 00:03',
                 u'layout': 'page',
-                u'relation': None,
+                u'relation': [],
                 u'title': 'Foo Page 2'
             },
             u'site': get_default_config()
