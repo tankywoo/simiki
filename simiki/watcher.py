@@ -70,7 +70,9 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
             _file = event.dest_path
         else:
             _file = event.src_path
-        self.generate_page(_file)
+
+        if event.event_type not in ('deleted',):
+            self.generate_page(_file)
 
         self.generate_catalog()
 
@@ -81,6 +83,9 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
         self.process(event)
 
     def on_moved(self, event):
+        self.process(event)
+
+    def on_deleted(self, event):
         self.process(event)
 
 
