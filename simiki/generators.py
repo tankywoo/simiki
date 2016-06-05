@@ -367,6 +367,9 @@ class CatalogGenerator(BaseGenerator):
         self.pages = []
         # for two-level, first level is category
         for category in pages:
+            if 'fname' in category:
+                # for first level pages
+                continue
             _c_pages = []
             _colls = {}
             for page in category.pop('pages'):
