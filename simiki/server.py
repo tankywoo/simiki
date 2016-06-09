@@ -6,6 +6,7 @@ import os
 import os.path
 import sys
 import logging
+import traceback
 
 try:
     import SimpleHTTPServer as http_server
@@ -60,7 +61,7 @@ class YARequestHandler(http_server.SimpleHTTPRequestHandler):
         http_server.SimpleHTTPRequestHandler.do_GET(self)
 
 
-def preview(path, url_root, host='localhost', port=8000):
+def preview(path, url_root, host='127.0.0.1', port=8000):
     '''
     :param path: directory path relative to current path
     :param url_root: `root` setted in _config.yml
@@ -68,7 +69,7 @@ def preview(path, url_root, host='localhost', port=8000):
     global URL_ROOT, PUBLIC_DIRECTORY
 
     if not host:
-        host = 'localhost'
+        host = '127.0.0.1'
     if not port:
         port = 8000
 
@@ -86,7 +87,8 @@ def preview(path, url_root, host='localhost', port=8000):
         Handler = YARequestHandler
         httpd = Reuse_TCPServer((host, port), Handler)
     except (OSError, IOError) as e:
-        logging.error("Could not listen on port {0}".format(port))
+        logging.error("Could not listen on port {0}\n{1}"
+                      .format(port, traceback.format_exc()))
         sys.exit(getattr(e, 'exitcode', 1))
 
     logging.info("Serving at: http://{0}:{1}{2}/".format(host, port, url_root))

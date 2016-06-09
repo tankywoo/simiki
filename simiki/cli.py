@@ -27,7 +27,7 @@ Options:
   -c <category>       Specify the category
   -t <title>          Specify the new post title
   -f <file>           Specify the new post filename
-  --host <host>       Bind host to preview [default: localhost]
+  --host <host>       Bind host to preview [default: 127.0.0.1]
   --port <port>       Bind port to preview [default: 8000]
   -w                  Auto regenerated when file changed
   --draft             Include draft pages to generate
@@ -155,6 +155,7 @@ class Generator(object):
         self.config = config
         self.config.update({'version': __version__})
         self.target_path = target_path
+        self.tags = {}
         self.pages = {}
         self.page_count = 0
         self.draft_count = 0
@@ -173,6 +174,8 @@ class Generator(object):
             # for github pages and favicon.ico
             exclude_list = ['.git', 'CNAME', 'favicon.ico']
             emptytree(dest_dir, exclude_list)
+
+        self.generate_tags()
 
         self.generate_pages()
 
@@ -195,6 +198,23 @@ class Generator(object):
             if os.path.exists(_file):
                 shutil.copy2(_file,
                              os.path.join(self.config['destination'], _fn))
+
+    def generate_tags(self):
+        g = PageGenerator(self.config, self.target_path)
+
+        for root, dirs, files in os.walk(self.config["source"]):
+            files = [f for f in files if not f.startswith(".")]
+            dirs[:] = [d for d in dirs if not d.startswith(".")]
+            for filename in files:
+                if not filename.endswith(self.config["default_ext"]):
+                    continue
+                md_file = os.path.join(root, filename)
+
+                g.src_file = md_file
+                meta, _ = g.get_meta_and_content(do_render=False)
+                _tags = meta.get('tag') or []  # if None
+                for t in _tags:
+                    self.tags.setdefault(t, []).append(meta)
 
     def generate_feed(self, pages, feed_fn):
         logger.info("Generate feed.")
@@ -276,7 +296,8 @@ class Generator(object):
         _pages = {}
         _page_count = 0
         _draft_count = 0
-        page_generator = PageGenerator(self.config, self.target_path)
+        page_generator = PageGenerator(self.config, self.target_path,
+                                       self.tags)
         for _f in md_files:
             try:
                 page_meta = self.generate_single_page(page_generator, _f)
@@ -314,6 +335,7 @@ class Generator(object):
 
         write_file(output_file, html)
         meta = generator.meta
+        meta['content'] = generator.content  # TODO
         return meta
 
     def _generate_callback(self, result):

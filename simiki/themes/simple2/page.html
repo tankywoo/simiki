@@ -1,0 +1,45 @@
+{%- extends "base.html" %}
+
+{%- block title %}{{ page.title }} - {{ site.title }}{% endblock %}
+
+{%- block container %}
+<div id="header">
+  <div class="post-nav">
+    {%- if not default_home_page -%}
+    <a href="{{ site.root }}/">Home</a>
+      {%- if page.category -%}
+        {%- for c in page.category.split("/") -%}
+          {%- if loop.first -%}
+            {%- set id = c -%}
+          {%- else -%}
+            {% set id = id ~ "-" ~ c -%}
+          {%- endif -%}
+          &nbsp;&#187;&nbsp;<a href="{{ site.root }}/#{{ id }}">{{ c }}</a>
+        {%- endfor -%}
+      {%- endif -%}
+      &nbsp;&#187;&nbsp;{{ page.title }}
+    <span class="updated">Updated&nbsp;
+      {% if page.updated %}{{ page.updated }}
+      {% else %}{{ page.date }}{% endif %}
+    </span>
+    {%- endif -%}
+  </div>
+</div>
+<div class="clearfix"></div>
+
+<div class="page_title">{{ page.title }}</div>
+
+  {{ page.content }}
+
+  {%- if page.relation %}
+  <div class="relation">
+    <h2>Related</h2>
+    <ul>
+    {% for r in page.relation %}
+    <li><a href="{{ site.root }}/{{ r.category }}/{{ r.filename }}">{{ r.title }}</a></li>
+    {% endfor %}
+    </ul>
+  </div>
+  {%- endif %}
+
+{%- endblock %}

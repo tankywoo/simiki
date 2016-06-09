@@ -4,6 +4,8 @@ layout: page
 date: 2099-06-02 00:00
 ---
 
+[TOC]
+
 # Simiki #
 
 [![Latest Version](http://img.shields.io/pypi/v/simiki.svg)](https://pypi.python.org/pypi/simiki)
@@ -42,11 +44,11 @@ Simiki is short for `Simple Wiki` :)
 
 ### Generate ###
 
-	simiki generate
+	simiki g
 
 ### Preview ###
 
-	simiki preview
+	simiki p -w
 
 For more information, `simiki -h` or have a look at [Simiki.org](http://simiki.org)
 
