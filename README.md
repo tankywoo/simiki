@@ -15,6 +15,13 @@ Simiki is a simple wiki framework, written in [Python](https://www.python.org/).
 
 Simiki is short for `Simple Wiki` :)
 
+> New in version 1.6.0 (2016-06-09)
+> 
+> - Fix issue #60, preview with 127.0.0.1
+> - Add `page` variable, [doc](http://simiki.org/docs/variables.html#index-variables)
+> - Add `category` settings in _config.yml
+> - Add `collection` and `tag`, a three-tier structure, [doc](http://simiki.org/docs/collection_and_tag.html)
+> - Add new theme simple2, with collection/tag support
 
 ## Installation ##
 

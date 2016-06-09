@@ -1,3 +1,12 @@
+v1.6.0 (2016-06-09)
+=====================
+- Fix issue #60, preview with 127.0.0.1
+- Add ``page`` variable, `doc <http://simiki.org/docs/variables.html#index-variables>`_
+- Add ``category`` settings in _config.yml
+- Add ``collection`` and ``tag``, a three-tier structure, `doc <http://simiki.org/docs/collection_and_tag.html>`_
+- Add new theme simple2, with collection/tag support
+
+
 v1.5.1 (2016-04-09)
 =====================
 - Fix ``fab deploy`` find ghp-import command error, pr #51
