@@ -15,6 +15,17 @@ _site_config = None
 _base_path = None
 
 
+def reload(func):
+    """Fake watcher reload wrapper"""
+    def wrapper(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+        except Exception as e:
+            logging.error('Watcher has error, reloading...')
+            logging.debug(str(e))
+    return wrapper
+
+
 class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
     '''Observe .md files under content directory.
     Temporary only regenerate, not delete unused files'''
@@ -76,15 +87,19 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
 
         self.generate_catalog()
 
+    @reload
     def on_created(self, event):
         self.process(event)
 
+    @reload
     def on_modified(self, event):
         self.process(event)
 
+    @reload
     def on_moved(self, event):
         self.process(event)
 
+    @reload
     def on_deleted(self, event):
         self.process(event)
 
