@@ -32,6 +32,19 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
     patterns = ['*.{0}'.format(e) for e in simiki.allowed_extensions]
 
     @staticmethod
+    def get_ofile(ifile):
+        """get output filename from input filename"""
+        category, filename = os.path.split(ifile)
+        category = os.path.relpath(category, _site_config['source'])
+        ofile = os.path.join(
+            _base_path,
+            _site_config['destination'],
+            category,
+            '{0}.html'.format(os.path.splitext(filename)[0])
+        )
+        return ofile
+
+    @staticmethod
     def generate_page(_file):
         pg = PageGenerator(_site_config, _base_path)
         html = pg.to_html(_file)
@@ -39,14 +52,7 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
         if not html:
             return None
 
-        category, filename = os.path.split(_file)
-        category = os.path.relpath(category, _site_config['source'])
-        output_fname = os.path.join(
-            _base_path,
-            _site_config['destination'],
-            category,
-            '{0}.html'.format(os.path.splitext(filename)[0])
-        )
+        output_fname = YAPatternMatchingEventHandler.get_ofile(_file)
         write_file(output_fname, html)
         logging.debug('Regenerating: {0}'.format(_file))
 
@@ -86,6 +92,11 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
             self.generate_page(_file)
 
         self.generate_catalog()
+
+        if event.event_type in ('moved', 'deleted'):
+            # remove old output file
+            ofile = self.get_ofile(event.src_path)
+            os.remove(ofile)
 
     @reload
     def on_created(self, event):
