@@ -243,15 +243,24 @@ class PageGenerator(BaseGenerator):
 
     def _set_markdown_extensions(self):
         """Set the extensions for markdown parser"""
-        # TODO: custom markdown extension in _config.yml
-        # Base markdown extensions support "fenced_code".
-        markdown_extensions = ["fenced_code"]
-        if self.site_config["pygments"]:
-            markdown_extensions.extend([
-                "extra",
-                "codehilite(css_class=hlcode)",
-                "toc(title=Table of Contents)"
-            ])
+        if self.site_config.get('markdown'):
+            # if markdown options defined in _config.yml, such as:
+            # markdown:
+            #   - fenced_code
+            #   - extra
+            #   - codehilite(css_class=hlcode)
+            #   - toc(title=Table of Contents)
+            markdown_extensions = self.site_config['markdown']
+        else:
+            # Base markdown extensions support "fenced_code".
+            # codehilite is the most time consuming part
+            markdown_extensions = ["fenced_code"]
+            if self.site_config["pygments"]:
+                markdown_extensions.extend([
+                    "extra",
+                    "codehilite(css_class=hlcode)",
+                    "toc(title=Table of Contents)"
+                ])
 
         return markdown_extensions
 
