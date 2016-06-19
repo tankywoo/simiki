@@ -18,12 +18,12 @@ try:
 except ImportError:
     from ordereddict import OrderedDict
 
-import markdown
 import yaml
 from jinja2 import (Environment, FileSystemLoader, TemplateError)
 
 from simiki import jinja_exts
 from simiki.compat import is_py2, is_py3, basestring
+from simiki.parser import MarkupParser
 
 if is_py3:
     from functools import cmp_to_key
@@ -93,6 +93,7 @@ class PageGenerator(BaseGenerator):
     def __init__(self, site_config, base_path, tags=None):
         super(PageGenerator, self).__init__(site_config, base_path)
         self._tags = tags
+        self.parser = MarkupParser(self.site_config)
         self._reset()
 
     def _reset(self):
@@ -135,7 +136,7 @@ class PageGenerator(BaseGenerator):
         meta = self.parse_meta(meta_str)
         # This is the most time consuming part
         if do_render and meta.get('render', True):
-            content = self._parse_markup(content_str)
+            content = self.parser.parse(content_str)
         else:
             content = content_str
 
@@ -226,43 +227,6 @@ class PageGenerator(BaseGenerator):
             raise Exception("no 'title' in meta")
 
         return meta
-
-    def _parse_markup(self, markup_text):
-        """Parse markup text to html
-
-        Only support Markdown for now.
-        """
-        markdown_extensions = self._set_markdown_extensions()
-
-        html_content = markdown.markdown(
-            markup_text,
-            extensions=markdown_extensions,
-        )
-
-        return html_content
-
-    def _set_markdown_extensions(self):
-        """Set the extensions for markdown parser"""
-        if self.site_config.get('markdown'):
-            # if markdown options defined in _config.yml, such as:
-            # markdown:
-            #   - fenced_code
-            #   - extra
-            #   - codehilite(css_class=hlcode)
-            #   - toc(title=Table of Contents)
-            markdown_extensions = self.site_config['markdown']
-        else:
-            # Base markdown extensions support "fenced_code".
-            # codehilite is the most time consuming part
-            markdown_extensions = ["fenced_code"]
-            if self.site_config["pygments"]:
-                markdown_extensions.extend([
-                    "extra",
-                    "codehilite(css_class=hlcode)",
-                    "toc(title=Table of Contents)"
-                ])
-
-        return markdown_extensions
 
     def get_relation(self):
         rn = []
