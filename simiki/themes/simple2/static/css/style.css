@@ -214,27 +214,35 @@ li.pagelist:before {
 
 /* Hackers */
 /* Hacker for codehilite */
-table.codehilitetable {
-    border-collapse: separate;
+table.highlighttable {
     border: 1px solid #eee;
-    margin: 14px 0;
+    border-collapse: separate !important;
     border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
 }
 
-.codehilitetable pre {
-    margin: 0;
-    border: 0 none;
-    box-shadow: none;
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
+.highlighttable td {
+    padding: 0;
+    border: none;
 }
 
-.codehilitetable td {
-    border: 0 none;
-    padding: 0;
+.highlighttable td.code {
+    width: 100%;
+}
+
+.highlighttable .linenodiv {
+    border-right: 1px solid #ccc;
+}
+
+.highlighttable .linenodiv pre {
     margin: 0;
+    border: none;
+}
+
+.highlighttable .highlight pre {
+    margin: 0;
+    border: none;
 }
 
 /* Clear the float problem */
