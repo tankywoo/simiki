@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import markdown
+import mistune
+from mistune_contrib import highlight
 
 
 class MarkupParser(object):
@@ -62,3 +64,25 @@ class PythonMarkdownParser(object):
                 ])
 
         return markdown_extensions
+
+
+class MistuneRenderer(highlight.HighlightMixin, mistune.Renderer):
+    pass
+
+
+class MistuneParser(object):
+    """Markdown Parser
+
+    Use [lepture/mistune](https://github.com/lepture/mistune)
+    """
+    def __init__(self, site_config):
+        self.site_config = site_config
+
+    def parse(self, text):
+        """Parse markup text to html"""
+
+        renderer = MistuneRenderer(linenos=False, inlinestyles=True)
+
+        html = mistune.markdown(text, renderer=renderer)
+
+        return html
