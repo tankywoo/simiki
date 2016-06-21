@@ -261,6 +261,10 @@ table.hlcodetable {
     border: none;
 }
 
+.hlcodetable td.code {
+    width: 100%;
+}
+
 .hlcodetable .linenodiv {
     border-right: 1px solid #ccc;
 }
