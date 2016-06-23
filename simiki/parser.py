@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import sys
 import markdown
-import mistune
-from mistune_contrib import highlight
+try:
+    import mistune
+    from mistune_contrib import highlight
+except ImportError:
+    pass
 
 
 class MarkupParser(object):
@@ -66,8 +70,10 @@ class PythonMarkdownParser(object):
         return markdown_extensions
 
 
-class MistuneRenderer(highlight.HighlightMixin, mistune.Renderer):
-    pass
+if 'mistune' in sys.modules and 'mistune_contrib' in sys.modules:
+
+    class MistuneRenderer(highlight.HighlightMixin, mistune.Renderer):
+        pass
 
 
 class MistuneParser(object):
