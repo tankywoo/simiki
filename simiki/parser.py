@@ -23,7 +23,15 @@ class MarkupParser(object):
         self.site_config = site_config
 
     def parse(self, text):
-        parser = PythonMarkdownParser(self.site_config)
+        cls_map = {
+            'markdown': PythonMarkdownParser,
+            'markdown2': PythonMarkdown2Parser,
+            'mistune': MistuneParser,
+        }
+        # config `markdown' option in _config.yml, default is `markdown'
+        engine = self.site_config.get('markdown', 'markdown')
+        Parser = cls_map[engine]
+        parser = Parser(self.site_config)
         return parser.parse(text)
 
 
@@ -31,6 +39,8 @@ class PythonMarkdownParser(object):
     """Markdown Parser
 
     Use [waylan/Python-Markdown](https://github.com/waylan/Python-Markdown)
+
+    Default markdown parser.
 
     Ref:
       * [PyPI](https://pypi.python.org/pypi/Markdown)
