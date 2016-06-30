@@ -15,6 +15,11 @@ Simiki is a simple wiki framework, written in [Python](https://www.python.org/).
 
 Simiki is short for `Simple Wiki` :)
 
+> New in version 1.6.0.1 (2016-06-30)
+>
+> - Fix issue #64 with python3.x
+>
+>
 > New in version 1.6.0 (2016-06-09)
 > 
 > - Fix issue #60, preview with 127.0.0.1
