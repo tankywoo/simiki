@@ -6,7 +6,6 @@ COPY . /src
 RUN pip install simiki
 RUN simiki g
 
-WORKDIR /src/output
-CMD ["python", "-m", "SimpleHTTPServer", "8000"]
+CMD ["simiki", "p", "-w", "--host", "0.0.0.0", "--port", "8000"]
 
 EXPOSE 8000
