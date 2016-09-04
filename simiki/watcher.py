@@ -88,6 +88,10 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
         else:
             _file = event.src_path
 
+        # such as in vim, modified a file will trigger moved event to temp file
+        if not _file.endswith(tuple(simiki.allowed_extensions)):
+            return
+
         if event.event_type not in ('deleted',):
             self.generate_page(_file)
 
@@ -96,7 +100,8 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
         if event.event_type in ('moved', 'deleted'):
             # remove old output file
             ofile = self.get_ofile(event.src_path)
-            os.remove(ofile)
+            if os.path.exists(ofile):
+                os.remove(ofile)
 
     @reload
     def on_created(self, event):
