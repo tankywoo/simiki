@@ -16,6 +16,7 @@ class Initiator(object):
     config_fn = "_config.yml"
     fabfile_fn = "fabfile.py"
     demo_fn = "gettingstarted.md"
+    dockerfile_fn = "Dockerfile"
 
     def __init__(self, config_file, target_path):
         self.config_file = config_file
@@ -50,6 +51,15 @@ class Initiator(object):
         )
         dst_fabfile = os.path.join(self.target_path, self.fabfile_fn)
         self.get_file(src_fabfile, dst_fabfile)
+
+    def get_dockerfile(self):
+        src_dockerfile = os.path.join(
+            self.source_path,
+            self.conf_template_dn,
+            self.dockerfile_fn
+        )
+        dst_dockerfile = os.path.join(self.target_path, self.dockerfile_fn)
+        self.get_file(src_dockerfile, dst_dockerfile)
 
     def get_demo_page(self):
         nohidden_dir = listdir_nohidden(
@@ -89,6 +99,7 @@ class Initiator(object):
                 logging.info("Creating directory: {0}".format(path))
 
         self.get_config_file()
+        self.get_dockerfile()
         self.get_fabfile()
         self.get_demo_page()
         self.get_default_theme(theme_path)

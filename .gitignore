@@ -38,3 +38,5 @@ nosetests.xml
 
 # Custom
 *.swp
+venv/
+.DS_Store
