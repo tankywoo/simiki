@@ -183,7 +183,7 @@ li.pagelist {
     overflow: hidden;
 }
 
-li.pagelist:before {
+.item_arrow:before {
     content: "\0BB \020";
 }
 
@@ -284,4 +284,12 @@ table.hlcodetable {
 .hlcodetable .hlcode pre {
     margin: 0;
     border: none;
+}
+
+.list_wrapper {
+  display: inline-block;
+}
+
+.coll_name {
+  float: left;
 }

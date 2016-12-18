@@ -19,22 +19,27 @@
       <div class="category_pages">
         <ul>
           {%- for page in category.pages %}
-          <li class="pagelist">
             {%- if site.default_ext in page.fname %}  {# is page #}
+          <li class="pagelist item_arrow">
               <a href="./{{ category.name }}/{{ page.name }}.html">{{ page.title }}</a>
               {%- if 'description' in page %}
               &nbsp;&nbsp;&nbsp;{{ page.description }}
               {% endif %}
             {%- elif 'pages' in page %}  {# is collection #}
+          <li class="pagelist">
               {% set coll = page %}  {# for readability #}
-              {{ coll.name }}&nbsp;&#58;&nbsp;
+              <div class="list_wrapper">
+                <div class="coll_name item_arrow">{{ coll.name }}&nbsp;&#58;&nbsp;</div>
+                <div class="coll_list">
               {%- for coll_page in coll.pages %}
-                <a href="./{{ category.name }}/{{ coll_page.name }}.html">{{ coll_page.title }}</a>
+                  <a href="./{{ category.name }}/{{ coll_page.name }}.html">{{ coll_page.title }}</a>
                 {%- if 'description' in coll_page %}
-                &nbsp;{{ coll_page.description }}
+                  &nbsp;{{ coll_page.description }}
                 {% endif %}
                 {%- if not loop.last %}&nbsp;&#47;&nbsp;{% endif %}
               {%- endfor %}
+                </div>
+              </div>
             {%- endif %}
           </li>
           {%- endfor %}
