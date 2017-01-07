@@ -1,0 +1,6 @@
+[submodule "simiki/themes/simple"]
+	path = simiki/themes/simple
+	url = https://github.com/simiki-org/simple
+[submodule "simiki/themes/simple2"]
+	path = simiki/themes/simple2
+	url = https://github.com/simiki-org/simple2
