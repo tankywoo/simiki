@@ -76,6 +76,13 @@ Sending pull requests on [Pull Requests Page](https://github.com/tankywoo/simiki
 * Bug fixes can be based on **`master`** branch and I will also merge into `dev` branch.
 * Feature can be based on **`dev`** branch.
 
+The basic steps are:
+
+	git clone <your-forked-git-repo-url>
+	# clone themes from another repos, otherwise some unittest rely on theme will cause error
+	git submodule init
+	git submodule update
+
 Following links are the contribution guidelines you may need:
 
 * [Fork A Repo](https://help.github.com/articles/fork-a-repo/)
