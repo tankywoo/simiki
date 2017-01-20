@@ -22,15 +22,19 @@
       <h2 id="other">Other
       </h2>
       <div class="category_pages">
-        <ul>
-          <li class="pagelist">  
+        <ul>  
+          <li class="pagelist item_arrow">
               <a href="./other/page2.html">Page 2</a>
-          </li>
-          <li class="pagelist">  
+          </li>  
+          <li class="pagelist">
                 
-              mycoll&nbsp;&#58;&nbsp;
-                <a href="./other/page1.html">Page 1</a>&nbsp;&#47;&nbsp;
-                <a href="./other/page3.html">Page 3</a>
+              <div class="list_wrapper">
+                <div class="coll_name item_arrow">mycoll&nbsp;&#58;&nbsp;</div>
+                <div class="coll_list">
+                  <a href="./other/page1.html">Page 1</a>&nbsp;&#47;&nbsp;
+                  <a href="./other/page3.html">Page 3</a>
+                </div>
+              </div>
           </li>
         </ul>
       </div> <!-- end category_pages -->
@@ -44,5 +48,19 @@
         Powered by <a href="http://simiki.org/" target="_blank">Simiki</a>.</p>
       </span>
     </div>
+
+    
+<script>
+  var list_wrappers = document.getElementsByClassName('list_wrapper')
+  for (var i = 0, len = list_wrappers.length; i < len; i++) {
+    var list_wrapper = list_wrappers[i];
+    var coll_name = list_wrapper.getElementsByClassName('coll_name')[0];
+    var coll_list = list_wrapper.getElementsByClassName('coll_list')[0];
+    var width = coll_name.clientWidth + 3;
+    // http://stackoverflow.com/a/10118190/1276501
+    coll_list.setAttribute("style","margin-left: " + width + "px");
+    coll_list.style.marginLeft = width + "px";
+  }
+</script>
   </body>
 </html>
