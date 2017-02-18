@@ -23,6 +23,7 @@ import yaml
 from jinja2 import (Environment, FileSystemLoader, TemplateError)
 
 from simiki import jinja_exts
+from simiki.utils import import_string
 from simiki.compat import is_py2, is_py3, basestring
 
 if is_py3:
@@ -243,17 +244,34 @@ class PageGenerator(BaseGenerator):
 
     def _set_markdown_extensions(self):
         """Set the extensions for markdown parser"""
-        # TODO: custom markdown extension in _config.yml
         # Base markdown extensions support "fenced_code".
-        markdown_extensions = ["fenced_code"]
-        if self.site_config["pygments"]:
-            markdown_extensions.extend([
-                "extra",
-                "codehilite(css_class=hlcode)",
-                "toc(title=Table of Contents)"
-            ])
+        markdown_extensions_config = {"fenced_code": {}}
+        # Handle pygments
+        markdown_extensions_config.update(self._set_pygments())
+        # Handle markdown_ext
+        # Ref: https://pythonhosted.org/Markdown/extensions/index.html#officially-supported-extensions
+        if "markdown_ext" in self.site_config:
+            markdown_extensions_config.update(self.site_config["markdown_ext"])
+
+        markdown_extensions = []
+        for k, v in markdown_extensions_config.items():
+            ext = import_string("markdown.extensions." + k).makeExtension()
+            if v:
+                for i, j in v.items():
+                    ext.setConfig(i, j)
+            markdown_extensions.append(ext)
 
         return markdown_extensions
+
+    def _set_pygments(self):
+        """Set the pygments settings for markdown parser"""
+        if self.site_config["pygments"]:
+            return {
+                "extra": {},
+                "codehilite": {"css_class": "hlcode"},
+                "toc": {"title": "Table of Contents"}
+            }
+        return {}
 
     def get_relation(self):
         rn = []
