@@ -15,10 +15,34 @@ _site_config = None
 _base_path = None
 
 
+def reload(func):
+    """Fake watcher reload wrapper"""
+    def wrapper(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+        except Exception as e:
+            logging.error('Watcher has error, reloading...')
+            logging.debug(str(e))
+    return wrapper
+
+
 class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
     '''Observe .md files under content directory.
     Temporary only regenerate, not delete unused files'''
     patterns = ['*.{0}'.format(e) for e in simiki.allowed_extensions]
+
+    @staticmethod
+    def get_ofile(ifile):
+        """get output filename from input filename"""
+        category, filename = os.path.split(ifile)
+        category = os.path.relpath(category, _site_config['source'])
+        ofile = os.path.join(
+            _base_path,
+            _site_config['destination'],
+            category,
+            '{0}.html'.format(os.path.splitext(filename)[0])
+        )
+        return ofile
 
     @staticmethod
     def generate_page(_file):
@@ -28,14 +52,7 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
         if not html:
             return None
 
-        category, filename = os.path.split(_file)
-        category = os.path.relpath(category, _site_config['source'])
-        output_fname = os.path.join(
-            _base_path,
-            _site_config['destination'],
-            category,
-            '{0}.html'.format(os.path.splitext(filename)[0])
-        )
+        output_fname = YAPatternMatchingEventHandler.get_ofile(_file)
         write_file(output_fname, html)
         logging.debug('Regenerating: {0}'.format(_file))
 
@@ -71,20 +88,34 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
         else:
             _file = event.src_path
 
+        # such as in vim, modified a file will trigger moved event to temp file
+        if not _file.endswith(tuple(simiki.allowed_extensions)):
+            return
+
         if event.event_type not in ('deleted',):
             self.generate_page(_file)
 
         self.generate_catalog()
 
+        if event.event_type in ('moved', 'deleted'):
+            # remove old output file
+            ofile = self.get_ofile(event.src_path)
+            if os.path.exists(ofile):
+                os.remove(ofile)
+
+    @reload
     def on_created(self, event):
         self.process(event)
 
+    @reload
     def on_modified(self, event):
         self.process(event)
 
+    @reload
     def on_moved(self, event):
         self.process(event)
 
+    @reload
     def on_deleted(self, event):
         self.process(event)
 

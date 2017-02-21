@@ -360,7 +360,7 @@ class Generator(object):
         """Copy attach directory under root path to destination directory"""
         src_p = os.path.join(self.target_path, self.config['attach'])
         dest_p = os.path.join(self.target_path, self.config["destination"],
-                              self.config['attach'])
+                              'attach')
         if os.path.exists(src_p):
             copytree(src_p, dest_p)
 

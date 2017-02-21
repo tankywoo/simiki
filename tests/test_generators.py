@@ -111,7 +111,7 @@ class TestPageGenerator(unittest.TestCase):
         fd = open(expected_output, "rb")
         year = datetime.date.today().year
         expected_html = unicode(fd.read(), "utf-8") % year
-        assert html == expected_html
+        assert html.rstrip() == expected_html.rstrip()
 
         # load template error
         src_file = os.path.join(self.wiki_path, 'content', 'foo目录',
@@ -218,7 +218,7 @@ class TestCatalogGenerator(unittest.TestCase):
         fd = open(os.path.join(self.wiki_path, 'expected_catalog.html'), "rb")
         year = datetime.date.today().year
         expected_html = unicode(fd.read(), "utf-8") % year
-        assert catalog_html == expected_html
+        assert catalog_html.rstrip() == expected_html.rstrip()
 
 
 if __name__ == "__main__":
