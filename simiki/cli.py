@@ -6,9 +6,9 @@ Simiki CLI
 
 Usage:
   simiki init [-p <path>]
-  simiki new | n -t <title> -c <category> [-f <file>]
-  simiki generate | g [--draft]
-  simiki preview | p [--host <host>] [--port <port>] [-w]
+  simiki (new | n) -t <title> -c <category> [-f <file>]
+  simiki (generate | g) [--draft]
+  simiki (preview | p) [--host <host>] [--port <port>] [-w]
   simiki update
   simiki -h | --help
   simiki -V | --version
