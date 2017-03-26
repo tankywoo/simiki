@@ -59,5 +59,6 @@ class TestInitiator(unittest.TestCase):
         if os.path.exists(self.target_path):
             shutil.rmtree(self.target_path)
 
+
 if __name__ == "__main__":
     unittest.main()

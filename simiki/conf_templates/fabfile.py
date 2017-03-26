@@ -31,6 +31,7 @@ def get_rsync_configs():
                 return item
     return None
 
+
 # cannot put this block in deploy_rsync() for env.hosts
 rsync_configs = get_rsync_configs()
 if rsync_configs:
@@ -58,8 +59,8 @@ if rsync_configs:
 def deploy_rsync(deploy_configs):
     '''for rsync'''
     project.rsync_project(
-        local_dir=env.local_output.rstrip("/")+"/",
-        remote_dir=env.remote_output.rstrip("/")+"/",
+        local_dir=env.local_output.rstrip("/") + "/",
+        remote_dir=env.remote_output.rstrip("/") + "/",
         delete=env.rsync_delete
     )
 

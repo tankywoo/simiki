@@ -249,7 +249,7 @@ class PageGenerator(BaseGenerator):
         # Handle pygments
         markdown_extensions_config.update(self._set_pygments())
         # Handle markdown_ext
-        # Ref: https://pythonhosted.org/Markdown/extensions/index.html#officially-supported-extensions
+        # Ref: https://pythonhosted.org/Markdown/extensions/index.html#officially-supported-extensions  # noqa
         if "markdown_ext" in self.site_config:
             markdown_extensions_config.update(self.site_config["markdown_ext"])
 
@@ -282,7 +282,7 @@ class PageGenerator(BaseGenerator):
         rn = [r for r in rn if self.meta['title'] != r['title']]
         # remove the duplicate items
         # note this will change the items order
-        rn = [r for n, r in enumerate(rn) if r not in rn[n+1:]]
+        rn = [r for n, r in enumerate(rn) if r not in rn[n+1:]]  # noqa: E226
         return rn
 
 
@@ -330,7 +330,7 @@ class CatalogGenerator(BaseGenerator):
             arg2 = arg2[1]["title"] if "title" in arg2[1] else arg2[0]
             # cmp not exists in py3
             # via <https://docs.python.org/3.0/whatsnew/3.0.html#ordering-comparisons> # noqa
-            cmp = lambda x, y: (x > y) - (x < y)
+            cmp = lambda x, y: (x > y) - (x < y)  # noqa: E731
             return cmp(arg1.lower(), arg2.lower())
 
         if is_py2:

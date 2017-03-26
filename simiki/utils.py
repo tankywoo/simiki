@@ -139,6 +139,7 @@ def get_dir_md5(dirname):
     md5_hash = md5_hash.hexdigest()
     return md5_hash
 
+
 def import_string(import_name, silent=False):
     """Imports an object based on a string.  This is useful if you want to
     use import paths as endpoints or something similar.  An import path can
@@ -181,6 +182,7 @@ def import_string(import_name, silent=False):
     except ImportError as e:
         if not silent:
             raise ImportError(e)
+
 
 if __name__ == "__main__":
     print(color_msg("black", "Black"))

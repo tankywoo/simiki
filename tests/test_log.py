@@ -67,5 +67,6 @@ class TestLogInit(unittest.TestCase):
                               nose.plugins.logcapture.MyMemoryHandler):
                 self.logger.removeHandler(handler)
 
+
 if __name__ == "__main__":
     unittest.main()

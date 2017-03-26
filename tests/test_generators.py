@@ -106,7 +106,8 @@ class TestPageGenerator(unittest.TestCase):
                                 'foo_page_中文.md')
         html_generator_config = self.config
         html_generator_config["markdown_ext"] = {"wikilinks": None}
-        html_generator_generator = PageGenerator(html_generator_config, self.wiki_path)
+        html_generator_generator = PageGenerator(html_generator_config,
+                                                 self.wiki_path)
         html = html_generator_generator.to_html(src_file).strip()
         # trip page updated and site generated paragraph
         html = re.sub('(?sm)\\n\s*<span class="updated">Updated.*?<\/span>',
