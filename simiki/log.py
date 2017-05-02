@@ -40,7 +40,7 @@ class ANSIFormatter(Formatter):
 
 
 class NonANSIFormatter(Formatter):
-    '''Non ANSI color format'''
+    """Non ANSI color format"""
 
     def format(self, record):
         try:
@@ -56,7 +56,7 @@ class NonANSIFormatter(Formatter):
 
 
 def _is_platform_allowed_ansi():
-    '''ansi be used on linux/macos'''
+    """ansi be used on linux/macos"""
     if is_linux or is_osx:
         return True
     else:

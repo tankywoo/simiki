@@ -62,10 +62,10 @@ class YARequestHandler(http_server.SimpleHTTPRequestHandler):
 
 
 def preview(path, url_root, host='127.0.0.1', port=8000):
-    '''
+    """
     :param path: directory path relative to current path
     :param url_root: `root` setted in _config.yml
-    '''
+    """
     global URL_ROOT, PUBLIC_DIRECTORY
 
     if not host:

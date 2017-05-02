@@ -127,7 +127,7 @@ def get_md5(filename):
 
 
 def get_dir_md5(dirname):
-    '''Get md5 sum of directory'''
+    """Get md5 sum of directory"""
     md5_hash = hashlib.md5()
     for root, dirs, files in os.walk(dirname):
         # os.walk use os.listdir and return arbitrary order list

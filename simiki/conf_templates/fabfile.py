@@ -57,7 +57,7 @@ if rsync_configs:
 
 
 def deploy_rsync(deploy_configs):
-    '''for rsync'''
+    """for rsync"""
     project.rsync_project(
         local_dir=env.local_output.rstrip("/") + "/",
         remote_dir=env.remote_output.rstrip("/") + "/",
@@ -66,7 +66,7 @@ def deploy_rsync(deploy_configs):
 
 
 def deploy_git(deploy_configs):
-    '''for pages service of such as github/gitcafe ...'''
+    """for pages service of such as github/gitcafe ..."""
     with settings(warn_only=True):
         res = local('which ghp-import > /dev/null 2>&1; echo $?', capture=True)
         if int(res.strip()):
@@ -82,7 +82,7 @@ def deploy_git(deploy_configs):
 
 
 def deploy_ftp(deploy_configs):
-    '''for ftp'''
+    """for ftp"""
     conn_kwargs = {'host': deploy_configs['host']}
     login_kwargs = {}
     if 'port' in deploy_configs:
@@ -115,7 +115,7 @@ def deploy_ftp(deploy_configs):
 
 @task
 def deploy(type=None):
-    '''deploy your site, support rsync / ftp / github pages
+    """deploy your site, support rsync / ftp / github pages
 
     run deploy:
         $ fab deploy
@@ -123,7 +123,7 @@ def deploy(type=None):
     run deploy with specific type(not supported specify multiple types):
         $ fab deploy:type=rsync
 
-    '''
+    """
     if 'deploy' not in configs or not isinstance(configs['deploy'], list):
         do_exit('Warning: deploy not set right in _config.yml')
     if type and type not in SUPPORTED_DEPLOY_TYPES:
@@ -155,7 +155,7 @@ def deploy(type=None):
 
 @task
 def commit():
-    '''git commit source changes from all tracked files
+    """git commit source changes from all tracked files
 
     include:
 
@@ -168,7 +168,7 @@ def commit():
     before do commit, it requires to confirm the files to be committed; and
     the requirement before do add is a future feature, it is currently
     disabled.
-    '''
+    """
     message = 'Update Documentation'
     yes_ans = ('y', 'yes')
 

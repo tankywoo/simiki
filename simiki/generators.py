@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Convert Markdown file to html, which is embeded in html template.
+"""Convert Markdown file to html, which is embeded in html template.
 """
 
 from __future__ import (print_function, with_statement, unicode_literals,
@@ -36,10 +36,10 @@ class BaseGenerator(object):
     """Base generator class"""
 
     def __init__(self, site_config, base_path):
-        '''
+        """
         :site_config: site global configuration parsed from _config.yml
         :base_path: root path of wiki directory
-        '''
+        """
         self.site_config = copy.deepcopy(site_config)
         self.base_path = base_path
         self._templates = {}  # templates cache
@@ -57,12 +57,12 @@ class BaseGenerator(object):
         self._jinja_load_exts()
 
     def _jinja_load_exts(self):
-        '''Load jinja custom filters and extensions'''
+        """Load jinja custom filters and extensions"""
         for _filter in jinja_exts.filters:
             self.env.filters[_filter] = getattr(jinja_exts, _filter)
 
     def get_template(self, name):
-        '''Return the template by layout name'''
+        """Return the template by layout name"""
         if name not in self._templates:
             try:
                 self._templates[name] = self.env.get_template(name + '.html')
@@ -76,7 +76,7 @@ class BaseGenerator(object):
         return self._templates[name]
 
     def _get_template_vars(self):
-        '''Return the common template variables'''
+        """Return the common template variables"""
         template_vars = {
             'site': self.site_config,
         }
@@ -289,9 +289,9 @@ class PageGenerator(BaseGenerator):
 class CatalogGenerator(BaseGenerator):
 
     def __init__(self, site_config, base_path, pages):
-        '''
+        """
         :pages: all pages' meta variables, dict type
-        '''
+        """
         super(CatalogGenerator, self).__init__(site_config, base_path)
         self._pages = pages
         self.pages = None
@@ -424,9 +424,9 @@ class CatalogGenerator(BaseGenerator):
 
 class FeedGenerator(BaseGenerator):
     def __init__(self, site_config, base_path, pages, feed_fn='atom.xml'):
-        '''
+        """
         :pages: all pages' meta variables, dict type
-        '''
+        """
         super(FeedGenerator, self).__init__(site_config, base_path)
         self.pages = pages
         self.feed_fn = feed_fn

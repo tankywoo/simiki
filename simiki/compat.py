@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-'''
+"""
 Python compat for python version and os system
-'''
+"""
 import sys
 
 # Syntax sugar.
