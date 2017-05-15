@@ -43,11 +43,27 @@ class Reuse_TCPServer(socket_server.TCPServer):
 class YARequestHandler(http_server.SimpleHTTPRequestHandler):
 
     def translate_path(self, path):
+        """map url path to local file system.
+        path and return path are str type
+
+        TODO:
+          - fspath with os.sep from url always slash
+          - URL_ROOT codecs simplify?
+          - in the end of if body use super translate_path directly?
+        """
+        path = urllib_request.unquote(path).decode('utf-8')
+        fsenc = sys.getfilesystemencoding()
+        path = path.encode(fsenc)
+
         if URL_ROOT and self.path.startswith(URL_ROOT):
             if self.path == URL_ROOT or self.path == URL_ROOT + '/':
-                return PUBLIC_DIRECTORY + '/index.html'
+                fspath = os.path.join(PUBLIC_DIRECTORY, 'index.html').encode(fsenc)  # noqa
             else:
-                return PUBLIC_DIRECTORY + path[len(URL_ROOT):]
+                _url_root = urllib_request.unquote(URL_ROOT) \
+                    .decode('utf-8').encode(fsenc)
+                fspath = os.path.join(
+                    PUBLIC_DIRECTORY.encode(fsenc), path[len(_url_root)+1:])
+            return fspath
         else:
             return http_server.SimpleHTTPRequestHandler \
                 .translate_path(self, path)

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} - {{ site.title }}{% endblock %}
+
+{% block container %}
+<div id="header">
+  <div id="post-nav">
+  {%- if not default_home_page -%}
+    <a href="{{ site.root }}/">Home</a>
+    {%- if page.category -%}
+      {%- for c in page.category.split("/") -%}
+        {%- if loop.index == 1 -%}
+          {%- set id = c -%}
+        {%- else -%}
+          {% set id = id ~ "-" ~ c -%}
+        {%- endif -%}
+    &nbsp;»&nbsp;<a href="{{ site.root }}/#{{ id }}">{{ c }}</a>
+      {%- endfor -%}
+    {%- endif -%}
+    &nbsp;»&nbsp;{{ page.title }}
+  {%- endif -%}
+  </div>
+</div>
+<div class="clearfix"></div>
+<div id="title">{{ page.title }}</div>
+  <div id="content">
+  {{ page.content }}
+</div>
+{% endblock %}
