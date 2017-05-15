@@ -21,7 +21,7 @@ Simiki is short for `Simple Wiki` :)
 >
 >
 > New in version 1.6.0 (2016-06-09)
-> 
+>
 > - Fix issue #60, preview with 127.0.0.1
 > - Add `page` variable, [doc](http://simiki.org/docs/variables.html#index-variables)
 > - Add `category` settings in _config.yml
@@ -30,7 +30,7 @@ Simiki is short for `Simple Wiki` :)
 
 ## Installation ##
 
-It is available for **Python 2.6, 2.7, 3.3, 3.4, 3.5**, with Linux, Mac OS X and Windows.
+It is available for **Python 2.7, 3.3, 3.4, 3.5**, with Linux, Mac OS X and Windows.
 
 Install from [PyPI](https://pypi.python.org/pypi/simiki):
 

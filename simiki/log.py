@@ -16,6 +16,7 @@ class ANSIFormatter(Formatter):
         try:
             msg = super(ANSIFormatter, self).format(record)
         except:
+            # 2017-05-15: not support py26
             # for python2.6
             # Formatter is old-style class in python2.6 and type is classobj
             # another trick: http://stackoverflow.com/a/18392639/1276501
@@ -46,6 +47,7 @@ class NonANSIFormatter(Formatter):
         try:
             msg = super(NonANSIFormatter, self).format(record)
         except:
+            # 2017-05-15: not support py26
             # for python2.6
             # Formatter is old-style class in python2.6 and type is classobj
             # another trick: http://stackoverflow.com/a/18392639/1276501
