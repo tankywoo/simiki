@@ -110,8 +110,9 @@ class TestPageGenerator(unittest.TestCase):
                                                  self.wiki_path)
         html = html_generator_generator.to_html(src_file).strip()
         # trip page updated and site generated paragraph
-        html = re.sub('(?sm)\\n\s*<span class="updated">Updated.*?<\/span>',
-                      '', html)
+        html = re.sub(
+            '(?sm)\\n\s*<span class="updated">Page Updated.*?<\/span>',
+            '', html)
         html = re.sub('(?m)^\s*<p>Site Generated .*?<\/p>$\n', '', html)
         expected_output = os.path.join(self.wiki_path, 'expected_output.html')
         fd = open(expected_output, "rb")

@@ -62,7 +62,7 @@ class YARequestHandler(http_server.SimpleHTTPRequestHandler):
                 _url_root = urllib_request.unquote(URL_ROOT) \
                     .decode('utf-8').encode(fsenc)
                 fspath = os.path.join(
-                    PUBLIC_DIRECTORY.encode(fsenc), path[len(_url_root)+1:])
+                    PUBLIC_DIRECTORY.encode(fsenc), path[len(_url_root) + 1:])
             return fspath
         else:
             return http_server.SimpleHTTPRequestHandler \
