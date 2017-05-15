@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link rel="Stylesheet" type="text/css" href="{{ site.root }}/static/css/style.css">
+    <link rel="Stylesheet" type="text/css" href="{{ site.root }}/static/css/tango.css">
+    <link rel="shortcut icon" href="{{ site.root }}/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="{{ site.root }}/favicon.ico" type="image/x-icon">
+    <link rel="alternate" type="application/atom+xml" href="atom.xml" title="Atom feed">
+    <title>{% block title %}{{ site.title }}{% endblock %}</title>
+    <meta name="keywords" content="{{ site.keywords }}"/>
+    <meta name="description" content="{{ site.description }}"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+
+  <body>
+    <div id="container">
+      {% block container %}
+        {{ page.content }}
+      {% endblock %}
+    </div>
+    <div id="footer">
+      <span>
+        <p>Copyright © {{ site.time.strftime("%Y") }} {{ site.author }}.
+        Powered by <a href="http://simiki.org/" target="_blank">Simiki</a>.</p>
+        <p>Site Generated {{ site.time.strftime("%Y-%m-%d %H:%M:%S")  }}</p>
+      </span>
+    </div>
+
+    {% block script %}
+    {% endblock %}
+  </body>
+</html>
