@@ -79,7 +79,10 @@ def init_site(target_path):
                                        "_config.yml.in")
     try:
         initiator = Initiator(default_config_file, target_path)
-        initiator.init()
+        if os.environ.get('TEST_MODE'):
+            initiator.init(ask=False)
+        else:
+            initiator.init(ask=True)
     except Exception:
         # always in debug mode when init site
         logging.exception("Initialize site with error:")

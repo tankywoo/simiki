@@ -9,6 +9,9 @@ import logging
 
 from simiki.config import parse_config
 from simiki.utils import (copytree, mkdir_p, listdir_nohidden)
+from simiki.compat import raw_input
+
+yes_answer = ('y', 'yes')
 
 
 class Initiator(object):
@@ -86,7 +89,7 @@ class Initiator(object):
             logging.info("Copying default theme '{0}' to: {1}"
                          .format(default_theme_name, theme_path))
 
-    def init(self):
+    def init(self, ask=False, **kwargs):
         content_path = os.path.join(self.target_path, self.config["source"])
         output_path = os.path.join(self.target_path,
                                    self.config["destination"])
@@ -99,7 +102,16 @@ class Initiator(object):
                 logging.info("Creating directory: {0}".format(path))
 
         self.get_config_file()
-        self.get_dockerfile()
         self.get_fabfile()
         self.get_demo_page()
         self.get_default_theme(theme_path)
+
+        if ask is True:
+            try:
+                _ans = raw_input('Create Dockerfile? (y/N) ')
+                if _ans.lower() in yes_answer:
+                    self.get_dockerfile()
+            except (KeyboardInterrupt, SystemExit):
+                print()  # newline with Ctrl-C
+        elif ask is False and kwargs.get('dockerfile', False):
+            self.get_dockerfile()

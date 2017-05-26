@@ -122,6 +122,14 @@ def update_builtin(**kwargs):
         os.path.join(os.path.dirname(__file__), 'conf_templates')
     )
 
+    # for optional Dockerfile
+    if os.path.exists(os.path.join(os.getcwd(), 'Dockerfile')):
+        _update_file(
+            'Dockerfile',
+            os.getcwd(),
+            os.path.join(os.path.dirname(__file__), 'conf_templates')
+        )
+
     # for themes
     original_themes = os.path.join(os.path.dirname(__file__), 'themes')
     local_themes = os.path.join(os.getcwd(), kwargs['themes_dir'])
