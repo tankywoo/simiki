@@ -10,6 +10,7 @@ from fabric.api import env, local, task, settings
 from fabric.colors import blue, red
 import fabric.contrib.project as project
 from simiki import config
+from simiki.compat import raw_input
 
 # XXX must run fab in root path of wiki
 configs = config.parse_config('_config.yml')
