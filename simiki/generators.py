@@ -244,8 +244,11 @@ class PageGenerator(BaseGenerator):
 
     def _set_markdown_extensions(self):
         """Set the extensions for markdown parser"""
-        # Base markdown extensions support "fenced_code".
-        markdown_extensions_config = {"fenced_code": {}}
+        # Default enabled extensions
+        markdown_extensions_config = {
+            "fenced_code": {},
+            "nl2br": {},
+        }
         # Handle pygments
         markdown_extensions_config.update(self._set_pygments())
         # Handle markdown_ext
