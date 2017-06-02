@@ -3,4 +3,4 @@ include CHANGELOG.rst
 include LICENSE
 include *requirements.txt
 include tox.ini
-recursive-include simiki *.html *.css *.in *.md *.py
+recursive-include simiki *.html *.css *.in *.md *.py Dockerfile
