@@ -18,7 +18,8 @@ class TestParseConfig(unittest.TestCase):
             "author": "Tanky Woo",
             "debug": True,
             "default_ext": "markdown",
-            "description": "This is a simiki's config sample, \u6d4b\u8bd5\u6837\u4f8b",
+            "description": "This is a simiki's config sample,"
+                           " \u6d4b\u8bd5\u6837\u4f8b",
             "destination": "destination",
             "keywords": "wiki, simiki, python, \u7ef4\u57fa",
             "root": "/wiki/",
@@ -39,8 +40,8 @@ class TestParseConfig(unittest.TestCase):
             self.assertIsInstance(_date, datetime.datetime)
         else:
             assert isinstance(_date, datetime.datetime), \
-                   '%s is not an instance of %r' % \
-                   (repr(_date), datetime.datetime)
+                '%s is not an instance of %r' % \
+                (repr(_date), datetime.datetime)
         self.assertEqual(
             config,
             self.expected_config

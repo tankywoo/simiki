@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-'''
+"""
 Python compat for python version and os system
-'''
+"""
 import sys
 
 # Syntax sugar.
@@ -32,10 +32,11 @@ is_osx = _platform.startswith('darwin')
 # Specifics
 
 if is_py2:
-    unicode = unicode
-    basestring = basestring
-    xrange = xrange
-    raw_input = raw_input
+    # flake8 raise F821 for py3 as unicode, bashstring, ... not exists
+    unicode = unicode  # noqa: F821
+    basestring = basestring  # noqa: F821
+    xrange = xrange  # noqa: F821
+    raw_input = raw_input  # noqa: F821
 
 if is_py3:
     unicode = str

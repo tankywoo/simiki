@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Convert Markdown file to html, which is embeded in html template.
+"""Convert Markdown file to html, which is embeded in html template.
 """
 
 from __future__ import (print_function, with_statement, unicode_literals,
@@ -23,6 +23,7 @@ import yaml
 from jinja2 import (Environment, FileSystemLoader, TemplateError)
 
 from simiki import jinja_exts
+from simiki.utils import import_string
 from simiki.compat import is_py2, is_py3, basestring
 
 if is_py3:
@@ -35,10 +36,10 @@ class BaseGenerator(object):
     """Base generator class"""
 
     def __init__(self, site_config, base_path):
-        '''
+        """
         :site_config: site global configuration parsed from _config.yml
         :base_path: root path of wiki directory
-        '''
+        """
         self.site_config = copy.deepcopy(site_config)
         self.base_path = base_path
         self._templates = {}  # templates cache
@@ -56,12 +57,12 @@ class BaseGenerator(object):
         self._jinja_load_exts()
 
     def _jinja_load_exts(self):
-        '''Load jinja custom filters and extensions'''
+        """Load jinja custom filters and extensions"""
         for _filter in jinja_exts.filters:
             self.env.filters[_filter] = getattr(jinja_exts, _filter)
 
     def get_template(self, name):
-        '''Return the template by layout name'''
+        """Return the template by layout name"""
         if name not in self._templates:
             try:
                 self._templates[name] = self.env.get_template(name + '.html')
@@ -75,7 +76,7 @@ class BaseGenerator(object):
         return self._templates[name]
 
     def _get_template_vars(self):
-        '''Return the common template variables'''
+        """Return the common template variables"""
         template_vars = {
             'site': self.site_config,
         }
@@ -243,15 +244,30 @@ class PageGenerator(BaseGenerator):
 
     def _set_markdown_extensions(self):
         """Set the extensions for markdown parser"""
-        # TODO: custom markdown extension in _config.yml
-        # Base markdown extensions support "fenced_code".
-        markdown_extensions = ["fenced_code"]
+        # Default enabled extensions
+        markdown_extensions_config = {
+            "fenced_code": {},
+            "nl2br": {},
+            "toc": {"title": "Table of Contents"},
+            "extra": {},
+        }
+        # Handle pygments
         if self.site_config["pygments"]:
-            markdown_extensions.extend([
-                "extra",
-                "codehilite(css_class=hlcode)",
-                "toc(title=Table of Contents)"
-            ])
+            markdown_extensions_config.update({
+                "codehilite": {"css_class": "hlcode"}
+            })
+        # Handle markdown_ext
+        # Ref: https://pythonhosted.org/Markdown/extensions/index.html#officially-supported-extensions  # noqa
+        if "markdown_ext" in self.site_config:
+            markdown_extensions_config.update(self.site_config["markdown_ext"])
+
+        markdown_extensions = []
+        for k, v in markdown_extensions_config.items():
+            ext = import_string("markdown.extensions." + k).makeExtension()
+            if v:
+                for i, j in v.items():
+                    ext.setConfig(i, j)
+            markdown_extensions.append(ext)
 
         return markdown_extensions
 
@@ -264,16 +280,16 @@ class PageGenerator(BaseGenerator):
         rn = [r for r in rn if self.meta['title'] != r['title']]
         # remove the duplicate items
         # note this will change the items order
-        rn = [r for n, r in enumerate(rn) if r not in rn[n+1:]]
+        rn = [r for n, r in enumerate(rn) if r not in rn[n+1:]]  # noqa: E226
         return rn
 
 
 class CatalogGenerator(BaseGenerator):
 
     def __init__(self, site_config, base_path, pages):
-        '''
+        """
         :pages: all pages' meta variables, dict type
-        '''
+        """
         super(CatalogGenerator, self).__init__(site_config, base_path)
         self._pages = pages
         self.pages = None
@@ -312,7 +328,7 @@ class CatalogGenerator(BaseGenerator):
             arg2 = arg2[1]["title"] if "title" in arg2[1] else arg2[0]
             # cmp not exists in py3
             # via <https://docs.python.org/3.0/whatsnew/3.0.html#ordering-comparisons> # noqa
-            cmp = lambda x, y: (x > y) - (x < y)
+            cmp = lambda x, y: (x > y) - (x < y)  # noqa: E731
             return cmp(arg1.lower(), arg2.lower())
 
         if is_py2:
@@ -406,9 +422,9 @@ class CatalogGenerator(BaseGenerator):
 
 class FeedGenerator(BaseGenerator):
     def __init__(self, site_config, base_path, pages, feed_fn='atom.xml'):
-        '''
+        """
         :pages: all pages' meta variables, dict type
-        '''
+        """
         super(FeedGenerator, self).__init__(site_config, base_path)
         self.pages = pages
         self.feed_fn = feed_fn

@@ -60,8 +60,10 @@ class TestPageGenerator(unittest.TestCase):
                          'title': 'Foo Page 2', 'category': 'foo目录',
                          'filename': 'foo_page_中文.html'}
         self.assertEqual(meta, expected_meta)
-        self.assertEqual(content, '<p>Simiki is a simple wiki '
-                                  'framework, written in Python.</p>')
+        self.assertEqual(content, '<p>[[simiki]]</p>\n'
+                                  '<p>Simiki is a simple wiki '
+                                  'framework, written in Python.</p>'
+                                  '\n<p>Line 1<br />\nLine 2</p>')
 
         # get meta notaion error
         src_file = os.path.join(self.wiki_path, 'content', 'foo目录',
@@ -83,8 +85,10 @@ class TestPageGenerator(unittest.TestCase):
         expected_template_vars = {
             u'page': {
                 u'category': u'foo\u76ee\u5f55',
-                u'content': u'<p>Simiki is a simple wiki '
-                            'framework, written in Python.</p>',
+                u'content': u'<p>[[simiki]]</p>\n'
+                            '<p>Simiki is a simple wiki '
+                            'framework, written in Python.</p>'
+                            '\n<p>Line 1<br />\nLine 2</p>',
                 u'filename': u'foo_page_\u4e2d\u6587.html',
                 u'date': '2013-10-17 00:03',
                 u'layout': 'page',
@@ -102,10 +106,15 @@ class TestPageGenerator(unittest.TestCase):
     def test_to_html(self):
         src_file = os.path.join(self.wiki_path, 'content', 'foo目录',
                                 'foo_page_中文.md')
-        html = self.generator.to_html(src_file).strip()
+        html_generator_config = self.config
+        html_generator_config["markdown_ext"] = {"wikilinks": None}
+        html_generator_generator = PageGenerator(html_generator_config,
+                                                 self.wiki_path)
+        html = html_generator_generator.to_html(src_file).strip()
         # trip page updated and site generated paragraph
-        html = re.sub('(?sm)\\n\s*<span class="updated">Updated.*?<\/span>',
-                      '', html)
+        html = re.sub(
+            '(?sm)\\n\s*<span class="updated">Page Updated.*?<\/span>',
+            '', html)
         html = re.sub('(?m)^\s*<p>Site Generated .*?<\/p>$\n', '', html)
         expected_output = os.path.join(self.wiki_path, 'expected_output.html')
         fd = open(expected_output, "rb")

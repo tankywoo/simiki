@@ -15,11 +15,11 @@ def get_input(text):
 
 
 def _update_file(filename, local_path, original_path):
-    '''
+    """
     :filename: file name to be updated, without directory
     :local_path: directory of local filename
     :original_path: directory of original filename
-    '''
+    """
     up_to_date = True
 
     original_fn = os.path.join(original_path, filename)
@@ -54,12 +54,12 @@ def _update_file(filename, local_path, original_path):
 
 
 def _update_dir(dirname, local_dir, original_dir, tag='directory'):
-    '''Update sth on a per-directory basis, such as theme
+    """Update sth on a per-directory basis, such as theme
     :dirname: directory name to be updated, without parent path
     :local_path: full path of local dirname
     :original_path: full path of original dirname
     :tag: input help information
-    '''
+    """
 
     up_to_date = True
 
@@ -111,7 +111,7 @@ def _update_dir(dirname, local_dir, original_dir, tag='directory'):
 
 
 def update_builtin(**kwargs):
-    '''Update builtin scripts and themes under local site'''
+    """Update builtin scripts and themes under local site"""
     logger.info('Start updating builin files.')
     logger.warning('Update is risky, please make sure you have backups')
 
@@ -121,6 +121,14 @@ def update_builtin(**kwargs):
         os.getcwd(),
         os.path.join(os.path.dirname(__file__), 'conf_templates')
     )
+
+    # for optional Dockerfile
+    if os.path.exists(os.path.join(os.getcwd(), 'Dockerfile')):
+        _update_file(
+            'Dockerfile',
+            os.getcwd(),
+            os.path.join(os.path.dirname(__file__), 'conf_templates')
+        )
 
     # for themes
     original_themes = os.path.join(os.path.dirname(__file__), 'themes')

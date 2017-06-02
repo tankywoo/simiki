@@ -1,4 +1,4 @@
-Markdown==2.4.1
+Markdown==2.6.8
 Pygments==1.6
 Jinja2==2.7.3
 PyYAML==3.11

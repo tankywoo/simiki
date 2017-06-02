@@ -20,7 +20,7 @@ import nose
 
 from simiki.utils import color_msg
 from simiki.log import logging_init
-from simiki.compat import is_py2
+from simiki.compat import is_py2, unicode
 
 
 class TestLogInit(unittest.TestCase):
@@ -66,6 +66,7 @@ class TestLogInit(unittest.TestCase):
             if not isinstance(handler,
                               nose.plugins.logcapture.MyMemoryHandler):
                 self.logger.removeHandler(handler)
+
 
 if __name__ == "__main__":
     unittest.main()

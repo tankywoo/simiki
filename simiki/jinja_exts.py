@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-'''
+"""
 Jinja2 custom filters and extensions
-'''
+"""
 import datetime
 import tzlocal
 from simiki.compat import basestring
@@ -11,13 +11,13 @@ filters = ['rfc3339']
 
 
 def rfc3339(dt_obj):
-    '''
+    """
     dt_obj: datetime object or string
 
     The filter use `datetime.datetime.isoformat()`, which is in ISO 8601
     format, not in RFC 3339 format, but they have a lot in common, so I used
     ISO 8601 format directly.
-    '''
+    """
     if isinstance(dt_obj, datetime.datetime):
         pass
     elif isinstance(dt_obj, basestring):

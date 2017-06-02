@@ -27,8 +27,8 @@ def reload(func):
 
 
 class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
-    '''Observe .md files under content directory.
-    Temporary only regenerate, not delete unused files'''
+    """Observe .md files under content directory.
+    Temporary only regenerate, not delete unused files"""
     patterns = ['*.{0}'.format(e) for e in simiki.allowed_extensions]
 
     @staticmethod

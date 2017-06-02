@@ -6,9 +6,9 @@ Simiki CLI
 
 Usage:
   simiki init [-p <path>]
-  simiki new | n -t <title> -c <category> [-f <file>]
-  simiki generate | g [--draft]
-  simiki preview | p [--host <host>] [--port <port>] [-w]
+  simiki (new | n) -t <title> -c <category> [-f <file>]
+  simiki (generate | g) [--draft]
+  simiki (preview | p) [--host <host>] [--port <port>] [-w]
   simiki update
   simiki -h | --help
   simiki -V | --version
@@ -79,7 +79,10 @@ def init_site(target_path):
                                        "_config.yml.in")
     try:
         initiator = Initiator(default_config_file, target_path)
-        initiator.init()
+        if os.environ.get('TEST_MODE'):
+            initiator.init(ask=False)
+        else:
+            initiator.init(ask=True)
     except Exception:
         # always in debug mode when init site
         logging.exception("Initialize site with error:")
@@ -116,7 +119,7 @@ def create_new_wiki(category, title, filename):
 
 
 def preview_site(host, port, dest, root, do_watch):
-    '''Preview site with watch content'''
+    """Preview site with watch content"""
     p_server = multiprocessing.Process(
         target=preview,
         args=(dest, root, host, port),
@@ -145,7 +148,7 @@ def preview_site(host, port, dest, root, do_watch):
 
 
 def method_proxy(cls_instance, method_name, *args, **kwargs):
-    '''ref: http://stackoverflow.com/a/10217089/1276501'''
+    # ref: http://stackoverflow.com/a/10217089/1276501
     return getattr(cls_instance, method_name)(*args, **kwargs)
 
 
@@ -162,9 +165,9 @@ class Generator(object):
         self.include_draft = False
 
     def generate(self, include_draft=False):
-        '''
+        """
         :include_draft: True/False, include draft pages or not to generate.
-        '''
+        """
         self.include_draft = include_draft
 
         logger.debug("Empty the destination directory")

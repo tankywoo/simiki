@@ -13,6 +13,8 @@ tox: clean
 
 test: clean
 	nosetests -v --no-byte-compile --with-coverage --cover-package=simiki --cover-erase -s
+	flake8 --version
+	flake8 simiki/ tests/
 
 covhtml: clean
 	# coverage run setup.py nosetests

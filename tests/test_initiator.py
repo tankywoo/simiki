@@ -39,7 +39,7 @@ class TestInitiator(unittest.TestCase):
         """
 
         i = Initiator(self.config_file, self.target_path)
-        i.init()
+        i.init(ask=False)
 
         for f in self.files:
             self.assertTrue(os.path.isfile(os.path.join(self.target_path, f)))
@@ -58,6 +58,7 @@ class TestInitiator(unittest.TestCase):
     def tearDown(self):
         if os.path.exists(self.target_path):
             shutil.rmtree(self.target_path)
+
 
 if __name__ == "__main__":
     unittest.main()

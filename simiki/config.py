@@ -8,7 +8,6 @@ import sys
 import io
 import logging
 import datetime
-from copy import deepcopy
 from pprint import pprint
 import yaml
 
@@ -68,6 +67,7 @@ def parse_config(config_file):
     config = _post_process(default_config)
 
     return config
+
 
 if __name__ == "__main__":
     # pylint: disable=pointless-string-statement

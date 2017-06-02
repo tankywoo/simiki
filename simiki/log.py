@@ -16,6 +16,7 @@ class ANSIFormatter(Formatter):
         try:
             msg = super(ANSIFormatter, self).format(record)
         except:
+            # 2017-05-15: not support py26
             # for python2.6
             # Formatter is old-style class in python2.6 and type is classobj
             # another trick: http://stackoverflow.com/a/18392639/1276501
@@ -40,12 +41,13 @@ class ANSIFormatter(Formatter):
 
 
 class NonANSIFormatter(Formatter):
-    '''Non ANSI color format'''
+    """Non ANSI color format"""
 
     def format(self, record):
         try:
             msg = super(NonANSIFormatter, self).format(record)
         except:
+            # 2017-05-15: not support py26
             # for python2.6
             # Formatter is old-style class in python2.6 and type is classobj
             # another trick: http://stackoverflow.com/a/18392639/1276501
@@ -56,7 +58,7 @@ class NonANSIFormatter(Formatter):
 
 
 def _is_platform_allowed_ansi():
-    '''ansi be used on linux/macos'''
+    """ansi be used on linux/macos"""
     if is_linux or is_osx:
         return True
     else:
