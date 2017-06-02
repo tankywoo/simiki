@@ -244,10 +244,18 @@ class PageGenerator(BaseGenerator):
 
     def _set_markdown_extensions(self):
         """Set the extensions for markdown parser"""
-        # Base markdown extensions support "fenced_code".
-        markdown_extensions_config = {"fenced_code": {}}
+        # Default enabled extensions
+        markdown_extensions_config = {
+            "fenced_code": {},
+            "nl2br": {},
+            "toc": {"title": "Table of Contents"},
+            "extra": {},
+        }
         # Handle pygments
-        markdown_extensions_config.update(self._set_pygments())
+        if self.site_config["pygments"]:
+            markdown_extensions_config.update({
+                "codehilite": {"css_class": "hlcode"}
+            })
         # Handle markdown_ext
         # Ref: https://pythonhosted.org/Markdown/extensions/index.html#officially-supported-extensions  # noqa
         if "markdown_ext" in self.site_config:
@@ -262,16 +270,6 @@ class PageGenerator(BaseGenerator):
             markdown_extensions.append(ext)
 
         return markdown_extensions
-
-    def _set_pygments(self):
-        """Set the pygments settings for markdown parser"""
-        if self.site_config["pygments"]:
-            return {
-                "extra": {},
-                "codehilite": {"css_class": "hlcode"},
-                "toc": {"title": "Table of Contents"}
-            }
-        return {}
 
     def get_relation(self):
         rn = []

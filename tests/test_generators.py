@@ -62,7 +62,8 @@ class TestPageGenerator(unittest.TestCase):
         self.assertEqual(meta, expected_meta)
         self.assertEqual(content, '<p>[[simiki]]</p>\n'
                                   '<p>Simiki is a simple wiki '
-                                  'framework, written in Python.</p>')
+                                  'framework, written in Python.</p>'
+                                  '\n<p>Line 1<br />\nLine 2</p>')
 
         # get meta notaion error
         src_file = os.path.join(self.wiki_path, 'content', 'foo目录',
@@ -86,7 +87,8 @@ class TestPageGenerator(unittest.TestCase):
                 u'category': u'foo\u76ee\u5f55',
                 u'content': u'<p>[[simiki]]</p>\n'
                             '<p>Simiki is a simple wiki '
-                            'framework, written in Python.</p>',
+                            'framework, written in Python.</p>'
+                            '\n<p>Line 1<br />\nLine 2</p>',
                 u'filename': u'foo_page_\u4e2d\u6587.html',
                 u'date': '2013-10-17 00:03',
                 u'layout': 'page',
