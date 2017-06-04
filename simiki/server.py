@@ -7,6 +7,7 @@ import os.path
 import sys
 import logging
 import traceback
+from simiki.compat import is_py2, unicode
 
 try:
     import SimpleHTTPServer as http_server
@@ -46,23 +47,43 @@ class YARequestHandler(http_server.SimpleHTTPRequestHandler):
         """map url path to local file system.
         path and return path are str type
 
+        in py3, builtin translate_path input is str(but it's unicode) and
+        return str. so there is no need to do with codecs, system can locate
+        file with unicode path.
+        in py2, buildin translate_path input is str and return str. we need
+        to decode to unicode and then encode path with filesystemencoding(),
+        as mentioned above, unicode path can be located, but will have problem
+        with py2's translate_path, for uniformity, we also return the
+        corresponding type of translate_path in manual part.
+
         TODO:
           - fspath with os.sep from url always slash
           - URL_ROOT codecs simplify?
           - in the end of if body use super translate_path directly?
         """
-        path = urllib_request.unquote(path).decode('utf-8')
+        path = urllib_request.unquote(path)
+        if not isinstance(path, unicode):
+            path = path.decode('utf-8')
         fsenc = sys.getfilesystemencoding()
-        path = path.encode(fsenc)
+        if is_py2:
+            path = path.encode(fsenc)
 
         if URL_ROOT and self.path.startswith(URL_ROOT):
             if self.path == URL_ROOT or self.path == URL_ROOT + '/':
-                fspath = os.path.join(PUBLIC_DIRECTORY, 'index.html').encode(fsenc)  # noqa
+                fspath = os.path.join(PUBLIC_DIRECTORY, 'index.html')
+                if is_py2:
+                    fspath = fspath.encode(fsenc)
             else:
-                _url_root = urllib_request.unquote(URL_ROOT) \
-                    .decode('utf-8').encode(fsenc)
-                fspath = os.path.join(
-                    PUBLIC_DIRECTORY.encode(fsenc), path[len(_url_root) + 1:])
+                _url_root = urllib_request.unquote(URL_ROOT)
+                if not isinstance(_url_root, unicode):
+                    _url_root = _url_root.decode('utf-8')
+                if is_py2:
+                    _url_root = _url_root.encode(fsenc)
+                    fspath = os.path.join(
+                        PUBLIC_DIRECTORY.encode(fsenc), path[len(_url_root) + 1:])  # noqa: E501
+                else:
+                    fspath = os.path.join(
+                        PUBLIC_DIRECTORY, path[len(_url_root) + 1:])
             return fspath
         else:
             return http_server.SimpleHTTPRequestHandler \
