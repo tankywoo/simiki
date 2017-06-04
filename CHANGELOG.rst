@@ -1,3 +1,8 @@
+v1.6.2.1 (2017-06-04)
+=====================
+- Fix preview not work in py3
+
+
 v1.6.2 (2017-06-02)
 =====================
 - Fix issue #88, map url path to local file system path and fix root url with non-ascii

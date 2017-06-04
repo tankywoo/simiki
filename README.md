@@ -16,6 +16,11 @@ Simiki is a simple wiki framework, written in [Python](https://www.python.org/).
 Simiki is short for `Simple Wiki` :)
 
 
+> New in version 1.6.2.1 (2017-06-04)
+>
+> - Fix preview not work in py3
+>
+>
 > New in version 1.6.2 (2017-06-02)
 >
 > - Fix issue #88, map url path to local file system path and fix root url with non-ascii
@@ -25,13 +30,9 @@ Simiki is short for `Simple Wiki` :)
 > - Update theme simple2
 > - Add Dockerfile
 > - Support Python3.6, remove Python2.6
-> - Support custom markdown extensions configuration, `doc <http://simiki.org/docs/configuration.html>`_
+> - Support custom markdown extensions configuration, [doc](http://simiki.org/docs/configuration.html)
 > - Enable nl2br(newline to line break) markdown extension by default
->
->
-> New in version 1.6.0.1 (2016-06-30)
->
-> - Fix issue #64 with python3.x
+
 
 ## Installation ##
 
