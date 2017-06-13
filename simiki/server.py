@@ -7,7 +7,9 @@ import os.path
 import sys
 import logging
 import traceback
-from simiki.compat import is_py2, unicode
+from simiki.compat import is_py2, is_windows, unicode
+if is_windows:
+    from simiki.log import logging_init
 
 try:
     import SimpleHTTPServer as http_server
@@ -99,12 +101,20 @@ class YARequestHandler(http_server.SimpleHTTPRequestHandler):
         http_server.SimpleHTTPRequestHandler.do_GET(self)
 
 
-def preview(path, url_root, host='127.0.0.1', port=8000):
+def preview(path, url_root, host='127.0.0.1', port=8000, **kwargs):
     """
     :param path: directory path relative to current path
     :param url_root: `root` setted in _config.yml
     """
     global URL_ROOT, PUBLIC_DIRECTORY
+
+    if is_windows:
+        # since Windows lacks os.fork(), in multiprocessing, root logger
+        # is not the same as in main process, so we need to reinit the
+        # root logger in non-main process
+        config = kwargs.get('config')
+        lvl = logging.DEBUG if config["debug"] else logging.INFO
+        logging_init(level=lvl)
 
     if not host:
         host = '127.0.0.1'

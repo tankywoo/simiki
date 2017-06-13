@@ -123,6 +123,7 @@ def preview_site(host, port, dest, root, do_watch):
     p_server = multiprocessing.Process(
         target=preview,
         args=(dest, root, host, port),
+        kwargs={'config': config},
         name='ServerProcess'
     )
     p_server.start()
