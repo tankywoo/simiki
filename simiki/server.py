@@ -130,7 +130,7 @@ def preview(path, url_root, host='127.0.0.1', port=8000):
         sys.exit(getattr(e, 'exitcode', 1))
 
     logger.info("Serving at: http://{0}:{1}{2}/".format(host, port, url_root))
-    logger.info("Serving running... (Press CTRL-C to quit)")
+    logger.info("Server running... (Press CTRL-C to quit)")
     try:
         httpd.serve_forever()
     except (KeyboardInterrupt, SystemExit):
