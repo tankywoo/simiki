@@ -3,7 +3,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import logging
-from logging import getLogger, Formatter, StreamHandler
+from logging import Formatter, StreamHandler
 
 from simiki import utils
 from simiki.compat import is_linux, is_osx
@@ -65,13 +65,17 @@ def _is_platform_allowed_ansi():
         return False
 
 
-def logging_init(level=None, logger=getLogger(),
+def logging_init(level=None, name=None,
                  handler=StreamHandler(), use_color=True):
     if use_color and _is_platform_allowed_ansi():
         fmt = ANSIFormatter()
     else:
         fmt = NonANSIFormatter()
     handler.setFormatter(fmt)
+    if name:
+        logger = logging.getLogger(name)
+    else:
+        logger = logging.getLogger()
     logger.addHandler(handler)
 
     if level:
