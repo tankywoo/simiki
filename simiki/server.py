@@ -35,6 +35,7 @@ except ImportError:
 
 URL_ROOT = None
 PUBLIC_DIRECTORY = None
+logger = logging.getLogger(__name__)
 
 
 class Reuse_TCPServer(socket_server.TCPServer):
@@ -119,19 +120,19 @@ def preview(path, url_root, host='127.0.0.1', port=8000):
     if os.path.exists(path):
         os.chdir(path)
     else:
-        logging.error("Path {} not exists".format(path))
+        logger.error("Path {} not exists".format(path))
     try:
         Handler = YARequestHandler
         httpd = Reuse_TCPServer((host, port), Handler)
     except (OSError, IOError) as e:
-        logging.error("Could not listen on port {0}\n{1}"
-                      .format(port, traceback.format_exc()))
+        logger.error("Could not listen on port {0}\n{1}"
+                     .format(port, traceback.format_exc()))
         sys.exit(getattr(e, 'exitcode', 1))
 
-    logging.info("Serving at: http://{0}:{1}{2}/".format(host, port, url_root))
-    logging.info("Serving running... (Press CTRL-C to quit)")
+    logger.info("Serving at: http://{0}:{1}{2}/".format(host, port, url_root))
+    logger.info("Serving running... (Press CTRL-C to quit)")
     try:
         httpd.serve_forever()
     except (KeyboardInterrupt, SystemExit):
-        logging.info("Shutting down server")
+        logger.info("Shutting down server")
         httpd.socket.close()
