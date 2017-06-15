@@ -72,10 +72,8 @@ def logging_init(level=None, name=None,
     else:
         fmt = NonANSIFormatter()
     handler.setFormatter(fmt)
-    if name:
-        logger = logging.getLogger(name)
-    else:
-        logger = logging.getLogger()
+
+    logger = logging.getLogger(name)
     logger.addHandler(handler)
 
     if level:
