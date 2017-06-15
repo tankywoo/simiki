@@ -85,7 +85,7 @@ def init_site(target_path):
             initiator.init(ask=True)
     except Exception:
         # always in debug mode when init site
-        logging.exception("Initialize site with error:")
+        logger.exception("Initialize site with error:")
         sys.exit(1)
 
 
@@ -358,7 +358,7 @@ class Generator(object):
             shutil.rmtree(dest_theme)
 
         copytree(src_theme, dest_theme)
-        logging.debug("Installing theme: {0}".format(self.config["theme"]))
+        logger.debug("Installing theme: {0}".format(self.config["theme"]))
 
     def copy_attach(self):
         """Copy attach directory under root path to destination directory"""
@@ -395,7 +395,7 @@ def main(args=None):
             config = parse_config(config_file)
         except (Exception, YAMLError):
             # always in debug mode when parse config
-            logging.exception("Parse config with error:")
+            logger.exception("Parse config with error:")
             sys.exit(1)
         level = logging.DEBUG if config["debug"] else logging.INFO
         logging_init(level)   # reload logger
