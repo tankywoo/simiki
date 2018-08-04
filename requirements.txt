@@ -1,9 +1,9 @@
-Markdown==2.6.8
-Pygments==1.6
-Jinja2==2.7.3
-PyYAML==3.11
-docopt==0.6.1
+Markdown==2.6.11
+Pygments==2.2.0
+Jinja2==2.10
+PyYAML==3.13
+docopt==0.6.2
 ordereddict==1.1
 watchdog==0.8.3
-pytz==2015.7
-tzlocal==1.2
+pytz==2018.5
+tzlocal==1.5.1
