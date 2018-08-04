@@ -262,12 +262,16 @@ class PageGenerator(BaseGenerator):
             markdown_extensions_config.update(self.site_config["markdown_ext"])
 
         markdown_extensions = []
+        # add builtin markdown extensions
         for k, v in markdown_extensions_config.items():
             ext = import_string("markdown.extensions." + k).makeExtension()
             if v:
                 for i, j in v.items():
                     ext.setConfig(i, j)
             markdown_extensions.append(ext)
+
+        # add 3rd markdown extensions
+        markdown_extensions.append('markdown_checklist.extension')
 
         return markdown_extensions
 

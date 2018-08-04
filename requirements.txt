@@ -7,3 +7,6 @@ ordereddict==1.1
 watchdog==0.8.3
 pytz==2018.5
 tzlocal==1.5.1
+
+# markdown 3rd extensions
+markdown-checklist
