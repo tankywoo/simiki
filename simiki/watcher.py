@@ -11,6 +11,7 @@ import simiki
 from simiki.generators import PageGenerator, CatalogGenerator
 from simiki.utils import write_file
 
+logger = logging.getLogger(__name__)
 _site_config = None
 _base_path = None
 
@@ -21,8 +22,8 @@ def reload(func):
         try:
             func(*args, **kwargs)
         except Exception as e:
-            logging.error('Watcher has error, reloading...')
-            logging.debug(str(e))
+            logger.error('Watcher has error, reloading...')
+            logger.debug(str(e))
     return wrapper
 
 
@@ -54,7 +55,7 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
 
         output_fname = YAPatternMatchingEventHandler.get_ofile(_file)
         write_file(output_fname, html)
-        logging.debug('Regenerating: {0}'.format(_file))
+        logger.debug('Regenerating: {0}'.format(_file))
 
     @staticmethod
     def generate_catalog():
@@ -80,7 +81,7 @@ class YAPatternMatchingEventHandler(PatternMatchingEventHandler):
             "index.html"
         )
         write_file(ofile, html)
-        logging.debug('Regenerating catalog')
+        logger.debug('Regenerating catalog')
 
     def process(self, event):
         if event.event_type in ('moved',):
@@ -134,6 +135,6 @@ def watch(site_config, base_path):
         while True:
             time.sleep(1)
     except (KeyboardInterrupt, SystemExit):
-        logging.info("Shutting down watcher")
+        logger.info("Shutting down watcher")
         observer.stop()
     observer.join()

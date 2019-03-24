@@ -79,7 +79,7 @@ def emptytree(directory, exclude_list=None):
                              fp, unicode(e))
         elif os.path.isfile(fp):
             try:
-                logging.debug("Delete file %s", fp)
+                logger.debug("Delete file %s", fp)
                 os.remove(fp)
             except OSError as e:
                 logger.error("Unable to delete file %s: %s", fp, unicode(e))
@@ -112,7 +112,7 @@ def write_file(filename, content):
     """Write content to file."""
     _dir, _ = os.path.split(filename)
     if not os.path.exists(_dir):
-        logging.debug("The directory %s not exists, create it", _dir)
+        logger.debug("The directory %s not exists, create it", _dir)
         mkdir_p(_dir)
     with io.open(filename, "wt", encoding="utf-8") as fd:
         fd.write(content)

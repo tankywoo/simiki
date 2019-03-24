@@ -11,6 +11,7 @@ from simiki.config import parse_config
 from simiki.utils import (copytree, mkdir_p, listdir_nohidden)
 from simiki.compat import raw_input
 
+logger = logging.getLogger(__name__)
 yes_answer = ('y', 'yes')
 
 
@@ -30,17 +31,17 @@ class Initiator(object):
     @staticmethod
     def get_file(src, dst):
         if os.path.exists(dst):
-            logging.warning("{0} exists".format(dst))
+            logger.warning("{0} exists".format(dst))
             return
 
         # Create parent directory
         dst_directory = os.path.dirname(dst)
         if not os.path.exists(dst_directory):
             mkdir_p(dst_directory)
-            logging.info("Creating directory: {0}".format(dst_directory))
+            logger.info("Creating directory: {0}".format(dst_directory))
 
         shutil.copyfile(src, dst)
-        logging.info("Creating file: {0}".format(dst))
+        logger.info("Creating file: {0}".format(dst))
 
     def get_config_file(self):
         dst_config_file = os.path.join(self.target_path, self.config_fn)
@@ -83,11 +84,11 @@ class Initiator(object):
                                  default_theme_name)
         dst_theme = os.path.join(theme_path, default_theme_name)
         if os.path.exists(dst_theme):
-            logging.warning('{0} exists'.format(dst_theme))
+            logger.warning('{0} exists'.format(dst_theme))
         else:
             copytree(src_theme, dst_theme)
-            logging.info("Copying default theme '{0}' to: {1}"
-                         .format(default_theme_name, theme_path))
+            logger.info("Copying default theme '{0}' to: {1}"
+                        .format(default_theme_name, theme_path))
 
     def init(self, ask=False, **kwargs):
         content_path = os.path.join(self.target_path, self.config["source"])
@@ -96,10 +97,10 @@ class Initiator(object):
         theme_path = os.path.join(self.target_path, self.config['themes_dir'])
         for path in (content_path, output_path, theme_path):
             if os.path.exists(path):
-                logging.warning("{0} exists".format(path))
+                logger.warning("{0} exists".format(path))
             else:
                 mkdir_p(path)
-                logging.info("Creating directory: {0}".format(path))
+                logger.info("Creating directory: {0}".format(path))
 
         self.get_config_file()
         self.get_fabfile()

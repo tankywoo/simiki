@@ -13,6 +13,8 @@ import yaml
 
 import tzlocal
 
+logger = logging.getLogger(__name__)
+
 
 class ConfigFileNotFound(Exception):
     pass
@@ -85,9 +87,9 @@ if __name__ == "__main__":
         base_dir = os.getcwd()
         _config_file = os.path.join(base_dir, sys.argv[1])
     else:
-        logging.error("Use the template config file by default, "
-                      "you can specify the config file to parse. \n"
-                      "Usage: `python -m simiki.config [_config.yml]'")
+        logger.error("Use the template config file by default, "
+                     "you can specify the config file to parse. \n"
+                     "Usage: `python -m simiki.config [_config.yml]'")
         sys.exit(1)
 
     pprint(parse_config(_config_file))

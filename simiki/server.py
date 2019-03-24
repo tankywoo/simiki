@@ -7,7 +7,9 @@ import os.path
 import sys
 import logging
 import traceback
-from simiki.compat import is_py2, unicode
+from simiki.compat import is_py2, is_windows, unicode
+if is_windows:
+    from simiki.log import logging_init
 
 try:
     import SimpleHTTPServer as http_server
@@ -35,6 +37,7 @@ except ImportError:
 
 URL_ROOT = None
 PUBLIC_DIRECTORY = None
+logger = logging.getLogger(__name__)
 
 
 class Reuse_TCPServer(socket_server.TCPServer):
@@ -98,12 +101,20 @@ class YARequestHandler(http_server.SimpleHTTPRequestHandler):
         http_server.SimpleHTTPRequestHandler.do_GET(self)
 
 
-def preview(path, url_root, host='127.0.0.1', port=8000):
+def preview(path, url_root, host='127.0.0.1', port=8000, **kwargs):
     """
     :param path: directory path relative to current path
     :param url_root: `root` setted in _config.yml
     """
     global URL_ROOT, PUBLIC_DIRECTORY
+
+    if is_windows:
+        # since Windows lacks os.fork(), in multiprocessing, root logger
+        # is not the same as in main process, so we need to reinit the
+        # root logger in non-main process
+        config = kwargs.get('config')
+        lvl = logging.DEBUG if config["debug"] else logging.INFO
+        logging_init(level=lvl)
 
     if not host:
         host = '127.0.0.1'
@@ -119,19 +130,19 @@ def preview(path, url_root, host='127.0.0.1', port=8000):
     if os.path.exists(path):
         os.chdir(path)
     else:
-        logging.error("Path {} not exists".format(path))
+        logger.error("Path {} not exists".format(path))
     try:
         Handler = YARequestHandler
         httpd = Reuse_TCPServer((host, port), Handler)
     except (OSError, IOError) as e:
-        logging.error("Could not listen on port {0}\n{1}"
-                      .format(port, traceback.format_exc()))
+        logger.error("Could not listen on port {0}\n{1}"
+                     .format(port, traceback.format_exc()))
         sys.exit(getattr(e, 'exitcode', 1))
 
-    logging.info("Serving at: http://{0}:{1}{2}/".format(host, port, url_root))
-    logging.info("Serving running... (Press CTRL-C to quit)")
+    logger.info("Serving at: http://{0}:{1}{2}/".format(host, port, url_root))
+    logger.info("Server running... (Press CTRL-C to quit)")
     try:
         httpd.serve_forever()
     except (KeyboardInterrupt, SystemExit):
-        logging.info("Shutting down server")
+        logger.info("Shutting down server")
         httpd.socket.close()
