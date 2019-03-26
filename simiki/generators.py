@@ -208,7 +208,7 @@ class PageGenerator(BaseGenerator):
     def parse_meta(self, yaml_str):
         """Parse meta from yaml string, and validate yaml filed, return dict"""
         try:
-            meta = yaml.load(yaml_str)
+            meta = yaml.load(yaml_str, Loader=yaml.FullLoader)
         except yaml.YAMLError as e:
             e.extra_msg = 'yaml format error'
             raise

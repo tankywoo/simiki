@@ -61,7 +61,7 @@ def parse_config(config_file):
     default_config = _set_default_config()
 
     with io.open(config_file, "rt", encoding="utf-8") as fd:
-        config = yaml.load(fd)
+        config = yaml.load(fd, Loader=yaml.FullLoader)
 
     default_config.update(config)
     config = _post_process(default_config)
