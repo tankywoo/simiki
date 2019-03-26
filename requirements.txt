@@ -1,7 +1,7 @@
 Markdown==2.6.11
 Pygments==2.2.0
 Jinja2==2.10
-PyYAML==3.13
+PyYAML==5.1
 docopt==0.6.2
 ordereddict==1.1
 watchdog==0.8.3
