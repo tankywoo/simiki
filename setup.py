@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import with_statement
 import os
+import io
 from setuptools import setup, find_packages
 import simiki
 
@@ -11,13 +12,13 @@ entry_points = {
     ]
 }
 
-with open("requirements.txt") as f:
+with io.open("requirements.txt", "rt", encoding="utf-8") as f:
     requires = [l for l in f.read().splitlines() if l]
 
 readme = "README.md"
 if os.path.exists("README.rst"):
     readme = "README.rst"
-with open(readme) as f:
+with io.open(readme, "rt", encoding="utf-8") as f:
     long_description = f.read()
 
 
