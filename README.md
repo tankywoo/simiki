@@ -33,7 +33,7 @@ Simiki is short for `Simple Wiki` :)
 
 ## Installation ##
 
-It is available for **Python 2.7, 3.3, 3.4, 3.5, 3.6**, with Linux, Mac OS X and Windows.
+It is available for **Python 2.7, 3.4, 3.5, 3.6, 3.7**, with Linux, Mac OS X and Windows.
 
 Install from [PyPI](https://pypi.python.org/pypi/simiki):
 
