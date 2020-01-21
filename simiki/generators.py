@@ -250,6 +250,7 @@ class PageGenerator(BaseGenerator):
             "nl2br": {},
             "toc": {"title": "Table of Contents"},
             "extra": {},
+            "markdown_checklist.extension": {},
         }
         # Handle pygments
         if self.site_config["pygments"]:
@@ -264,14 +265,16 @@ class PageGenerator(BaseGenerator):
         markdown_extensions = []
         # add builtin markdown extensions
         for k, v in markdown_extensions_config.items():
-            ext = import_string("markdown.extensions." + k).makeExtension()
+            if '.' not in k:
+                # builtin extensions
+                ext = import_string("markdown.extensions." + k).makeExtension()
+            else:
+                # third extensions, use module path
+                ext = import_string(k).makeExtension()
             if v:
                 for i, j in v.items():
                     ext.setConfig(i, j)
             markdown_extensions.append(ext)
-
-        # add 3rd markdown extensions
-        markdown_extensions.append('markdown_checklist.extension')
 
         return markdown_extensions
 
