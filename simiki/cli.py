@@ -67,7 +67,7 @@ except ImportError:
     from os import getcwd as getcwdu
 
 # Enable DeprecationWarning, etc.
-warnings.simplefilter('default')
+warnings.filterwarnings('always', module='simiki')
 
 logger = logging.getLogger(__name__)
 config = None
