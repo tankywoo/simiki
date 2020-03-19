@@ -215,7 +215,7 @@ class Generator(object):
                 md_file = os.path.join(root, filename)
 
                 g.src_file = md_file
-                meta, _ = g.get_meta_and_content(do_render=False)
+                meta, _, _ = g.get_meta_and_content(do_render=False)
                 _tags = meta.get('tag') or []  # if None
                 for t in _tags:
                     self.tags.setdefault(t, []).append(meta)

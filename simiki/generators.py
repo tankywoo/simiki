@@ -112,13 +112,13 @@ class PageGenerator(BaseGenerator):
         """
         self._reset()
         self._src_file = os.path.relpath(src_file, self.base_path)
-        self.meta, self.content = self.get_meta_and_content()
+        self.meta, toc, self.content = self.get_meta_and_content()
         # Page set `draft: True' mark current page as draft, and will
         # be ignored if not forced generate include draft pages
         if not include_draft and self.meta.get('draft', False):
             return None
         layout = self.get_layout(self.meta)
-        template_vars = self.get_template_vars(self.meta, self.content)
+        template_vars = self.get_template_vars(self.meta, toc, self.content)
         template = self.get_template(layout)
         html = template.render(template_vars)
 
@@ -137,11 +137,11 @@ class PageGenerator(BaseGenerator):
         meta = self.parse_meta(meta_str)
         # This is the most time consuming part
         if do_render and meta.get('render', True):
-            content = self._parse_markup(content_str)
+            content, toc = self._parse_markup(content_str)
         else:
-            content = content_str
+            content, toc = content_str, None
 
-        return meta, content
+        return meta, toc, content
 
     def get_layout(self, meta):
         """Get layout config in meta, default is `page'"""
@@ -165,10 +165,10 @@ class PageGenerator(BaseGenerator):
 
         return layout
 
-    def get_template_vars(self, meta, content):
+    def get_template_vars(self, meta, toc, content):
         """Get template variables, include site config and page config"""
         template_vars = copy.deepcopy(self._template_vars)
-        page = {"content": content}
+        page = {"content": content, "toc": toc}
         page.update(meta)
         page.update({'relation': self.get_relation()})
 
@@ -239,10 +239,11 @@ class PageGenerator(BaseGenerator):
             self.md = markdown.Markdown(extensions=markdown_extensions)
 
         html_content = self.md.convert(markup_text)
+        toc = self.md.toc
         # reset markdown hashStash, otherwise consume memory and time
         self.md.reset()
 
-        return html_content
+        return html_content, toc
 
     def _set_markdown_extensions(self):
         """Set the extensions for markdown parser"""

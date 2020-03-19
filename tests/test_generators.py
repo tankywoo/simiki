@@ -55,7 +55,7 @@ class TestPageGenerator(unittest.TestCase):
         src_file = os.path.join(self.wiki_path, 'content', 'foo目录',
                                 'foo_page_中文.md')
         self.generator.src_file = src_file
-        meta, content = self.generator.get_meta_and_content()
+        meta, _, content = self.generator.get_meta_and_content()
         expected_meta = {'date': '2013-10-17 00:03', 'layout': 'page',
                          'title': 'Foo Page 2', 'category': 'foo目录',
                          'filename': 'foo_page_中文.html'}
@@ -80,8 +80,8 @@ class TestPageGenerator(unittest.TestCase):
         src_file = os.path.join(self.wiki_path, 'content', 'foo目录',
                                 'foo_page_中文.md')
         self.generator.src_file = src_file
-        meta, content = self.generator.get_meta_and_content()
-        template_vars = self.generator.get_template_vars(meta, content)
+        meta, _, content = self.generator.get_meta_and_content()
+        template_vars = self.generator.get_template_vars(meta, '', content)
         expected_template_vars = {
             u'page': {
                 u'category': u'foo\u76ee\u5f55',
@@ -89,6 +89,7 @@ class TestPageGenerator(unittest.TestCase):
                             '<p>Simiki is a simple wiki '
                             'framework, written in Python.</p>'
                             '\n<p>Line 1<br />\nLine 2</p>',
+                u'toc': '',
                 u'filename': u'foo_page_\u4e2d\u6587.html',
                 u'date': '2013-10-17 00:03',
                 u'layout': 'page',
@@ -132,7 +133,7 @@ class TestPageGenerator(unittest.TestCase):
         src_file = os.path.join(self.wiki_path, 'content', 'foo目录',
                                 'foo_page_layout_old_post.md')
         self.generator.src_file = src_file
-        meta, _ = self.generator.get_meta_and_content()
+        meta, _, _ = self.generator.get_meta_and_content()
 
         layout = self.generator.get_layout(meta)
         self.assertEqual(layout, 'page')
@@ -140,7 +141,7 @@ class TestPageGenerator(unittest.TestCase):
         src_file = os.path.join(self.wiki_path, 'content', 'foo目录',
                                 'foo_page_layout_without_layout.md')
         self.generator.src_file = src_file
-        meta, _ = self.generator.get_meta_and_content()
+        meta, _, _ = self.generator.get_meta_and_content()
 
         layout = self.generator.get_layout(meta)
         self.assertEqual(layout, 'page')
