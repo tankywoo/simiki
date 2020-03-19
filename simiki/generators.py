@@ -93,6 +93,7 @@ class PageGenerator(BaseGenerator):
 
     def __init__(self, site_config, base_path, tags=None):
         super(PageGenerator, self).__init__(site_config, base_path)
+        self.md = None
         self._tags = tags
         self._reset()
 
@@ -233,12 +234,13 @@ class PageGenerator(BaseGenerator):
 
         Only support Markdown for now.
         """
-        markdown_extensions = self._set_markdown_extensions()
+        if not self.md:
+            markdown_extensions = self._set_markdown_extensions()
+            self.md = markdown.Markdown(extensions=markdown_extensions)
 
-        html_content = markdown.markdown(
-            markup_text,
-            extensions=markdown_extensions,
-        )
+        html_content = self.md.convert(markup_text)
+        # reset markdown hashStash, otherwise consume memory and time
+        self.md.reset()
 
         return html_content
 
